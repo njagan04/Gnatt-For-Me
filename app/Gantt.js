@@ -528,7 +528,7 @@ export default function Gantt({ user }) {
                   <div key={d} className={'head-cell' + (d === today ? ' today' : '') + (d === monday(d) ? ' mon' : '')} style={{ '--i': i - C }}>
                     <div className="day">
                       <span className="dn">{Number(d.slice(8))}</span>
-                      <span className="dmeta"><b>{fmt(d, { weekday: 'short' })}</b><small>{fmt(d, { month: 'short' })}</small></span>
+                      <span className="dmeta"><b>{fmt(d, { weekday: 'short' })}</b></span>
                       {t > 0 && <span key={t} className="tot">{t}h</span>}
                     </div>
                   </div>
