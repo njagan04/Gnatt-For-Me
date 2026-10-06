@@ -72,8 +72,8 @@ export default function Gantt({ user }) {
     if (!track || !head) return;
     track.style.transform = head.style.transform = `translate3d(${-v * w}px, 0, 0)`;
     for (const el of head.querySelectorAll('.wk')) {
-      const left = (Number(el.dataset.i) - v + 3) * w;
-      el.firstChild.style.translate = `${Math.max(0, Math.min(-left, 5 * w - 150))}px 0`;
+      const left = (Number(el.dataset.i) - v + 3) * w + SEAM; // week rows start after the weekend seam
+      el.firstChild.style.translate = `${Math.max(0, Math.min(-left, 5 * w - SEAM - 150))}px 0`;
     }
   }
   function applyOff(v) {
