@@ -1,0 +1,735 @@
+/* Board page: shell, timeline (header strip + scrolling body), bars, account menu, toast. */
+.nav {
+  display: flex;
+  gap: 4px;
+}
+.range {
+  font-weight: 600;
+  margin-left: 6px;
+}
+.sum {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  padding: 5px 6px 5px 12px;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+}
+.sum b {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  padding: 2px 9px;
+  border-radius: 99px;
+  background: rgb(91 91 246 / 0.14);
+}
+.acct {
+  position: relative;
+}
+button.avatar {
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  transition:
+    box-shadow 0.2s,
+    transform 0.15s var(--spring);
+}
+button.avatar:hover,
+button.avatar.on {
+  box-shadow: 0 0 0 3px rgb(91 91 246 / 0.35);
+}
+.avatar.big {
+  width: 44px;
+  height: 44px;
+  font-size: 18px;
+  flex: none;
+}
+.acct-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  z-index: 30;
+  width: 340px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: 0 24px 60px -16px rgb(0 0 0 / 0.55);
+  display: grid;
+  gap: 14px;
+  transform-origin: top right;
+  animation: menu-in 0.22s var(--spring);
+}
+.acct-who {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.acct-who > div {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.acct-who span.tiny {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* profile card analytics: stat tiles (label · value · delta) and a 12-week trend */
+.acct-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.acct-stats > div {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 4px;
+  padding: 10px 11px;
+  border-radius: 12px;
+  background: var(--panel-2);
+  min-width: 0;
+}
+.acct-stats span {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.acct-stats b {
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.acct-stats b em {
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.acct-stats small {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.25;
+  white-space: nowrap;
+}
+.acct-stats small.up {
+  color: #22a06b;
+}
+.acct-stats small.down {
+  color: var(--danger);
+}
+.acct-trend {
+  display: grid;
+  gap: 4px;
+}
+.acct-trend small {
+  font-size: 10.5px;
+}
+.acct-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.acct-stats.loading > i {
+  height: 76px;
+  border-radius: 12px;
+  background: var(--panel-2);
+  animation: glow 1s ease-in-out infinite alternate;
+}
+.acct-spark {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 40px;
+}
+.acct-spark i {
+  flex: 1;
+  border-radius: 3px 3px 0 0;
+  background: var(--line);
+  transition: height 0.4s var(--spring);
+}
+.acct-spark i.now {
+  background: var(--accent);
+}
+.acct-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+  border: 1px solid var(--line);
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+}
+.acct-link:hover {
+  border-color: var(--accent);
+  background: color-mix(in oklab, var(--panel), var(--accent) 6%);
+}
+.acct-link span {
+  transition: transform 0.2s var(--spring);
+}
+.acct-link:hover span {
+  transform: translateX(3px);
+}
+.acct-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.theme-switch {
+  display: flex;
+  padding: 3px;
+  gap: 2px;
+  border-radius: 9px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+}
+.theme-switch button {
+  border: 0;
+  background: none;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  border-radius: 6px;
+}
+.theme-switch button.on {
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.18);
+}
+.acct-out {
+  width: 100%;
+  color: var(--danger);
+}
+/* layout */
+/* app shell: exactly the window height, so the page itself never scrolls */
+main.app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.layout {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: 14px;
+  padding: 14px 18px 18px;
+}
+button.icon.sm {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  font-size: 15px;
+}
+
+/* board: a flat strip of day columns; changing week slides the strip */
+/* the board: a fixed header strip over a body that scrolls vertically; both slide sideways together */
+.board-head {
+  position: relative;
+  height: 92px;
+  flex: none;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+  z-index: 4;
+  background: var(--panel);
+}
+.board-head .track {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+.head-cell {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: var(--w);
+  left: calc((var(--i) + 3) * var(--w));
+  border-right: 1px solid var(--line);
+}
+.head-cell.today {
+  background: color-mix(in oklab, var(--panel), var(--accent) 5%);
+}
+.board-head::before,
+.board-head::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--w);
+  z-index: 5;
+  pointer-events: none;
+  background: color-mix(in oklab, var(--panel) 45%, transparent);
+}
+.board-head::after {
+  left: auto;
+  right: 0;
+}
+.board-body {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--muted) 45%, transparent) transparent;
+}
+.board-body::-webkit-scrollbar {
+  width: 8px;
+}
+.board-body::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  background: color-mix(in oklab, var(--muted) 40%, transparent);
+}
+.board-body::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in oklab, var(--muted) 65%, transparent);
+}
+.board {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  animation: rise 0.45s var(--ease);
+}
+/* edge days (prev Fri / next Mon) are dimmed by one fixed overlay per side: identical, and free to animate */
+.drum::before,
+.drum::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--w);
+  z-index: 5;
+  pointer-events: none;
+  background: color-mix(in oklab, var(--panel) 45%, transparent);
+}
+.drum::after {
+  left: auto;
+  right: 0;
+}
+.board {
+  --seam: 26px;
+}
+/* only on-screen bars set the height: off-screen ones are clipped so the body never scrolls past the columns */
+.drum {
+  overflow: clip;
+  position: relative;
+  min-height: 100%;
+  user-select: none;
+  cursor: cell;
+  touch-action: none;
+}
+.drum.dragging,
+.drum.dragging * {
+  cursor: grabbing !important;
+}
+/* the strip slides as one layer (transform set from JS), so scrolling only moves pixels */
+.track {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+.panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: var(--w);
+  left: calc((var(--i) + 3) * var(--w));
+  background: var(--panel);
+  border-right: 1px solid var(--line);
+}
+.panel.today {
+  background: color-mix(in oklab, var(--panel), var(--accent) 5%);
+}
+
+/* weekend seam: a narrow hatched strip at the start of each Monday, laid over any bar that crosses the weekend */
+.panel.mon::before {
+  content: 'SAT · SUN';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--seam);
+  writing-mode: vertical-rl;
+  padding-top: 14px;
+  padding-left: 7px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+  /* drawn over the bars (z-index above pieces, below names) and see-through, so a bar crossing the weekend shows beneath */
+  z-index: 2;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(135deg, color-mix(in oklab, var(--muted) 45%, transparent) 0 1px, transparent 1px 6px),
+    color-mix(in oklab, var(--bg) 62%, transparent);
+  box-shadow:
+    inset 1px 0 0 var(--line),
+    inset -1px 0 0 var(--line);
+}
+/* the weekend seam runs up through the header too, so the date row is split between weeks as well */
+.head-cell.mon::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: -1px;
+  left: 0;
+  width: var(--seam);
+  z-index: 2;
+  background:
+    repeating-linear-gradient(135deg, color-mix(in oklab, var(--muted) 45%, transparent) 0 1px, transparent 1px 6px),
+    color-mix(in oklab, var(--bg) 62%, transparent);
+  box-shadow:
+    inset 1px 0 0 var(--line),
+    inset -1px 0 0 var(--line);
+}
+.head-cell.mon .day {
+  padding-left: calc(var(--seam) + 14px);
+}
+.panel.mon .piece.first {
+  left: calc(var(--seam) + 10px);
+}
+
+/* week row above the days; the label stays pinned on screen while its week is visible */
+.wk {
+  position: absolute;
+  top: 0;
+  height: 28px;
+  z-index: 3;
+  overflow: hidden;
+  pointer-events: none;
+  left: calc((var(--i) + 3) * var(--w) + var(--seam));
+  width: calc(5 * var(--w) - var(--seam));
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(var(--panel-2), var(--panel));
+}
+.wk-label {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 0 10px;
+  white-space: nowrap;
+  font-size: 10.5px;
+  color: var(--muted);
+  will-change: translate; /* pinned to the left edge from JS while its week is on screen */
+}
+.wk-label b {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text);
+}
+.wk.now .wk-label b {
+  color: var(--accent);
+}
+.wk.now {
+  background: linear-gradient(color-mix(in oklab, var(--panel-2), var(--accent) 8%), var(--panel));
+}
+
+.day {
+  height: 64px;
+  margin-top: 28px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--line);
+  position: relative;
+}
+.day .dn {
+  min-width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  font-size: 20px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.day .dmeta {
+  display: grid;
+  line-height: 1.2;
+  min-width: 0;
+}
+.day .dmeta b {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.day .dmeta small {
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.day .tot {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 99px;
+  color: var(--accent);
+  background: rgb(91 91 246 / 0.12);
+  animation: pop 0.35s var(--spring);
+}
+.today .day .dn {
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  box-shadow: 0 6px 14px -6px rgb(91 91 246 / 0.8);
+}
+.today .day .dmeta b {
+  color: var(--accent);
+}
+.today .day::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+
+/* a bar is drawn as one piece per day column; the name runs across the bar on .bar-label, per-day hours sit on the lower line */
+.piece {
+  position: absolute;
+  left: 0;
+  right: -1px;
+  height: 40px;
+  padding: 0 10px 5px;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: grab;
+  color: var(--bar-text);
+  font-size: 13px;
+  background: color-mix(in oklab, var(--c) var(--tint), var(--panel));
+  transition:
+    top 0.55s var(--spring),
+    opacity 0.25s,
+    translate 0.2s var(--ease);
+  --le: inset 0 0 transparent;
+  --re: inset 0 0 transparent;
+  --lift: 0 0 transparent;
+  box-shadow: var(--le), var(--re), var(--lift);
+}
+.piece.first {
+  left: 10px;
+  border-radius: 10px 0 0 10px;
+  --le: inset 3px 0 0 var(--c);
+}
+.piece.last {
+  right: 10px;
+  border-radius: 0 10px 10px 0;
+  --re: inset -3px 0 0 var(--c);
+}
+.piece.first.last {
+  border-radius: 10px;
+}
+.piece.hov,
+.piece.live {
+  translate: 0 -2px;
+  z-index: 2;
+}
+.piece.live {
+  --lift: 0 10px 22px -10px color-mix(in oklab, var(--c) 70%, transparent);
+}
+.piece.dim {
+  opacity: 0.45;
+}
+/* categories 9–16: same colours, striped */
+.piece.striped {
+  background-image: repeating-linear-gradient(135deg, color-mix(in oklab, var(--c) 22%, transparent) 0 5px, transparent 5px 10px);
+}
+.cats li.striped .dot {
+  background-image: repeating-linear-gradient(135deg, rgb(255 255 255 / 0.55) 0 2px, transparent 2px 4px) !important;
+}
+.piece.draft {
+  pointer-events: none;
+  background: rgb(91 91 246 / 0.12);
+  box-shadow:
+    inset 0 1.5px 0 rgb(91 91 246 / 0.55),
+    inset 0 -1.5px 0 rgb(91 91 246 / 0.55);
+  animation: glow 1.4s ease-in-out infinite alternate;
+}
+.piece.draft.first {
+  box-shadow:
+    inset 0 1.5px 0 rgb(91 91 246 / 0.55),
+    inset 0 -1.5px 0 rgb(91 91 246 / 0.55),
+    inset 1.5px 0 0 rgb(91 91 246 / 0.55);
+}
+.piece.draft.last {
+  box-shadow:
+    inset 0 1.5px 0 rgb(91 91 246 / 0.55),
+    inset 0 -1.5px 0 rgb(91 91 246 / 0.55),
+    inset -1.5px 0 0 rgb(91 91 246 / 0.55);
+}
+.piece.draft.first.last {
+  box-shadow: inset 0 0 0 1.5px rgb(91 91 246 / 0.55);
+}
+.piece.arrive,
+.bar-label.arrive {
+  animation: gather 0.7s var(--spring) both;
+}
+.piece .hrs {
+  margin-left: auto;
+  flex: none;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 0 6px;
+  border-radius: 99px;
+  line-height: 16px;
+  background: color-mix(in oklab, var(--c) 22%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+.piece .edge {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 14px;
+  cursor: ew-resize;
+  z-index: 2;
+}
+.piece .edge.l {
+  left: 0;
+}
+.piece .edge.r {
+  right: 0;
+}
+.piece .edge::after {
+  content: '';
+  position: absolute;
+  top: 25%;
+  bottom: 25%;
+  left: 5px;
+  width: 4px;
+  border-radius: 4px;
+  background: var(--c);
+  opacity: 0;
+  transform: scaleY(0.4);
+  transition:
+    opacity 0.15s,
+    transform 0.2s var(--spring);
+}
+.piece.hov .edge::after {
+  opacity: 0.9;
+  transform: none;
+}
+.piece .edge:hover::after {
+  transform: scaleY(1.25);
+  opacity: 1;
+}
+
+/* the task name, spanning every visible day of its bar */
+.bar-label {
+  position: absolute;
+  z-index: 3;
+  pointer-events: none;
+  height: 18px;
+  line-height: 18px;
+  left: calc((var(--i) + 3) * var(--w) + 18px + var(--s));
+  width: calc(var(--n) * var(--w) - 36px - var(--s));
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--bar-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition:
+    top 0.55s var(--spring),
+    opacity 0.3s,
+    translate 0.2s var(--ease);
+}
+.bar-label.hov {
+  translate: 0 -2px;
+}
+.bar-label.dim {
+  opacity: 0.5;
+}
+.bar-label.draft {
+  color: var(--accent);
+}
+.bar-label .noted {
+  margin-left: 6px;
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+/* quick add */
+.quick-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+kbd {
+  font: 600 11px/1 inherit;
+  padding: 3px 6px;
+  border-radius: 5px;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+  color: var(--muted);
+}
+@media (max-width: 900px) {
+  .layout {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+  .side {
+    width: auto;
+    position: static;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+}
+/* toast */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 50;
+  translate: -50% 0;
+  padding: 10px 18px;
+  border-radius: 99px;
+  background: var(--text);
+  color: var(--bg);
+  font-weight: 600;
+  box-shadow: var(--shadow);
+  animation: toast 2.6s var(--ease) both;
+}
+.toast::before {
+  content: '✓  ';
+}
+.toast.bad {
+  background: var(--danger);
+  color: #fff;
+}
+.toast.bad::before {
+  content: '!  ';
+}

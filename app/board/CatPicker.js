@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { catVar } from '../lib/palette';
+import { catVar } from '../../lib/palette';
 
 // Searchable dropdown over the categories made in the sidebar. No free typing.
 export default function CatPicker({ cats, value, onChange }) {
@@ -28,25 +28,55 @@ export default function CatPicker({ cats, value, onChange }) {
     if (e.key === 'ArrowDown') setHi(Math.min(hi + 1, opts.length - 1));
     else if (e.key === 'ArrowUp') setHi(Math.max(hi - 1, 0));
     else if (e.key === 'Enter') opts[hi] && pick(opts[hi]);
-    else if (e.key === 'Escape') setOpen(false); // close the list, not the dialog
+    else if (e.key === 'Escape')
+      setOpen(false); // close the list, not the dialog
     else return;
     e.preventDefault();
   }
 
-  const label = c => (c?.name ? <><span className="dot-s" style={{ '--c': catVar(c.hue) }} />{c.name}</> : <span className="muted">Others</span>);
+  const label = c =>
+    c?.name ? (
+      <>
+        <span className="dot-s" style={{ '--c': catVar(c.hue) }} />
+        {c.name}
+      </>
+    ) : (
+      <span className="muted">Others</span>
+    );
 
   return (
     <div className="picker" ref={box}>
-      <button type="button" className={'picker-btn' + (open ? ' open' : '')} onClick={() => { setOpen(!open); setHi(0); }}>
+      <button
+        type="button"
+        className={'picker-btn' + (open ? ' open' : '')}
+        onClick={() => {
+          setOpen(!open);
+          setHi(0);
+        }}
+      >
         {label(current ?? (value ? { name: value } : null))}
         <span className="caret">▾</span>
       </button>
       {open && (
         <div className="picker-pop">
-          <input autoFocus value={q} onChange={e => { setQ(e.target.value); setHi(0); }} onKeyDown={key} placeholder="Search categories…" />
+          <input
+            autoFocus
+            value={q}
+            onChange={e => {
+              setQ(e.target.value);
+              setHi(0);
+            }}
+            onKeyDown={key}
+            placeholder="Search categories…"
+          />
           <ul>
             {opts.map((c, i) => (
-              <li key={c.name || '-'} className={(i === hi ? 'hi' : '') + (c.name === value ? ' sel' : '')} onPointerEnter={() => setHi(i)} onClick={() => pick(c)}>
+              <li
+                key={c.name || '-'}
+                className={(i === hi ? 'hi' : '') + (c.name === value ? ' sel' : '')}
+                onPointerEnter={() => setHi(i)}
+                onClick={() => pick(c)}
+              >
                 {label(c)}
                 {c.name === value && <span className="tick">✓</span>}
               </li>

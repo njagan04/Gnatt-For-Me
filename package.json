@@ -5,7 +5,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "db:init": "node --env-file=.env db/init.mjs"
+    "db:init": "node --env-file=.env db/init.mjs",
+    "test": "node lib/days.test.js && node lib/stats.test.js",
+    "format": "npx prettier@3 --write \"app/**/*.{js,css}\" \"lib/**/*.js\" \"db/*.mjs\""
   },
   "type": "module",
   "dependencies": {

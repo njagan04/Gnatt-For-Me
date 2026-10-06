@@ -1,0 +1,312 @@
+/* Board sidebar: mini calendar, "Pick up again", categories. */
+.cats li.others .dot {
+  background: var(--cat-none) !important;
+  cursor: default;
+}
+.cats li.others .dot:hover {
+  transform: none;
+}
+
+/* sidebar */
+.side {
+  width: 272px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  animation: slide-in 0.5s var(--ease);
+}
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 14px;
+}
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.cal-head {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 2px;
+  user-select: none;
+  touch-action: none;
+}
+.cal-grid .wd {
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  padding: 4px 0;
+}
+.cd {
+  position: relative;
+  text-align: center;
+  padding: 7px 0;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  transition:
+    background 0.2s var(--ease),
+    color 0.2s;
+}
+.cd:active {
+  transform: scale(0.9);
+}
+.cd.busy::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 3px;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 50%;
+  background: var(--accent-2);
+  animation: pop 0.3s var(--spring);
+}
+.cd.now {
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+.cd:hover {
+  background: var(--panel-2);
+}
+.cd.out {
+  color: var(--muted);
+  opacity: 0.55;
+}
+.cd.we,
+.cal-grid .wd.we {
+  color: var(--muted);
+}
+.cd.now {
+  font-weight: 800;
+  color: var(--accent);
+}
+.cd.band {
+  background: rgb(91 91 246 / 0.14);
+  border-radius: 0;
+  color: var(--text);
+  opacity: 1;
+}
+.cd.band.we {
+  background: rgb(91 91 246 / 0.07);
+  color: var(--muted);
+}
+.cd.band.cap-l {
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+.cd.band.cap-r {
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+.cd.band.end {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #fff;
+}
+.cd.band.end.now::after,
+.cd.band.end.busy::after {
+  background: #fff;
+}
+.cal p {
+  margin: 10px 0 0;
+  text-align: center;
+}
+
+.cats {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+}
+.cats li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 4px 3px 6px;
+  border-radius: 8px;
+  transition: background 0.2s;
+  animation: rise 0.3s var(--ease) both;
+}
+.cats li {
+  position: relative;
+  flex-wrap: wrap;
+}
+.cats li:hover,
+.cats li.on {
+  background: color-mix(in oklab, var(--c) 10%, transparent);
+}
+.today-card .card-head b .muted {
+  font-weight: 500;
+}
+.today-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+}
+.today-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  padding: 5px 6px;
+  border-radius: 8px;
+  min-width: 0;
+}
+.today-list li > span,
+.today-list button span {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+.today-list li > b {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.today-list.recent li {
+  padding: 0;
+}
+.today-list.recent button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  background: none;
+  padding: 6px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+.today-list.recent button:hover {
+  background: var(--panel-2);
+}
+.today-list.recent small {
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.today-list.recent em {
+  font-style: normal;
+  color: var(--muted);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.today-list.recent button:hover em {
+  opacity: 1;
+  color: var(--accent);
+}
+.today-sub {
+  margin: 12px 0 4px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.today-empty {
+  margin: 2px 6px 0;
+}
+.icon-btn.sm {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  font-size: 15px;
+}
+button.danger.solid {
+  background: var(--danger);
+  color: #fff;
+  border-color: var(--danger);
+}
+button.danger.solid:hover {
+  background: color-mix(in oklab, var(--danger), #000 12%);
+}
+.cats button {
+  border: 0;
+  background: none;
+  padding: 4px 0;
+}
+.cats button:active {
+  transform: scale(0.92);
+}
+.dot {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  border-radius: 5px !important;
+  padding: 0 !important;
+  background: var(--c) !important;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--c), transparent 80%);
+  transition:
+    background 0.3s,
+    box-shadow 0.3s,
+    transform 0.15s var(--spring) !important;
+}
+.dot:hover {
+  transform: scale(1.2) rotate(10deg);
+}
+.cat-name {
+  flex: 1;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cats li.on .cat-name {
+  font-weight: 700;
+}
+.count {
+  width: 44px;
+  flex: none;
+  text-align: right;
+  font-size: 11px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.cats .x-space {
+  width: 22px;
+  flex: none;
+}
+.cats .x {
+  color: var(--muted);
+  width: 22px;
+  opacity: 0;
+  transition:
+    opacity 0.15s,
+    color 0.15s;
+}
+.cats li:hover .x,
+.cats .x.sure {
+  opacity: 1;
+}
+.cats .x.sure {
+  width: auto;
+  color: var(--danger);
+  font-size: 11px;
+  font-weight: 700;
+}
+.add-cat input {
+  padding: 7px 10px;
+  font-size: 13px;
+}

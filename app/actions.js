@@ -112,7 +112,8 @@ export async function removeBar(old) {
 export async function stats(today) {
   const owner = await me();
   if (!isDay(today)) throw new Error('Bad date');
-  const from = addDays(monday(today), -175), from30 = addDays(today, -29); // 26 weeks of days
+  const from = addDays(monday(today), -175),
+    from30 = addDays(today, -29); // 26 weeks of days
   const [days, byCat, top, cats] = await Promise.all([
     sql`select to_char(l.day, 'YYYY-MM-DD') as day, coalesce(sum(l.hours), 0)::float as hours, count(*)::int as entries
         from logs l join tasks t on t.id = l.task_id
