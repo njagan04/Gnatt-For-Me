@@ -57,9 +57,6 @@ export default function Insights({ user }) {
 function Content({ r, tipFor }) {
   const { s, t } = r;
   const colorOf = label => (label ? catVar(r.cats.find(c => c.name === label)?.hue) : 'var(--cat-none)');
-  if (!r.days.length) {
-    return <section className="ins-hero"><p className="ins-kicker">Insights</p><h1 className="ins-headline">Nothing logged yet. Drag across a few days on the board and this page fills itself in.</h1></section>;
-  }
 
   // 26-week activity grid (weekdays)
   const by = Object.fromEntries(r.days.map(d => [d.day, d]));
@@ -90,6 +87,7 @@ function Content({ r, tipFor }) {
         <h1 className="ins-headline">
           <span className="ins-big">{n(s.hours30)}h</span> across <b>{s.days30} {s.days30 === 1 ? 'day' : 'days'}</b>
           {top && <>, mostly <span className="ins-cat" style={{ '--c': colorOf(top.label) }}>{top.label}</span> <span className="muted">({pct(top.hours)}%)</span></>}.
+          {!s.days30 && <span className="muted ins-hint"> Drag across days on the board and this fills in.</span>}
         </h1>
 
         <div className="act">
@@ -148,7 +146,12 @@ function Content({ r, tipFor }) {
               ))}
             </ul>
           </div>
-        ) : <p className="muted">No hours in the last 30 days.</p>}
+        ) : (
+          <div className="focus">
+            <div className="focus-bar"><i style={{ flexGrow: 1, background: 'var(--panel-2)' }} /></div>
+            <p className="muted tiny">No hours in the last 30 days yet. Categories show up here with their share of your time.</p>
+          </div>
+        )}
       </section>
 
       <div className="a-bottom">
@@ -207,7 +210,17 @@ function Content({ r, tipFor }) {
               </li>
             ))}
           </ol>
-        ) : <p className="muted">Nothing in the last 30 days.</p>}
+        ) : (
+          <ol className="ranks empty" aria-label="No tasks in the last 30 days yet">
+            {[1, 2, 3].map(i => (
+              <li key={i}>
+                <span className="rank">{String(i).padStart(2, '0')}</span>
+                <div><span className="rk-name">{i === 1 ? 'Your most-worked task' : ' '}</span><span className="rk-bar" /></div>
+                <b>0h</b>
+              </li>
+            ))}
+          </ol>
+        )}
       </section>
     </>
   );

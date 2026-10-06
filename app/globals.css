@@ -583,6 +583,7 @@ main.insights { min-height: 100vh; }
 .ins-kicker { margin: 0 0 8px; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
 .ins-headline { margin: 0 0 18px; font-size: clamp(17px, 1.6vw, 22px); line-height: 1.3; font-weight: 600; letter-spacing: -.015em; }
 .ins-headline b { font-weight: 700; }
+.ins-hint { font-size: .7em; font-weight: 500; }
 .ins-big {
   font-size: 1.5em; font-weight: 800; letter-spacing: -.04em;
   background: linear-gradient(90deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent;
@@ -672,6 +673,8 @@ main.insights { min-height: 100vh; }
 .rk-bar { height: 4px; border-radius: 2px; background: var(--panel-2); overflow: hidden; margin-top: 2px; }
 .rk-bar i { display: block; height: 100%; border-radius: 2px; animation: grow-x .8s var(--ease) both; transform-origin: left; }
 .ranks b { font-size: 13px; font-variant-numeric: tabular-nums; }
+.ranks.empty { opacity: .45; }
+.ranks.empty .rk-name { color: var(--muted); font-weight: 500; }
 
 .ins-tip {
   position: fixed; z-index: 60; translate: -50% calc(-100% - 12px); pointer-events: none; white-space: nowrap;
