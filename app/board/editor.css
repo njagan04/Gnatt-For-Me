@@ -1,0 +1,469 @@
+/* Editor dialog and the "delete category?" card: tabs, fields, category dropdown, hours. */
+/* editor tabs */
+.tabs {
+  display: flex;
+  gap: 22px;
+  margin: 0 -24px 18px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--line);
+}
+.tabs button {
+  position: relative;
+  border: 0;
+  background: none;
+  padding: 10px 2px;
+  border-radius: 0;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 13.5px;
+}
+.tabs button::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2.5px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transform: scaleX(0);
+  transition: transform 0.25s var(--spring);
+}
+.tabs button:hover {
+  color: var(--text);
+}
+.tabs button.on {
+  color: var(--accent);
+}
+.tabs button.on::after {
+  transform: scaleX(1);
+}
+.tabs button:active {
+  transform: none;
+}
+.tab-body {
+  animation: rise 0.25s var(--ease);
+}
+.tab-body.hidden {
+  display: none;
+}
+.notes textarea {
+  flex: 1;
+  width: 100%;
+  resize: none;
+  padding: 14px 16px;
+  font: 14px/1.6 inherit;
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  outline: none;
+  background: var(--panel-2);
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+.notes textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgb(91 91 246 / 0.18);
+}
+.notes {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* hours: one equaliser bar per day */
+.eq {
+  margin: 12px 0 0;
+}
+.eq-head {
+  margin-bottom: 8px;
+}
+.eq-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.eq-total {
+  font-size: 15px;
+  color: var(--text);
+  animation: pop 0.3s var(--spring);
+}
+.eq-bars {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 22px 4px 6px;
+  user-select: none;
+  touch-action: none;
+}
+.eq-day {
+  flex: none;
+  width: 52px;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 6px 0;
+  border-radius: 12px;
+  cursor: ns-resize;
+  outline: none;
+  animation: rise 0.3s var(--ease) both;
+  transition: background 0.15s;
+}
+.eq-day:hover,
+.eq-day:focus-visible,
+.eq-day.active {
+  background: var(--panel-2);
+}
+.eq-day:focus-visible {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+.eq-val {
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.eq-day.zero .eq-val {
+  color: var(--muted);
+  font-weight: 500;
+}
+.eq-track {
+  position: relative;
+  width: 30px;
+  height: 110px;
+  border-radius: 10px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+}
+.eq-track i {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 9px;
+  min-height: 0;
+  background: linear-gradient(to top, color-mix(in oklab, var(--c, var(--accent)) 85%, #000), var(--c, var(--accent)));
+  transition: height 0.18s var(--spring);
+}
+.eq-knob {
+  position: absolute;
+  left: 50%;
+  top: -6px;
+  width: 22px;
+  height: 8px;
+  margin-left: -11px;
+  border-radius: 99px;
+  background: var(--panel);
+  box-shadow:
+    0 0 0 1.5px var(--c, var(--accent)),
+    0 2px 6px rgb(0 0 0 / 0.25);
+  opacity: 0;
+  transition:
+    opacity 0.15s,
+    transform 0.15s var(--spring);
+}
+.eq-day:hover .eq-knob,
+.eq-day.active .eq-knob,
+.eq-day:focus-visible .eq-knob {
+  opacity: 1;
+}
+.eq-day.active .eq-knob {
+  transform: scale(1.15);
+}
+.eq-day.zero .eq-knob {
+  top: -4px;
+}
+.eq-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+.eq-foot button {
+  padding: 4px 12px;
+  font-size: 12px;
+}
+.eq-wd {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.eq-dn {
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: -4px;
+}
+
+/* "delete category?" modal: small card over a blurred screen */
+dialog.confirm {
+  width: min(400px, 92vw);
+  height: fit-content;
+  padding: 26px 26px 20px;
+} /* modal dialogs stretch to the full height otherwise */
+.confirm-body {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+.confirm-body h2 {
+  margin: 6px 0 0;
+  font-size: 18px;
+}
+.confirm-body p {
+  margin: 0 0 14px;
+  line-height: 1.5;
+  font-size: 14px;
+}
+.confirm-body .actions {
+  width: 100%;
+  justify-content: flex-end;
+  padding-top: 0;
+}
+.confirm-icon {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  color: var(--danger);
+  background: color-mix(in oklab, var(--danger) 14%, transparent);
+}
+/* editor fields */
+.field {
+  display: grid;
+  gap: 5px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.dates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.dates label {
+  display: grid;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.dates input {
+  color: var(--text);
+  font-weight: 400;
+}
+
+/* category dropdown */
+.picker {
+  position: relative;
+  font-weight: 400;
+  color: var(--text);
+  font-size: 14px;
+}
+.picker-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  padding: 9px 11px;
+  background: var(--panel-2);
+}
+.picker-btn:active {
+  transform: none;
+}
+.picker-btn.open {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgb(91 91 246 / 0.18);
+}
+.caret {
+  margin-left: auto;
+  color: var(--muted);
+  transition: transform 0.2s var(--ease);
+}
+.picker-btn.open .caret {
+  transform: rotate(180deg);
+}
+.picker-pop {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  padding: 6px;
+  box-shadow: var(--shadow);
+  animation: drop 0.18s var(--ease);
+  transform-origin: top;
+}
+.picker-pop input {
+  padding: 7px 10px;
+  margin-bottom: 4px;
+}
+.picker-pop ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 180px;
+  overflow-y: auto;
+}
+.picker-pop li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 9px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+.picker-pop li.hi {
+  background: var(--panel-2);
+}
+.picker-pop li.sel {
+  font-weight: 600;
+}
+.picker-pop li.none {
+  cursor: default;
+  font-size: 12px;
+}
+.tick {
+  margin-left: auto;
+  color: var(--accent);
+}
+
+/* dialog */
+dialog {
+  overflow: visible; /* let the category list float over the card edge */
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 22px 24px;
+  width: min(560px, 94vw);
+  height: min(700px, 92vh);
+  color: var(--text);
+  background: var(--panel);
+  box-shadow: 0 30px 80px -20px rgb(0 0 0 / 0.45);
+  opacity: 0;
+  transform: translateY(10px) scale(0.96);
+  transition:
+    opacity 0.2s var(--ease),
+    transform 0.28s var(--spring),
+    overlay 0.25s allow-discrete,
+    display 0.25s allow-discrete;
+}
+dialog[open] {
+  opacity: 1;
+  transform: none;
+}
+@starting-style {
+  dialog[open] {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+}
+dialog::backdrop {
+  background: rgb(8 8 20 / 0);
+  backdrop-filter: blur(0);
+  transition: all 0.25s allow-discrete;
+}
+dialog[open]::backdrop {
+  background: rgb(8 8 20 / 0.35);
+  backdrop-filter: blur(4px);
+}
+@starting-style {
+  dialog[open]::backdrop {
+    background: rgb(8 8 20 / 0);
+    backdrop-filter: blur(0);
+  }
+}
+dialog > form {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+dialog .tab-body {
+  flex: 1;
+  min-height: 0;
+}
+dialog .actions {
+  padding-top: 16px;
+}
+.icon-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  flex: none;
+  border-color: transparent;
+  background: none;
+  color: var(--muted);
+}
+.icon-btn:hover {
+  background: var(--panel-2);
+  color: var(--text);
+  border-color: transparent;
+}
+dialog.nudge {
+  animation: shake 0.35s;
+}
+.dlg-head {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.dlg-head h2 {
+  margin: 0;
+  font-size: 17px;
+}
+.dlg-head p {
+  margin: 2px 0 0;
+  font-size: 13px;
+}
+.swatch {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  flex: none;
+  transition: background 0.3s;
+  background: color-mix(in oklab, var(--c) var(--tint), var(--panel));
+  box-shadow: inset 3px 0 0 var(--c);
+}
+.tab-body > label {
+  display: grid;
+  gap: 5px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.tab-body > label input {
+  color: var(--text);
+  font-weight: 400;
+  font-size: 14px;
+}
+.actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.spin {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  vertical-align: -2px;
+  border: 2px solid rgb(255 255 255 / 0.35);
+  border-top-color: #fff;
+  animation: spin 0.7s linear infinite;
+}

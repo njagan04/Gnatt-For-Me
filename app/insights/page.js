@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getUser } from '../../lib/auth';
-import Insights from '../Insights';
+import Insights from './Insights';
 
 export const metadata = { title: 'Insights · GnattForMe' };
 

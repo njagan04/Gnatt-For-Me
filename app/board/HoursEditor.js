@@ -1,5 +1,5 @@
 'use client';
-import { fmt } from '../lib/days';
+import { fmt } from '../../lib/days';
 import { useRef, useState } from 'react';
 
 const SCALE = 12; // hours at the top of a bar
@@ -25,15 +25,24 @@ export default function HoursEditor({ days, hours, onChange }) {
   }
   function key(e, d) {
     const step = { ArrowUp: 0.5, ArrowDown: -0.5, PageUp: 2, PageDown: -2 }[e.key];
-    if (step) { e.preventDefault(); put(d, num(hours[d]) + step); }
-    else if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); put(d, 0); }
+    if (step) {
+      e.preventDefault();
+      put(d, num(hours[d]) + step);
+    } else if (e.key === 'Delete' || e.key === 'Backspace') {
+      e.preventDefault();
+      put(d, 0);
+    }
   }
 
   return (
     <div className="eq">
       <div className="eq-head">
-        <span>Hours <span className="muted">· optional</span></span>
-        <b key={total} className="eq-total">{total ? `${total}h total` : '—'}</b>
+        <span>
+          Hours <span className="muted">· optional</span>
+        </span>
+        <b key={total} className="eq-total">
+          {total ? `${total}h total` : '—'}
+        </b>
       </div>
       <div className="eq-bars">
         {days.map((d, i) => {
@@ -51,7 +60,11 @@ export default function HoursEditor({ days, hours, onChange }) {
               aria-valuenow={v}
               onKeyDown={e => key(e, d)}
               onWheel={e => put(d, v + (e.deltaY < 0 ? 0.5 : -0.5))}
-              onPointerDown={e => { setActive(d); e.currentTarget.setPointerCapture(e.pointerId); setFrom(e, d); }}
+              onPointerDown={e => {
+                setActive(d);
+                e.currentTarget.setPointerCapture(e.pointerId);
+                setFrom(e, d);
+              }}
               onPointerMove={e => active === d && setFrom(e, d)}
               onPointerUp={() => setActive(null)}
               onPointerCancel={() => setActive(null)}
@@ -69,10 +82,24 @@ export default function HoursEditor({ days, hours, onChange }) {
         })}
       </div>
       <div className="eq-foot">
-        {days.length > 1 && source > 0
-          ? <button type="button" className="quiet" onClick={() => onChange(Object.fromEntries(days.map(d => [d, source])))}>Copy {source}h to all days</button>
-          : <span className="muted tiny">Drag a bar up or down · ↑↓ to nudge</span>}
-        <button type="button" className="quiet" onClick={() => { last.current = null; onChange(Object.fromEntries(days.map(d => [d, '']))); }} disabled={!total}>Clear</button>
+        {days.length > 1 && source > 0 ? (
+          <button type="button" className="quiet" onClick={() => onChange(Object.fromEntries(days.map(d => [d, source])))}>
+            Copy {source}h to all days
+          </button>
+        ) : (
+          <span className="muted tiny">Drag a bar up or down · ↑↓ to nudge</span>
+        )}
+        <button
+          type="button"
+          className="quiet"
+          onClick={() => {
+            last.current = null;
+            onChange(Object.fromEntries(days.map(d => [d, ''])));
+          }}
+          disabled={!total}
+        >
+          Clear
+        </button>
       </div>
     </div>
   );
