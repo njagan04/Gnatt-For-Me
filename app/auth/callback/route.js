@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { cookieOpts, isAllowed, sessionValue } from '../../../lib/auth';
+import { cookieOpts, isAllowed, SESSION_DAYS, sessionValue } from '../../../lib/auth';
 
 export async function GET(req) {
   const p = req.nextUrl.searchParams;
@@ -26,7 +26,7 @@ export async function GET(req) {
   if (!claims.email_verified || !isAllowed(email)) return fail(`${email || 'This account'} is not allowed`);
 
   const res = NextResponse.redirect(new URL('/', req.url));
-  res.cookies.set('session', sessionValue(email), cookieOpts(60 * 60 * 24 * 30));
+  res.cookies.set('session', sessionValue(email), cookieOpts(SESSION_DAYS * 86400));
   res.cookies.delete('oauth_state');
   return res;
 }
