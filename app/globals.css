@@ -220,13 +220,20 @@ button.icon.sm { width: 26px; height: 26px; padding: 0; font-size: 15px; }
               color-mix(in oklab, var(--bg) 62%, transparent);
   box-shadow: inset 1px 0 0 var(--line), inset -1px 0 0 var(--line);
 }
-.head-cell.mon { box-shadow: inset 1px 0 0 var(--line); }
+/* the weekend seam runs up through the header too, so the date row is split between weeks as well */
+.head-cell.mon::before {
+  content: ""; position: absolute; top: 0; bottom: -1px; left: 0; width: var(--seam); z-index: 2;
+  background: repeating-linear-gradient(135deg, color-mix(in oklab, var(--muted) 45%, transparent) 0 1px, transparent 1px 6px),
+              color-mix(in oklab, var(--bg) 62%, transparent);
+  box-shadow: inset 1px 0 0 var(--line), inset -1px 0 0 var(--line);
+}
+.head-cell.mon .day { padding-left: calc(var(--seam) + 14px); }
 .panel.mon .piece.first { left: calc(var(--seam) + 10px); }
 
 /* week row above the days; the label stays pinned on screen while its week is visible */
 .wk {
   position: absolute; top: 0; height: 28px; z-index: 3; overflow: hidden; pointer-events: none;
-  left: calc((var(--i) + 3) * var(--w)); width: calc(5 * var(--w)); box-shadow: inset 1px 0 0 var(--line);
+  left: calc((var(--i) + 3) * var(--w) + var(--seam)); width: calc(5 * var(--w) - var(--seam));
   display: flex; align-items: center; border-bottom: 1px solid var(--line);
   background: linear-gradient(var(--panel-2), var(--panel));
 }
