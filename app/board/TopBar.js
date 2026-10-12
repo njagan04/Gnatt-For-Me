@@ -2,7 +2,7 @@ import { fmt } from '../../lib/days';
 import AccountMenu from './AccountMenu';
 
 // Logo, week navigation, the visible range, "New", the in-view total and the account menu.
-export default function TopBar({ user, loading, from, to, total, onPrev, onToday, onNext, onNew }) {
+export default function TopBar({ user, admin, loading, from, to, total, onPrev, onToday, onNext, onNew }) {
   return (
     <header className="top" data-loading={loading || undefined}>
       <div className="brand" title="GnattForMe">
@@ -29,7 +29,7 @@ export default function TopBar({ user, loading, from, to, total, onPrev, onToday
       <span className="sum">
         In view <b>{total}h</b>
       </span>
-      <AccountMenu user={user} />
+      <AccountMenu user={user} admin={admin} />
     </header>
   );
 }

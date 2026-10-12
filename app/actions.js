@@ -2,7 +2,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { sql } from '../lib/db';
-import { getUser } from '../lib/auth';
+import { getUser, isAdmin } from '../lib/auth';
 import { addDays, monday } from '../lib/days';
 import { ALL_HUES, freeHue, MAX_CATS } from '../lib/palette';
 
@@ -130,4 +130,17 @@ export async function stats(today) {
     sql`select name, hue from categories where owner = ${owner} order by name`,
   ]);
   return { from, days, byCat, top, cats };
+}
+
+// Admin only: remove everything a person has stored (tasks + their logged days, categories) and their user row.
+export async function deleteUserData(email) {
+  const admin = await me();
+  if (!isAdmin(admin)) throw new Error('Not allowed');
+  email = String(email || '').toLowerCase();
+  if (!email) throw new Error('No user');
+  await sql.transaction([
+    sql`delete from tasks where owner = ${email}`, // logs go with them (on delete cascade)
+    sql`delete from categories where owner = ${email}`,
+    sql`delete from users where email = ${email}`,
+  ]);
 }

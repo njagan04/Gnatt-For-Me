@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookieOpts, isAllowed, SESSION_DAYS, sessionValue } from '../../../lib/auth';
+import { sql } from '../../../lib/db';
 
 export async function GET(req) {
   const p = req.nextUrl.searchParams;
@@ -24,6 +25,12 @@ export async function GET(req) {
   const claims = JSON.parse(Buffer.from((await r.json()).id_token.split('.')[1], 'base64url'));
   const email = String(claims.email || '').toLowerCase();
   if (!claims.email_verified || !isAllowed(email)) return fail(`${email || 'This account'} is not allowed`);
+
+  // Record the sign-in (first time creates the row).
+  const name = String(claims.name || '').slice(0, 200), picture = String(claims.picture || '').slice(0, 500);
+  await sql`insert into users (email, name, picture) values (${email}, ${name}, ${picture})
+            on conflict (email) do update set name = excluded.name, picture = excluded.picture,
+              last_seen = now(), sign_ins = users.sign_ins + 1`;
 
   const res = NextResponse.redirect(new URL('/', req.url));
   res.cookies.set('session', sessionValue(email), cookieOpts(SESSION_DAYS * 86400));

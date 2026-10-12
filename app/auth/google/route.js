@@ -9,7 +9,7 @@ export function GET(req) {
     client_id: process.env.GOOGLE_CLIENT_ID,
     redirect_uri: req.nextUrl.origin + '/auth/callback',
     response_type: 'code',
-    scope: 'openid email',
+    scope: 'openid email profile', // profile = name and photo, shown on the admin page
     prompt: 'select_account',
     state,
   });

@@ -6,7 +6,7 @@ import { summarize } from '../../lib/stats';
 import ThemeSwitch from './ThemeSwitch';
 
 // Avatar button + profile card: this week vs last, streak, average per day, 12-week trend, theme, log out.
-export default function AccountMenu({ user }) {
+export default function AccountMenu({ user, admin }) {
   const [open, setOpen] = useState(false);
   const [a, setA] = useState(null);
 
@@ -45,6 +45,11 @@ export default function AccountMenu({ user }) {
           <a href="/insights" className="acct-link">
             Open insights <span>→</span>
           </a>
+          {admin && (
+            <a href="/admin" className="acct-link">
+              Admin · users <span>→</span>
+            </a>
+          )}
           <div className="acct-row">
             <span className="muted tiny">Theme</span>
             <ThemeSwitch />
