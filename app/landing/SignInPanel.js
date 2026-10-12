@@ -21,14 +21,15 @@ export function SignInLink() {
     const el = document.getElementById('signin');
     if (!el || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     e.preventDefault();
-    const from = scrollY,
-      to = el.getBoundingClientRect().top + scrollY - (innerHeight - el.offsetHeight) / 2;
-    const ms = Math.min(2000, Math.max(1200, Math.abs(to - from) / 4));
+    // Sections below lazy-render (content-visibility), so the page grows while we glide: re-aim every frame.
+    const target = () => el.getBoundingClientRect().top + scrollY - Math.max(0, (innerHeight - el.offsetHeight) / 2);
+    const from = scrollY;
+    const ms = Math.min(2000, Math.max(1200, Math.abs(target() - from) / 4));
     const ease = t => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
     const t0 = performance.now();
     const step = now => {
       const t = Math.min(1, (now - t0) / ms);
-      scrollTo({ top: from + (to - from) * ease(t), behavior: 'instant' });
+      scrollTo({ top: from + (target() - from) * ease(t), behavior: 'instant' });
       if (t < 1) requestAnimationFrame(step);
     };
     requestAnimationFrame(step);
