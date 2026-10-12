@@ -259,11 +259,19 @@ export default function Landing({ error }) {
       </section>
 
       <section className="lp-end">
-        <h2>
-          Start this week
-          <br />
-          before you forget it.
-        </h2>
+        <div className="lp-end-copy">
+          <h2>
+            Start this week
+            <br />
+            before you forget it.
+          </h2>
+          <p>Log a task in two seconds. Friday-you will thank you.</p>
+          <ul>
+            <li>Free, no card, no setup</li>
+            <li>Private to your account</li>
+            <li>Google or your own username</li>
+          </ul>
+        </div>
         <SignInPanel error={error} />
       </section>
 
