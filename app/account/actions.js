@@ -46,22 +46,27 @@ export async function saveCredentials({ username, password, current }) {
     if (!s.ok) throw new Error(s.checks.find(x => !x.ok)?.text || 'Choose a stronger password');
   }
   const hash = pw ? await hashPassword(pw) : null;
+  let row;
   try {
-    await sql`insert into users (email, username, password_hash, password_set_at)
+    [row] = await sql`insert into users (email, username, password_hash, password_set_at)
               values (${a.user}, ${c.username}, ${hash}, case when ${hash}::text is null then null else now() end)
               on conflict (email) do update set
                 username = excluded.username,
                 password_hash = coalesce(excluded.password_hash, users.password_hash),
                 password_set_at = coalesce(excluded.password_set_at, users.password_set_at),
-                failed_logins = 0, locked_until = null`;
+                failed_logins = 0, locked_until = null
+              returning floor(extract(epoch from password_set_at) * 1000000)::text as stamp`;
   } catch (e) {
     if (e.code === '23505') throw new Error('That username was just taken. Try another.');
     throw e;
   }
+  // A new password signs out other password sessions; keep this one signed in if it was one.
+  if (pw && a.method === 'password')
+    (await cookies()).set('session', sessionValue(a.user, 'password', row.stamp), cookieOpts(SESSION_DAYS * 86400));
   return { ok: true, username: c.username };
 }
 
-// Turn password sign-in off (the username is kept so nobody else can grab it).
+// Turn password sign-in off (the username is kept so nobody else can grab it). Password sessions end with it.
 export async function removePassword({ current }) {
   const a = await account();
   await confirmIdentity(a, current);
@@ -69,8 +74,10 @@ export async function removePassword({ current }) {
   return { ok: true };
 }
 
-// Username + password sign-in from the landing page (the typed username comes back so the form keeps it). One message for every failure so it never reveals which
-// usernames exist; 5 wrong passwords lock that username for 15 minutes.
+// Username + password sign-in from the landing page (the typed username comes back so the form keeps it). One message
+// for every wrong guess so it never reveals which usernames exist. Each attempt first claims one of MAX_FAILS tries in a
+// single atomic update, so a burst of parallel requests can't slip past the lock; the try that reaches the limit locks
+// the username for LOCK_MINUTES.
 export async function loginWithPassword(_, form) {
   const name = String(form.get('username') || '')
     .trim()
@@ -79,23 +86,31 @@ export async function loginWithPassword(_, form) {
   const fail = 'Wrong username or password';
   if (!name || !password || password.length > MAX_PASSWORD) return { error: fail, username: name };
 
-  const [u] = await sql`select email, password_hash, failed_logins, locked_until from users where lower(username) = ${name}`;
-  if (u?.locked_until && new Date(u.locked_until) > new Date()) {
-    const mins = Math.ceil((new Date(u.locked_until) - Date.now()) / 60000);
-    return { error: `Too many attempts. Try again in ${mins} minute${mins === 1 ? '' : 's'}, or sign in with Google.`, username: name };
-  }
-  const good = await verifyPassword(password, u?.password_hash); // also runs (and fails) for unknown users
-  if (!u || !u.password_hash || !good) {
-    if (u?.password_hash) {
-      await sql`update users set
-                  failed_logins = case when failed_logins + 1 >= ${MAX_FAILS} then 0 else failed_logins + 1 end,
-                  locked_until = case when failed_logins + 1 >= ${MAX_FAILS} then now() + make_interval(mins => ${LOCK_MINUTES}) else null end
-                where email = ${u.email}`;
+  // Claim a try: allowed while under the limit, or once an old lock has run out (which starts a fresh count).
+  const [u] = await sql`update users set
+                          failed_logins = case when locked_until <= now() then 1 else failed_logins + 1 end,
+                          locked_until = case when locked_until <= now() then null else locked_until end
+                        where lower(username) = ${name} and password_hash is not null
+                          and (locked_until <= now() or (locked_until is null and failed_logins < ${MAX_FAILS}))
+                        returning email, password_hash, floor(extract(epoch from password_set_at) * 1000000)::text as stamp`;
+  if (!u) {
+    const [l] = await sql`select locked_until from users where lower(username) = ${name} and password_hash is not null
+                           and (locked_until > now() or failed_logins >= ${MAX_FAILS})`;
+    if (l) {
+      const until = l.locked_until ? new Date(l.locked_until) : Date.now() + LOCK_MINUTES * 60000;
+      const mins = Math.max(1, Math.ceil((until - Date.now()) / 60000));
+      return { error: `Too many attempts. Try again in ${mins} minute${mins === 1 ? '' : 's'}, or sign in with Google.`, username: name };
     }
+    await verifyPassword(password, null); // unknown username: spend the same time as a real check
+    return { error: fail, username: name };
+  }
+  if (!(await verifyPassword(password, u.password_hash))) {
+    await sql`update users set locked_until = now() + make_interval(mins => ${LOCK_MINUTES})
+              where email = ${u.email} and failed_logins >= ${MAX_FAILS} and locked_until is null`;
     return { error: fail, username: name };
   }
   if (!isAllowed(u.email)) return { error: 'This account is not allowed to sign in', username: name };
   await sql`update users set failed_logins = 0, locked_until = null, last_seen = now(), sign_ins = sign_ins + 1 where email = ${u.email}`;
-  (await cookies()).set('session', sessionValue(u.email, 'password'), cookieOpts(SESSION_DAYS * 86400));
+  (await cookies()).set('session', sessionValue(u.email, 'password', u.stamp), cookieOpts(SESSION_DAYS * 86400));
   redirect('/');
 }
