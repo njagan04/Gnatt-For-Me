@@ -4,15 +4,6 @@ import { useRouter } from 'next/navigation';
 import { checkUsername, generatePassword, passwordStrength } from '../../lib/credentials';
 import { removePassword, saveCredentials, usernameStatus } from './actions';
 
-// Uniform random integer in [0, n) from the browser's crypto source (no modulo bias).
-function rand(n) {
-  const max = Math.floor(0xffffffff / n) * n;
-  const buf = new Uint32Array(1);
-  do crypto.getRandomValues(buf);
-  while (buf[0] >= max);
-  return buf[0] % n;
-}
-
 const fmtDate = iso => new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' });
 
 export default function AccountForm({ welcome, email, method, username: savedName, hasPassword, passwordSetAt }) {
@@ -57,7 +48,7 @@ export default function AccountForm({ welcome, email, method, username: savedNam
     !busy;
 
   function generate() {
-    const p = generatePassword(rand);
+    const p = generatePassword();
     setPassword(p);
     setConfirm(p);
     setShow(true);

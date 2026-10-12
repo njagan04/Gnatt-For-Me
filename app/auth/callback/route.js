@@ -4,13 +4,13 @@ import { sql } from '../../../lib/db';
 
 // Popup sign-in: tell the landing tab over a BroadcastChannel (Google's pages cut window.opener), then close.
 // If the popup can't close itself, it just goes to the destination.
-function finish(req, to, error) {
+function finish(req, to, error, extra) {
   const popup = req.cookies.get('oauth_popup')?.value;
   const target = error ? '/?error=' + encodeURIComponent(error) : to;
   const res = popup
     ? new NextResponse(
         `<!doctype html><meta charset="utf-8"><title>Signing in…</title><script>
-          try { new BroadcastChannel('gnatt-auth').postMessage(${JSON.stringify(error ? { error } : { to })}); } catch {}
+          try { new BroadcastChannel('gnatt-auth').postMessage(${JSON.stringify(error ? { error } : { to, ...extra })}); } catch {}
           window.close(); setTimeout(() => location.replace(${JSON.stringify(target)}), 300);
         </script>`,
         { headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' } },
@@ -53,8 +53,10 @@ export async function GET(req) {
               last_seen = now(), sign_ins = users.sign_ins + 1
             returning username, sign_ins`;
 
-  // First sign-in: offer to set a username and password (skippable, asked only once).
-  const res = finish(req, u.sign_ins === 1 && !u.username ? '/account?welcome=1' : '/');
+  // First sign-in: offer to set a username and password (skippable, asked only once). In a popup the landing card
+  // shows that step itself; a plain redirect goes to the account page.
+  const isNew = u.sign_ins === 1 && !u.username;
+  const res = finish(req, isNew ? '/account?welcome=1' : '/', null, { setup: isNew, email, name });
   res.cookies.set('session', sessionValue(email), cookieOpts(SESSION_DAYS * 86400));
   return res;
 }

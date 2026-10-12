@@ -239,6 +239,174 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
     0 40px 80px -30px #000,
     0 0 90px -30px rgb(91 91 246 / 0.45);
 }
+.lp-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 8px;
+  border-radius: 12px;
+  background: rgb(0 0 0 / 0.3);
+  border: 1px solid var(--line);
+}
+.lp-tabs button {
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px;
+  border: 0;
+  border-radius: 9px;
+  cursor: pointer;
+  color: var(--muted);
+  background: none;
+  transition:
+    background 0.3s var(--ease),
+    color 0.3s;
+}
+.lp-tabs button.on {
+  color: var(--text);
+  background: var(--panel-2);
+  box-shadow: 0 0 0 1px var(--line);
+}
+/* every panel sits in the same cell: the card is as tall as the tallest one, whichever tab is open */
+.lp-si-stack {
+  display: grid;
+}
+.lp-si-panel {
+  grid-area: 1 / 1;
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+  transition:
+    opacity 0.35s var(--ease),
+    transform 0.35s var(--ease),
+    visibility 0.35s;
+}
+.lp-si-panel.on {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+.lp-steps {
+  list-style: none;
+  counter-reset: step;
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+}
+.lp-steps li {
+  counter-increment: step;
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  column-gap: 12px;
+  row-gap: 2px;
+  font-size: 14px;
+}
+.lp-steps li::before {
+  content: counter(step);
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #a9a9ff;
+  background: rgb(91 91 246 / 0.16);
+}
+.lp-steps span {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+.lp-hint {
+  margin-top: -4px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.lp-hint-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+.lp-hint-row .lp-gen {
+  flex: none;
+  font-size: 12px;
+}
+.lp-hint.ok {
+  color: #3fcf8e;
+}
+.lp-hint.bad {
+  color: #ff8a8e;
+}
+.lp-pass {
+  position: relative;
+  display: grid;
+}
+.lp-si-form .lp-pass input {
+  padding-right: 64px;
+}
+.lp-pass button {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  bottom: 6px;
+  padding: 0 10px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--muted);
+  background: var(--panel-2);
+}
+.lp-meter {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+.lp-meter i {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line);
+  transition: background 0.25s;
+}
+.lp-meter.s0 i.on,
+.lp-meter.s1 i.on {
+  background: #ff6b70;
+}
+.lp-meter.s2 i.on {
+  background: #e3a008;
+}
+.lp-meter.s3 i.on,
+.lp-meter.s4 i.on {
+  background: #3fcf8e;
+}
+.lp-gen,
+.lp-skip {
+  padding: 0;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  border: 0;
+  cursor: pointer;
+  color: #a9a9ff;
+  background: none;
+  text-decoration: none;
+}
+.lp-skip {
+  justify-self: center;
+  color: var(--muted);
+}
+.lp-skip:hover {
+  color: var(--text);
+}
 .lp-si-head {
   text-align: center;
   text-wrap: balance;
