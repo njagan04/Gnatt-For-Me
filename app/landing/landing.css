@@ -855,6 +855,19 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   font-size: 13px;
   margin-top: 18px;
 }
+.lp-foot-links {
+  margin-left: 18px;
+  display: flex;
+  gap: 14px;
+}
+.lp-foot-links a {
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 500;
+}
+.lp-foot-links a:hover {
+  color: var(--text);
+}
 .lp-foot {
   position: relative;
   z-index: 2;

@@ -297,6 +297,10 @@ export default function Landing({ error }) {
 
       <footer className="lp-foot">
         <span className="logo" /> GnattForMe
+        <span className="lp-foot-links">
+          <a href="/privacy">Privacy</a>
+          <a href="/terms">Terms</a>
+        </span>
       </footer>
     </div>
   );
