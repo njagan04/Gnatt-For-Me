@@ -13,8 +13,12 @@ export default function Privacy() {
       <h2>What we collect</h2>
       <ul>
         <li>
-          <b>Your Google email address.</b> When you sign in with Google, the app receives your email address and uses it only to identify
-          your account. It does not receive your password, contacts, files or anything else from your Google account.
+          <b>Your Google email address, name and profile photo.</b> When you sign in with Google, the app receives these and stores them to
+          identify your account (your name and photo are only shown to the app's administrator). It does not receive your password,
+          contacts, files or anything else from your Google account.
+        </li>
+        <li>
+          <b>When you sign in.</b> The time of your first and most recent sign-in, and how many times you have signed in.
         </li>
         <li>
           <b>What you enter.</b> Task names, categories, the days and hours you log, and any notes you write.
