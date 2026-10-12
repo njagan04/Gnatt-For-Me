@@ -375,6 +375,10 @@ dialog::backdrop {
   transition: all 0.25s allow-discrete;
 }
 dialog[open]::backdrop {
+  background: rgb(8 8 20 / 0.3);
+}
+/* only the small confirm modals blur the screen; the editor just dims it so the board stays sharp */
+dialog.confirm[open]::backdrop {
   background: rgb(8 8 20 / 0.35);
   backdrop-filter: blur(4px);
 }

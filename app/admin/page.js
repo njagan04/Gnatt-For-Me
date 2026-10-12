@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getUser, isAdmin } from '../../lib/auth';
 import { sql } from '../../lib/db';
+import AdminSearch from './AdminSearch';
 import DeleteUser from './DeleteUser';
 import '../board/editor.css';
 import './admin.css';
@@ -28,7 +29,7 @@ export default async function Admin() {
                           coalesce(sum(l.hours) filter (where l.day >= current_date - 30), 0)::float as hours30,
                           max(l.day)::text as last_day
                    from logs l join tasks t on t.id = l.task_id group by t.owner)
-        select u.email, u.name, u.picture, u.first_seen, u.last_seen, u.sign_ins,
+        select u.email, u.name, u.picture, u.username, u.password_hash is not null as pw, u.first_seen, u.last_seen, u.sign_ins,
                coalesce(t.tasks, 0) as tasks, coalesce(c.cats, 0) as cats,
                coalesce(l.entries, 0) as entries, coalesce(l.hours, 0) as hours, coalesce(l.hours30, 0) as hours30, l.last_day
         from users u left join t on t.owner = u.email left join c on c.owner = u.email left join l on l.owner = u.email
@@ -36,6 +37,7 @@ export default async function Admin() {
     sql`select (select count(*) from users)::int as users,
                (select count(*) from users where last_seen > now() - interval '7 days')::int as active7,
                (select count(*) from users where first_seen > now() - interval '7 days')::int as new7,
+               (select count(*) from users where password_hash is not null)::int as pw,
                (select count(*) from tasks)::int as tasks,
                (select coalesce(sum(hours), 0) from logs)::float as hours`,
   ]);
@@ -54,11 +56,15 @@ export default async function Admin() {
       </header>
 
       <div className="admin-body">
-        <h1>Users</h1>
+        <div className="admin-title">
+          <h1>Users</h1>
+          <AdminSearch />
+        </div>
         <section className="admin-tiles">
           <Tile label="Users" value={totals.users} sub="signed in at least once" />
           <Tile label="Active" value={totals.active7} sub="signed in, last 7 days" />
           <Tile label="New" value={totals.new7} sub="first sign-in, last 7 days" />
+          <Tile label="Password" value={totals.pw} sub="can sign in with a username" />
           <Tile label="Tasks" value={totals.tasks} sub="across everyone" />
           <Tile label="Hours" value={`${n(totals.hours)}h`} sub="logged in total" />
         </section>
@@ -69,6 +75,7 @@ export default async function Admin() {
               <thead>
                 <tr>
                   <th>User</th>
+                  <th>Sign-in</th>
                   <th>First seen</th>
                   <th>Last seen</th>
                   <th className="num">Sign-ins</th>
@@ -82,7 +89,7 @@ export default async function Admin() {
               </thead>
               <tbody>
                 {users.map(u => (
-                  <tr key={u.email}>
+                  <tr key={u.email} data-q={[u.name, u.email, u.username].filter(Boolean).join(' ').toLowerCase()}>
                     <td>
                       <div className="who">
                         {u.picture ? (
@@ -95,9 +102,16 @@ export default async function Admin() {
                             {u.name || u.email.split('@')[0]}
                             {isAdmin(u.email) && <span className="admin-badge sm">Admin</span>}
                           </b>
-                          <span className="muted">{u.email}</span>
+                          <span className="muted">
+                            {u.email}
+                            {u.username && <> · @{u.username}</>}
+                          </span>
                         </div>
                       </div>
+                    </td>
+                    <td>
+                      <span className="method">Google</span>
+                      {u.pw && <span className="method pw">Password</span>}
                     </td>
                     <td>{date(u.first_seen)}</td>
                     <td title={new Date(u.last_seen).toISOString()}>{ago(u.last_seen)}</td>

@@ -45,6 +45,9 @@ export default function AccountMenu({ user, admin }) {
           <a href="/insights" className="acct-link">
             Open insights <span>→</span>
           </a>
+          <a href="/account" className="acct-link">
+            Sign-in options <span>→</span>
+          </a>
           {admin && (
             <a href="/admin" className="acct-link">
               Admin · users <span>→</span>

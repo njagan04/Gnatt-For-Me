@@ -21,6 +21,7 @@
 
 /* page scrollbar: the same thin, quiet style as the board */
 html:has(.lp) {
+  scroll-behavior: smooth;
   scrollbar-width: thin;
   scrollbar-color: rgb(139 144 162 / 0.4) #08090d;
 }
@@ -44,12 +45,12 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   inset: -20vmax;
   z-index: 0;
   pointer-events: none;
-  filter: blur(60px);
-  opacity: 0.55;
+  opacity: 0.5;
+  will-change: transform;
   background:
     radial-gradient(40vmax 30vmax at 20% 25%, rgb(91 91 246 / 0.55), transparent 60%),
     radial-gradient(35vmax 28vmax at 80% 20%, rgb(178 91 246 / 0.45), transparent 60%),
-    radial-gradient(40vmax 30vmax at 60% 85%, rgb(40 140 220 / 0.3), transparent 60%);
+    radial-gradient(40vmax 30vmax at 60% 85%, rgb(40 140 220 / 0.3), transparent 70%);
   animation: lp-drift 22s ease-in-out infinite alternate;
 }
 .lp-grid {
@@ -60,12 +61,19 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   height: 70vh;
   z-index: 0;
   pointer-events: none;
-  background:
-    linear-gradient(transparent 0 calc(100% - 1px), rgb(255 255 255 / 0.06) 0) 0 0 / 100% 56px,
-    linear-gradient(90deg, transparent 0 calc(100% - 1px), rgb(255 255 255 / 0.06) 0) 0 0 / 56px 100%;
+  overflow: hidden;
   transform: perspective(600px) rotateX(62deg);
   transform-origin: bottom;
   mask-image: linear-gradient(transparent, #000 60%);
+}
+.lp-grid::before {
+  content: '';
+  position: absolute;
+  inset: -56px 0 0;
+  background:
+    linear-gradient(transparent 0 calc(100% - 1px), rgb(255 255 255 / 0.06) 0) 0 0 / 100% 56px,
+    linear-gradient(90deg, transparent 0 calc(100% - 1px), rgb(255 255 255 / 0.06) 0) 0 0 / 56px 100%;
+  will-change: transform;
   animation: lp-grid-run 8s linear infinite;
 }
 
@@ -88,6 +96,7 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
     inset 3px 0 0 hsl(var(--h) 70% var(--bar-edge-l)),
     inset -3px 0 0 hsl(var(--h) 70% var(--bar-edge-l)),
     0 20px 40px -20px #000;
+  will-change: transform, translate;
   animation:
     lp-bob 7s ease-in-out infinite alternate,
     lp-para linear both;
@@ -98,15 +107,13 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
 }
 .lp-float.z1 {
   --depth: -14vh;
-  opacity: 0.35;
-  filter: blur(2px);
+  opacity: 0.3;
   scale: 0.8;
   animation-duration: 9s, auto;
 }
 .lp-float.z2 {
   --depth: -34vh;
   opacity: 0.6;
-  filter: blur(0.5px);
   animation-duration: 7s, auto;
 }
 .lp-float.z3 {
@@ -125,8 +132,7 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   align-items: center;
   justify-content: space-between;
   padding: 14px clamp(16px, 4vw, 48px);
-  backdrop-filter: blur(14px) saturate(1.4);
-  background: color-mix(in oklab, var(--bg) 55%, transparent);
+  background: color-mix(in oklab, var(--bg) 90%, transparent);
   border-bottom: 1px solid rgb(255 255 255 / 0.05);
 }
 .lp-brand {
@@ -206,13 +212,123 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
 .lp-cta:active {
   transform: scale(0.97);
 }
-.lp-cta.big {
-  padding: 17px 32px;
-  font-size: 18px;
-}
 .lp-err {
   color: #ff8a8e;
   margin: 14px 0 0;
+}
+
+/* sign-in panel: the hero's "Sign in" scrolls here */
+.lp-signin {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  scroll-margin-top: 30vh;
+}
+.lp-si-card {
+  width: min(680px, 100%);
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 24px;
+  padding: 26px 28px;
+  border-radius: 20px;
+  text-align: left;
+  border: 1px solid var(--line);
+  background: linear-gradient(160deg, color-mix(in oklab, var(--panel-2), var(--accent) 8%), var(--panel));
+  box-shadow:
+    0 40px 80px -30px #000,
+    0 0 80px -40px rgb(91 91 246 / 0.6);
+}
+.lp-si-col {
+  display: grid;
+  align-content: start;
+  gap: 9px;
+  min-width: 0;
+}
+.lp-si-col h3 {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.lp-si-or {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  background: linear-gradient(var(--line), var(--line)) center / 1px 100% no-repeat;
+}
+.lp-si-or span {
+  padding: 3px 8px;
+  font-size: 11px;
+  color: var(--muted);
+  border-radius: 99px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+.lp-google,
+.lp-si-go {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  font: inherit;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 10px;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition:
+    transform 0.2s var(--spring),
+    filter 0.2s;
+}
+.lp-google {
+  color: #15161c;
+  background: #fff;
+}
+.lp-si-go {
+  color: #fff;
+  background: var(--accent);
+}
+.lp-google:hover,
+.lp-si-go:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+.lp-si-go:disabled {
+  opacity: 0.6;
+}
+.lp-si-col input {
+  font: inherit;
+  font-size: 14px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--text);
+}
+.lp-si-col input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+.lp-si-col .lp-err {
+  margin: 0;
+  font-size: 12.5px;
+}
+.lp-si-col .lp-small {
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+}
+@media (max-width: 640px) {
+  .lp-si-card {
+    grid-template-columns: 1fr;
+  }
+  .lp-si-or {
+    background-size: 100% 1px;
+  }
 }
 
 /* the hero board starts tilted away and lays flat as you scroll */
@@ -379,6 +495,7 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   position: absolute;
   inset: 0;
   opacity: 0;
+  will-change: opacity, transform;
   animation: lp-cap linear both;
   animation-timeline: --story;
 }
@@ -442,6 +559,9 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
 }
 .lp-board.story:hover {
   transform: none;
+}
+.lp-board.story {
+  container-type: inline-size;
 }
 .lp-board.story .lp-lanes {
   height: 250px;
@@ -515,9 +635,8 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   gap: 10px;
   padding: 14px 16px;
   border-radius: 14px;
-  background: color-mix(in oklab, var(--panel-2), transparent 8%);
+  background: var(--panel-2);
   border: 1px solid var(--line);
-  backdrop-filter: blur(8px);
   box-shadow: 0 30px 60px -20px #000;
   animation: lp-card linear both;
   animation-timeline: --story;
@@ -582,7 +701,7 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   width: 60%;
   z-index: 2;
   background: var(--panel);
-  animation: lp-next linear both;
+  animation: lp-seam linear both;
   animation-timeline: --story;
   animation-range: contain 76% contain 96%;
 }
@@ -782,6 +901,11 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
 }
 
 /* ---------- features ---------- */
+.lp-features,
+.lp-foot {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 700px;
+}
 .lp-features {
   position: relative;
   z-index: 2;
@@ -842,8 +966,8 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   padding: 16vh 16px 18vh;
 }
 .lp-end h2 {
-  margin: 0 0 34px;
-  font-size: clamp(36px, 6vw, 72px);
+  margin: 0 0 30px;
+  font-size: clamp(30px, 4.4vw, 52px);
   letter-spacing: -0.04em;
   line-height: 1.02;
   animation: lp-card-in linear both;
@@ -886,7 +1010,6 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   from {
     opacity: 0;
     transform: translateY(18px);
-    filter: blur(6px);
   }
 }
 @keyframes lp-drift {
@@ -896,9 +1019,7 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
 }
 @keyframes lp-grid-run {
   to {
-    background-position:
-      0 56px,
-      0 0;
+    transform: translateY(56px);
   }
 }
 @keyframes lp-shine {
@@ -923,32 +1044,31 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
     opacity: 0.6;
   }
 }
+/* captions hand over quickly: each is fully visible for most of its step, so there is never a blank gap */
 @keyframes lp-cap {
   0% {
     opacity: 0;
-    transform: translateY(24px);
-    filter: blur(4px);
+    transform: translateY(16px);
   }
-  20%,
-  80% {
+  12%,
+  88% {
     opacity: 1;
     transform: none;
-    filter: none;
   }
   100% {
     opacity: 0;
-    transform: translateY(-24px);
-    filter: blur(4px);
+    transform: translateY(-16px);
   }
 }
 @keyframes lp-cap-last {
-  from {
+  0% {
     opacity: 0;
-    transform: translateY(24px);
-    filter: blur(4px);
+    transform: translateY(16px);
   }
-  to {
+  20%,
+  100% {
     opacity: 1;
+    transform: none;
   }
 }
 @keyframes lp-grow {
@@ -1027,12 +1147,7 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
 }
 @keyframes lp-seam {
   to {
-    left: 38%;
-  }
-}
-@keyframes lp-next {
-  to {
-    left: calc(38% + 26px);
+    transform: translateX(-62cqw);
   }
 }
 @keyframes lp-card-in {
@@ -1095,6 +1210,10 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   .lp-float.z2 {
     display: none;
   }
+  .lp-aurora,
+  .lp-grid::before {
+    animation: none;
+  }
   .lp-bar i {
     display: none;
   }
@@ -1129,7 +1248,8 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   .lp-cursor,
   .lp-bar.draft,
   .lp-seam,
-  .lp-eq {
+  .lp-eq,
+  .lp-next {
     display: none;
   }
 }

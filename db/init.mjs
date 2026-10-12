@@ -38,4 +38,12 @@ await sql`create table if not exists users (
 )`;
 // People who used the app before this table existed.
 await sql`insert into users (email) select distinct owner from tasks on conflict do nothing`;
+// Optional username + password sign-in (accounts are still created with Google).
+await sql`alter table users add column if not exists username text`;
+await sql`alter table users add column if not exists password_hash text`; // scrypt, never the password itself
+await sql`alter table users add column if not exists password_set_at timestamptz`;
+await sql`alter table users add column if not exists failed_logins int not null default 0`;
+await sql`alter table users add column if not exists locked_until timestamptz`;
+// Usernames are unique regardless of case.
+await sql`create unique index if not exists users_username_key on users (lower(username))`;
 console.log('tables ready');

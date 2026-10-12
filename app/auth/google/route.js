@@ -15,5 +15,6 @@ export function GET(req) {
   });
   const res = NextResponse.redirect(url);
   res.cookies.set('oauth_state', state, cookieOpts(600));
+  if (req.nextUrl.searchParams.get('popup')) res.cookies.set('oauth_popup', '1', cookieOpts(600));
   return res;
 }
