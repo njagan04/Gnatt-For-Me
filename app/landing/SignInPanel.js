@@ -142,19 +142,9 @@ function SignUpStart({ googleErr }) {
     <>
       <div className="lp-si-head">
         <h3>Create your account</h3>
-        <p>Two quick steps, about 30 seconds.</p>
+        <p>Start with Google, then pick a username and password.</p>
       </div>
-      <ol className="lp-steps">
-        <li>
-          <b>Verify with Google</b>
-          <span>Proves it&apos;s you. We only get your name and email.</span>
-        </li>
-        <li>
-          <b>Pick a username &amp; password</b>
-          <span>So you can sign in anywhere, even without Google.</span>
-        </li>
-      </ol>
-      <GoogleButton label="Continue with Google" />
+      <GoogleButton label="Sign up with Google" />
       {googleErr && <p className="lp-err">{googleErr}</p>}
       <p className="lp-si-foot">Free · Private to you · No card</p>
     </>
