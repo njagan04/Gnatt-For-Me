@@ -39,42 +39,118 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   background: rgb(139 144 162 / 0.65);
 }
 
-/* ---------- background ---------- */
-.lp-aurora {
-  position: fixed;
-  inset: -20vmax;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.5;
-  will-change: transform;
-  background:
-    radial-gradient(40vmax 30vmax at 20% 25%, rgb(91 91 246 / 0.55), transparent 60%),
-    radial-gradient(35vmax 28vmax at 80% 20%, rgb(178 91 246 / 0.45), transparent 60%),
-    radial-gradient(40vmax 30vmax at 60% 85%, rgb(40 140 220 / 0.3), transparent 70%);
-  animation: lp-drift 22s ease-in-out infinite alternate;
-}
-.lp-grid {
-  position: fixed;
-  left: -50%;
-  right: -50%;
-  bottom: -10vh;
-  height: 70vh;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
-  transform: perspective(600px) rotateX(62deg);
-  transform-origin: bottom;
-  mask-image: linear-gradient(transparent, #000 60%);
-}
-.lp-grid::before {
-  content: '';
+/* ---------- hero timeline (HeroField): day columns, bars drawing in, a playhead + light that follow the mouse ---------- */
+.hf {
   position: absolute;
-  inset: -56px 0 0;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  /* fade the edges so it sits behind the hero instead of framing it */
+  mask-image: radial-gradient(120% 90% at 50% 40%, #000 55%, transparent 100%);
+}
+.hf-cols {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(15, 1fr);
+}
+.hf-cols span {
+  padding: 22px 0 0 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgb(139 144 162 / 0.35);
+  border-right: 1px solid rgb(255 255 255 / 0.035);
+}
+.hf-cols span.mon {
+  border-left: 1px solid rgb(255 255 255 / 0.08);
+}
+.hf-cols span.now {
+  color: rgb(143 143 255 / 0.6);
+  background: linear-gradient(rgb(91 91 246 / 0.07), transparent 70%);
+}
+.hf-bars {
+  position: absolute;
+  inset: 0;
+  opacity: 0.32;
+}
+.hf-bars i {
+  position: absolute;
+  left: calc(var(--c0) / 15 * 100% + 6px);
+  width: calc(var(--n) / 15 * 100% - 12px);
+  top: calc(70px + var(--r) * 13%);
+  height: 28px;
+  border-radius: 8px;
+  background: color-mix(in oklab, var(--k), transparent 70%);
+  box-shadow:
+    inset 3px 0 0 var(--k),
+    inset -3px 0 0 var(--k);
+  transform-origin: left;
+  animation: hf-draw 0.9s var(--ease) both;
+  animation-delay: calc(0.35s + var(--d) * 85ms);
+}
+/* the one still in progress: hatched like a "doing" task, and it keeps growing a little */
+.hf-bars i.doing {
   background:
-    linear-gradient(transparent 0 calc(100% - 1px), rgb(255 255 255 / 0.06) 0) 0 0 / 100% 56px,
-    linear-gradient(90deg, transparent 0 calc(100% - 1px), rgb(255 255 255 / 0.06) 0) 0 0 / 56px 100%;
-  will-change: transform;
-  animation: lp-grid-run 8s linear infinite;
+    repeating-linear-gradient(45deg, color-mix(in oklab, var(--k), transparent 55%) 0 1.5px, transparent 1.5px 8px),
+    repeating-linear-gradient(-45deg, color-mix(in oklab, var(--k), transparent 55%) 0 1.5px, transparent 1.5px 8px),
+    color-mix(in oklab, var(--k), transparent 72%);
+  animation:
+    hf-draw 0.9s var(--ease) both,
+    hf-breathe 3.2s ease-in-out 2.2s infinite alternate;
+  animation-delay: calc(0.35s + var(--d) * 85ms), 2.2s;
+}
+/* the same bars at full colour, shown only in a soft light around the pointer */
+.hf-bars.lit {
+  opacity: 0;
+  transition: opacity 0.35s;
+  mask-image: radial-gradient(220px circle at var(--mx, -500px) var(--my, -500px), #000 25%, transparent 75%);
+}
+.hf.live .hf-bars.lit {
+  opacity: 1;
+}
+/* the "now" playhead: glides to the column under the pointer */
+.hf-head {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  margin-left: -1px;
+  translate: var(--px, 0) 0;
+  opacity: 0;
+  transition: opacity 0.3s;
+  background: linear-gradient(rgb(143 143 255 / 0.9), rgb(143 143 255 / 0.15) 70%, transparent);
+}
+.hf.live .hf-head {
+  opacity: 1;
+}
+.hf-head b {
+  position: absolute;
+  top: 44px;
+  left: 50%;
+  translate: -50% 0;
+  padding: 3px 9px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  color: #fff;
+  background: var(--accent);
+  box-shadow: 0 6px 18px -6px rgb(91 91 246 / 0.9);
+}
+@keyframes hf-draw {
+  from {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+}
+@keyframes hf-breathe {
+  to {
+    transform: scaleX(1.12);
+  }
 }
 
 /* ---------- nav + hero ---------- */
@@ -144,6 +220,14 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   min-height: calc(100vh - 66px);
   margin: 0 auto;
   padding: 6vh clamp(16px, 5vw, 56px) 8vh;
+}
+.lp-hero > :not(.hf) {
+  position: relative;
+  z-index: 1;
+}
+.lp-hero-copy {
+  padding: 18px 22px 22px 0;
+  background: radial-gradient(closest-side, rgb(8 9 13 / 0.85), rgb(8 9 13 / 0.55) 70%, transparent);
 }
 .lp-hero .lp-signin {
   animation: lp-in 0.9s 0.25s var(--ease) both;
@@ -519,6 +603,11 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   margin: 0 auto;
   perspective: 1400px;
 }
+.lp-tilt {
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.6s cubic-bezier(0.22, 0.8, 0.2, 1);
+  transform-style: preserve-3d;
+}
 .lp-preview .lp-board {
   transform-origin: 50% 0;
   animation: lp-tilt linear both;
@@ -714,6 +803,10 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   border-right: 1px solid var(--line);
 }
 .art-draft {
+  transform-origin: left;
+  animation: art-stretch linear both;
+  animation-timeline: view();
+  animation-range: entry 40% cover 45%;
   position: absolute;
   left: calc(40% + 6px);
   right: 6px;
@@ -740,6 +833,10 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   overflow: hidden;
 }
 .art-eq i {
+  transform-origin: bottom;
+  animation: art-rise linear both;
+  animation-timeline: view();
+  animation-range: entry calc(30% + var(--d) * 6%) cover calc(40% + var(--d) * 3%);
   position: absolute;
   inset: auto 0 0;
   height: calc(var(--v) * 100%);
@@ -754,7 +851,30 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   gap: 6px;
   align-content: center;
 }
+.art-groups i:nth-child(1) {
+  --sx: 40px;
+  --sy: 18px;
+  --sr: 6deg;
+}
+.art-groups i:nth-child(2) {
+  --sx: -30px;
+  --sy: -14px;
+  --sr: -5deg;
+}
+.art-groups i:nth-child(3) {
+  --sx: 60px;
+  --sy: -20px;
+  --sr: 4deg;
+}
+.art-groups i:nth-child(4) {
+  --sx: -50px;
+  --sy: 10px;
+  --sr: -7deg;
+}
 .art-groups i {
+  animation: art-gather linear both;
+  animation-timeline: view();
+  animation-range: entry 40% cover 45%;
   height: 13px;
   width: var(--w);
   margin-left: var(--x, 0);
@@ -1058,16 +1178,6 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
     transform: translateY(18px);
   }
 }
-@keyframes lp-drift {
-  to {
-    transform: rotate(14deg) scale(1.08);
-  }
-}
-@keyframes lp-grid-run {
-  to {
-    transform: translateY(56px);
-  }
-}
 @keyframes lp-shine {
   to {
     background-position: 300% 0;
@@ -1108,9 +1218,8 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   .lp-insights {
     grid-template-columns: 1fr;
   }
-  .lp-aurora,
-  .lp-grid::before {
-    animation: none;
+  .hf-cols span:nth-child(n + 11) {
+    display: none;
   }
   .lp-bar i {
     display: none;
@@ -1119,9 +1228,27 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
 
 @media (prefers-reduced-motion: reduce) {
   .lp *,
-  .lp *::before,
-  .lp-aurora,
-  .lp-grid {
+  .lp *::before {
     animation: none !important;
+  }
+  .lp-tilt {
+    transform: none;
+  }
+}
+
+@keyframes art-stretch {
+  from {
+    transform: scaleX(0.33);
+  }
+}
+@keyframes art-rise {
+  from {
+    transform: scaleY(0);
+  }
+}
+@keyframes art-gather {
+  from {
+    transform: translate(var(--sx), var(--sy)) rotate(var(--sr));
+    opacity: 0.4;
   }
 }

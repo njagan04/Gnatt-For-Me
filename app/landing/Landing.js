@@ -1,8 +1,10 @@
+import HeroField from './HeroField';
 import SignInPanel, { SignInButton } from './SignInPanel';
+import Tilt from './Tilt';
 import './landing.css';
 
-// Logged-out home. Sign-in sits in the hero (no hunting for it); the rest scrolls normally with light,
-// one-shot reveals (CSS view timelines); browsers without them just show everything.
+// Logged-out home. Sign-in sits in the hero; behind it a faint timeline that follows the mouse (HeroField). The rest
+// scrolls normally with one-shot reveals (CSS view timelines); browsers without them just show everything.
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 // Demo bars on the mini board: hours per day, like the real app.
 const BARS = [
@@ -86,13 +88,10 @@ function Step({ n, title, text, children }) {
 export default function Landing({ error }) {
   return (
     <div className="lp" id="top">
-      <div className="lp-aurora" aria-hidden="true" />
-      <div className="lp-grid" aria-hidden="true" />
-
       <nav className="lp-nav">
         <a href="#top" className="lp-brand">
           <span className="logo" />
-          GanttForMe
+          Gantt For Me
         </a>
         <div className="lp-links">
           <a href="#how">How it works</a>
@@ -103,6 +102,7 @@ export default function Landing({ error }) {
       </nav>
 
       <header className="lp-hero">
+        <HeroField />
         <div className="lp-hero-copy">
           <p className="lp-kicker">A Gantt chart for your own week</p>
           <h1>
@@ -122,7 +122,9 @@ export default function Landing({ error }) {
       </header>
 
       <section className="lp-preview" aria-label="The board">
-        <Board />
+        <Tilt>
+          <Board />
+        </Tilt>
       </section>
 
       <section className="lp-how" id="how">
@@ -249,7 +251,7 @@ export default function Landing({ error }) {
       </section>
 
       <footer className="lp-foot">
-        <span className="logo" /> GanttForMe
+        <span className="logo" /> Gantt For Me
         <span className="lp-foot-links">
           <a href="/privacy">Privacy</a>
           <a href="/terms">Terms</a>
