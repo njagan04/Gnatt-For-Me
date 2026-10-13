@@ -26,8 +26,13 @@ export default function DeleteUser({ email, tasks }) {
 
   return (
     <>
-      <button className="admin-del" onClick={() => ref.current.showModal()} title={`Delete ${email}'s data`}>
-        <Trash size={14} /> Delete data
+      <button
+        className="admin-del"
+        onClick={() => ref.current.showModal()}
+        title={`Delete ${email}'s data`}
+        aria-label={`Delete ${email}'s data`}
+      >
+        <Trash size={15} />
       </button>
       <dialog ref={ref} className="confirm" onPointerDown={e => e.target === ref.current && ref.current.close()}>
         <div className="confirm-body">

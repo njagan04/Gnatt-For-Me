@@ -44,9 +44,6 @@
   gap: 16px;
   align-items: start;
 }
-.acc-grid > form {
-  grid-row: span 2;
-}
 .acc-card {
   background: var(--panel);
   border: 1px solid var(--line);
@@ -60,7 +57,7 @@
 }
 .acc-tips {
   grid-column: 2;
-  grid-row: 1 / span 2;
+  grid-row: 1 / 3;
 }
 .acc-head {
   display: flex;

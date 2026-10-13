@@ -1,4 +1,4 @@
-/* Board page: shell, timeline (header strip + scrolling body), bars, account menu, toast. */
+/* Board page: shell, timeline (header strip + scrolling body), bars, toast. */
 .nav {
   display: flex;
   gap: 4px;
@@ -24,193 +24,16 @@
   border-radius: 99px;
   background: rgb(91 91 246 / 0.14);
 }
-.acct {
-  position: relative;
-}
-button.avatar {
-  border: 0;
-  padding: 0;
-  cursor: pointer;
+/* the avatar opens Insights & settings */
+a.avatar {
+  text-decoration: none;
   transition:
     box-shadow 0.2s,
     transform 0.15s var(--spring);
 }
-button.avatar:hover,
-button.avatar.on {
+a.avatar:hover {
   box-shadow: 0 0 0 3px rgb(91 91 246 / 0.35);
-}
-.avatar.big {
-  width: 44px;
-  height: 44px;
-  font-size: 18px;
-  flex: none;
-}
-.acct-menu {
-  position: absolute;
-  right: 0;
-  top: calc(100% + 10px);
-  z-index: 30;
-  width: 340px;
-  padding: 16px;
-  border-radius: 16px;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  box-shadow: 0 24px 60px -16px rgb(0 0 0 / 0.55);
-  display: grid;
-  gap: 14px;
-  transform-origin: top right;
-  animation: menu-in 0.22s var(--spring);
-}
-.acct-who {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.acct-who > div {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-}
-.acct-who span.tiny {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-/* profile card analytics: stat tiles (label · value · delta) and a 12-week trend */
-.acct-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-.acct-stats > div {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  gap: 4px;
-  padding: 10px 11px;
-  border-radius: 12px;
-  background: var(--panel-2);
-  min-width: 0;
-}
-.acct-stats span {
-  font-size: 10.5px;
-  font-weight: 600;
-  color: var(--muted);
-}
-.acct-stats b {
-  font-size: 20px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.1;
-}
-.acct-stats b em {
-  font-style: normal;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--muted);
-}
-.acct-stats small {
-  font-size: 11px;
-  color: var(--muted);
-  line-height: 1.25;
-  white-space: nowrap;
-}
-.acct-stats small.up {
-  color: #22a06b;
-}
-.acct-stats small.down {
-  color: var(--danger);
-}
-.acct-trend {
-  display: grid;
-  gap: 4px;
-}
-.acct-trend small {
-  font-size: 10.5px;
-}
-.acct-top {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px !important;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.acct-stats.loading > i {
-  height: 76px;
-  border-radius: 12px;
-  background: var(--panel-2);
-  animation: glow 1s ease-in-out infinite alternate;
-}
-.acct-spark {
-  display: flex;
-  align-items: flex-end;
-  gap: 4px;
-  height: 40px;
-}
-.acct-spark i {
-  flex: 1;
-  border-radius: 3px 3px 0 0;
-  background: var(--line);
-  transition: height 0.4s var(--spring);
-}
-.acct-spark i.now {
-  background: var(--accent);
-}
-.acct-link {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 12px;
-  border-radius: 10px;
-  color: var(--text);
-  text-decoration: none;
-  font-weight: 600;
-  border: 1px solid var(--line);
-  transition:
-    border-color 0.2s,
-    background 0.2s;
-}
-.acct-link:hover {
-  border-color: var(--accent);
-  background: color-mix(in oklab, var(--panel), var(--accent) 6%);
-}
-.acct-link span {
-  transition: transform 0.2s var(--spring);
-}
-.acct-link:hover span {
-  transform: translateX(3px);
-}
-.acct-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.theme-switch {
-  display: flex;
-  padding: 3px;
-  gap: 2px;
-  border-radius: 9px;
-  background: var(--panel-2);
-  border: 1px solid var(--line);
-}
-.theme-switch button {
-  border: 0;
-  background: none;
-  padding: 4px 10px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--muted);
-  border-radius: 6px;
-}
-.theme-switch button.on {
-  background: var(--panel);
-  color: var(--text);
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.18);
-}
-.acct-out {
-  width: 100%;
-  color: var(--danger);
+  transform: scale(1.05);
 }
 /* layout */
 /* app shell: exactly the window height, so the page itself never scrolls */

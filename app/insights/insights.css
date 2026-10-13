@@ -18,6 +18,123 @@ main.insights {
   color: var(--text);
   background: var(--panel-2);
 }
+/* Insights | Settings tabs in the header */
+.ins-tabs {
+  display: flex;
+  gap: 2px;
+  margin-left: 8px;
+  padding: 3px;
+  border-radius: 10px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+}
+.ins-tabs a {
+  padding: 5px 14px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  text-decoration: none;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.ins-tabs a:hover {
+  color: var(--text);
+}
+.ins-tabs a.on {
+  color: var(--text);
+  background: var(--panel);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.18);
+}
+
+/* ---------- Settings tab ---------- */
+.set-body {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 28px 24px 56px;
+}
+.set {
+  display: grid;
+  gap: 14px;
+}
+.set-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 18px 22px;
+  animation: rise 0.4s var(--ease) both;
+}
+.set-card h2,
+.set-title {
+  margin: 0;
+  font-size: 15px;
+}
+.set-card p {
+  margin: 3px 0 0;
+  font-size: 13px;
+}
+.set-title {
+  margin: 14px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.set-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.set-profile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.set-profile > div {
+  flex: 1;
+  min-width: 0;
+}
+.set-profile h2 {
+  font-size: 19px;
+}
+.set-pic {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  flex: none;
+}
+.set-profile .avatar.big {
+  width: 52px;
+  height: 52px;
+  font-size: 20px;
+}
+.admin-pill {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 99px;
+  color: var(--accent);
+  background: rgb(91 91 246 / 0.14);
+}
+.set-link {
+  color: var(--text);
+  text-decoration: none;
+  transition: border-color 0.2s;
+}
+.set-link:hover {
+  border-color: rgb(91 91 246 / 0.5);
+}
+.set-link > span {
+  font-size: 18px;
+  color: var(--muted);
+}
+.set .acc-welcome {
+  margin: 0;
+}
 /* one screen: focus | activity | top tasks, then weekly | rhythm */
 .ins-body {
   width: 100%;

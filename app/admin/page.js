@@ -76,13 +76,11 @@ export default async function Admin() {
                 <tr>
                   <th>User</th>
                   <th>Sign-in</th>
-                  <th>First seen</th>
                   <th>Last seen</th>
                   <th className="num">Sign-ins</th>
                   <th className="num">Tasks</th>
                   <th className="num">Categories</th>
-                  <th className="num">Hours · 30d</th>
-                  <th className="num">Hours · all</th>
+                  <th className="num">Hours</th>
                   <th>Last logged</th>
                   <th />
                 </tr>
@@ -113,13 +111,20 @@ export default async function Admin() {
                       <span className="method">Google</span>
                       {u.pw && <span className="method pw">Password</span>}
                     </td>
-                    <td>{date(u.first_seen)}</td>
-                    <td title={new Date(u.last_seen).toISOString()}>{ago(u.last_seen)}</td>
+                    <td title={new Date(u.last_seen).toISOString()}>
+                      <div className="two">
+                        {ago(u.last_seen)}
+                        <small className="muted">joined {date(u.first_seen)}</small>
+                      </div>
+                    </td>
                     <td className="num">{u.sign_ins}</td>
                     <td className="num">{u.tasks}</td>
                     <td className="num">{u.cats}</td>
-                    <td className="num">{n(u.hours30)}h</td>
-                    <td className="num">{n(u.hours)}h</td>
+                    <td className="num">
+                      <div className="two">
+                        {n(u.hours)}h<small className="muted">{n(u.hours30)}h in 30 days</small>
+                      </div>
+                    </td>
                     <td>{u.last_day ? date(u.last_day) : <span className="muted">—</span>}</td>
                     <td className="num">{u.email !== me && <DeleteUser email={u.email} tasks={u.tasks} />}</td>
                   </tr>

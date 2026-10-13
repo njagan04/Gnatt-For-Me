@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { stats } from '../actions';
 import './insights.css';
 import { addDays, monday, range, today as todayStr, fmt } from '../../lib/days';
@@ -14,18 +15,19 @@ const niceMax = v => {
   return Math.ceil(v / 50) * 50;
 };
 
-export default function Insights({ user }) {
+export default function Insights({ user, tab, settings }) {
   const [r, setR] = useState(null);
   const [err, setErr] = useState(null);
   const [tip, setTip] = useState(null); // { x, y, text }
 
   useEffect(() => {
+    if (tab === 'settings' || r) return;
     const t = todayStr();
     stats(t).then(
       d => setR({ ...d, t, s: summarize(d.days, t) }),
       e => setErr(e.message || 'Could not load'),
     );
-  }, []);
+  }, [tab]);
 
   // Tooltip on hover and on keyboard focus.
   const tipFor = text => ({
@@ -50,26 +52,38 @@ export default function Insights({ user }) {
         <a href="/" className="back">
           ← Board
         </a>
+        <nav className="ins-tabs" aria-label="Sections">
+          <Link href="/insights" className={tab !== 'settings' ? 'on' : ''} replace scroll={false}>
+            Insights
+          </Link>
+          <Link href="/insights?tab=settings" className={tab === 'settings' ? 'on' : ''} replace scroll={false}>
+            Settings
+          </Link>
+        </nav>
         <span className="spacer" />
         <span className="avatar" title={user}>
           {user[0].toUpperCase()}
         </span>
       </header>
-      <div className="ins-body">
-        {err && <p className="err">{err}</p>}
-        {!r && !err && (
-          <>
-            <div className="skel a-focus" style={{ height: 330 }} />
-            <div className="skel a-act" style={{ height: 330 }} />
-            <div className="skel a-top" style={{ height: 380 }} />
-            <div className="a-bottom">
-              <div className="skel" style={{ height: 300 }} />
-              <div className="skel" style={{ height: 300 }} />
-            </div>
-          </>
-        )}
-        {r && <Content r={r} tipFor={tipFor} />}
-      </div>
+      {tab === 'settings' ? (
+        <div className="set-body">{settings}</div>
+      ) : (
+        <div className="ins-body">
+          {err && <p className="err">{err}</p>}
+          {!r && !err && (
+            <>
+              <div className="skel a-focus" style={{ height: 330 }} />
+              <div className="skel a-act" style={{ height: 330 }} />
+              <div className="skel a-top" style={{ height: 380 }} />
+              <div className="a-bottom">
+                <div className="skel" style={{ height: 300 }} />
+                <div className="skel" style={{ height: 300 }} />
+              </div>
+            </>
+          )}
+          {r && <Content r={r} tipFor={tipFor} />}
+        </div>
+      )}
       {tip && (
         <div className="ins-tip" style={{ left: tip.x, top: tip.y }}>
           {tip.text}
