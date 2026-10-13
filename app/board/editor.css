@@ -350,6 +350,9 @@ dialog {
   height: min(700px, 92vh);
   color: var(--text);
   background: var(--panel);
+  /* a dialog can live inside a table cell (admin delete): don't inherit its nowrap / right alignment */
+  white-space: normal;
+  text-align: left;
   box-shadow: 0 30px 80px -20px rgb(0 0 0 / 0.45);
   opacity: 0;
   transform: translateY(10px) scale(0.96);

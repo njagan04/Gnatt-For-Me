@@ -64,15 +64,17 @@ export default function Board({ user, picture }) {
   // ---------- continuous week scroll ----------
 
   // Move both tracks (one transform each) and pin each week label to the left edge while its week is on screen.
+  // Offsets snap to whole device pixels: a fractional translate on a will-change layer renders the text blurry.
   function place(v) {
     const w = colW.current,
       track = trackRef.current,
       head = headRef.current;
     if (!track || !head) return;
-    track.style.transform = head.style.transform = `translate3d(${-v * w}px, 0, 0)`;
+    const px = x => Math.round(x * devicePixelRatio) / devicePixelRatio;
+    track.style.transform = head.style.transform = `translate3d(${px(-v * w)}px, 0, 0)`;
     for (const el of head.querySelectorAll('.wk')) {
       const left = (Number(el.dataset.i) - v + 3) * w + SEAM; // week rows start after the weekend seam
-      el.firstChild.style.translate = `${Math.max(0, Math.min(-left, 5 * w - SEAM - 150))}px 0`;
+      el.firstChild.style.translate = `${px(Math.max(0, Math.min(-left, 5 * w - SEAM - 150)))}px 0`;
     }
   }
   function applyOff(v) {
