@@ -68,11 +68,6 @@ function Categories({ cats, total, focus, setFocus, onAdd, onRecolor, onAskDelet
         <a href="/insights?tab=settings&section=categories" className="link manage" title="Rename, recolour and delete categories">
           Manage
         </a>
-        {focus !== null && (
-          <button className="link" onClick={() => setFocus(null)}>
-            show all
-          </button>
-        )}
       </div>
       <ul className="cats">
         {cats.map(c => (
