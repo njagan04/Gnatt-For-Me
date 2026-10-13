@@ -40,6 +40,7 @@ export default function Board({ user, picture }) {
   const headRef = useRef(null); // header strip track
   const bodyRef = useRef(null); // vertically scrolling body
   const colW = useRef(0);
+  const shift = useRef(0); // px: centres the 7-day strip when the board is too narrow to show all 7
   const dlg = useRef(null);
   const req = useRef(0);
   const lastClick = useRef(null);
@@ -63,6 +64,8 @@ export default function Board({ user, picture }) {
 
   // ---------- continuous week scroll ----------
 
+  const MIN_COL = 130; // px: narrowest a day column gets before the board shows fewer days
+
   // Move both tracks (one transform each) and pin each week label to the left edge while its week is on screen.
   // Offsets snap to whole device pixels: a fractional translate on a will-change layer renders the text blurry.
   function place(v) {
@@ -71,9 +74,9 @@ export default function Board({ user, picture }) {
       head = headRef.current;
     if (!track || !head) return;
     const px = x => Math.round(x * devicePixelRatio) / devicePixelRatio;
-    track.style.transform = head.style.transform = `translate3d(${px(-v * w)}px, 0, 0)`;
+    track.style.transform = head.style.transform = `translate3d(${px(-v * w + shift.current)}px, 0, 0)`;
     for (const el of head.querySelectorAll('.wk')) {
-      const left = (Number(el.dataset.i) - v + 3) * w + SEAM; // week rows start after the weekend seam
+      const left = (Number(el.dataset.i) - v + 3) * w + SEAM + shift.current; // week rows start after the weekend seam
       el.firstChild.style.translate = `${px(Math.max(0, Math.min(-left, 5 * w - SEAM - 150)))}px 0`;
     }
   }
@@ -164,13 +167,17 @@ export default function Board({ user, picture }) {
     thisWeek();
   }, []);
 
-  // Column width follows the board width (7 columns on screen).
+  // Column width follows the board width: 7 columns, but never narrower than MIN_COL. In a narrower window fewer
+  // days show (the strip stays centred on the middle day) instead of every day getting squeezed.
   useLayoutEffect(() => {
     const el = drumRef.current;
     if (!el) return;
     const ro = new ResizeObserver(() => {
-      colW.current = el.clientWidth / 7;
+      colW.current = Math.max(MIN_COL, el.clientWidth / 7);
+      shift.current = Math.min(0, el.clientWidth / 2 - 3.5 * colW.current);
       boardRef.current.style.setProperty('--w', colW.current + 'px');
+      // the dimmed preview column at each edge: only the part of it still on screen
+      boardRef.current.style.setProperty('--edge', Math.max(0, colW.current + shift.current) + 'px');
       place(off.current);
     });
     ro.observe(el);
@@ -207,7 +214,7 @@ export default function Board({ user, picture }) {
       const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
       const px = e.deltaMode === 1 ? d * 40 : d;
       const lim = anchoring.current ? 7.5 : 9;
-      target.current = clamp(target.current + px / (el.clientWidth / 7), -lim, lim);
+      target.current = clamp(target.current + px / colW.current, -lim, lim);
       kick();
       clearTimeout(snapTimer.current);
       snapTimer.current = setTimeout(() => {

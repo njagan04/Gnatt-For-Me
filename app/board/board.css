@@ -91,7 +91,7 @@ button.icon.sm {
   top: 0;
   bottom: 0;
   left: 0;
-  width: var(--w);
+  width: var(--edge, var(--w));
   z-index: 5;
   pointer-events: none;
   background: color-mix(in oklab, var(--panel) 45%, transparent);
@@ -128,7 +128,7 @@ button.icon.sm {
   top: 0;
   bottom: 0;
   left: 0;
-  width: var(--w);
+  width: var(--edge, var(--w));
   z-index: 5;
   pointer-events: none;
   background: color-mix(in oklab, var(--panel) 45%, transparent);
@@ -163,7 +163,7 @@ button.icon.sm {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: var(--w);
+  width: var(--edge, var(--w));
   left: calc((var(--i) + 3) * var(--w));
   background: var(--panel);
   border-right: 1px solid var(--line);
