@@ -130,7 +130,7 @@ export default function Landing({ error }) {
       <nav className="lp-nav">
         <div className="lp-brand">
           <span className="logo" />
-          GnattForMe
+          GanttForMe
         </div>
       </nav>
 
@@ -142,7 +142,7 @@ export default function Landing({ error }) {
           <span className="lp-shine">you actually worked on.</span>
         </h1>
         <p className="lp-sub">
-          Drag across days, name the task, pull up the hours. GnattForMe keeps the week you would otherwise forget, grouped by project and
+          Drag across days, name the task, pull up the hours. GanttForMe keeps the week you would otherwise forget, grouped by project and
           ready for standup.
         </p>
         <SignInLink />
@@ -276,7 +276,7 @@ export default function Landing({ error }) {
       </section>
 
       <footer className="lp-foot">
-        <span className="logo" /> GnattForMe
+        <span className="logo" /> GanttForMe
         <span className="lp-foot-links">
           <a href="/privacy">Privacy</a>
           <a href="/terms">Terms</a>

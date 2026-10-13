@@ -10,7 +10,7 @@ export default function Legal({ title, summary, sections }) {
   return (
     <main className="legal">
       <a href="/" className="legal-home">
-        <span className="logo" /> GnattForMe
+        <span className="logo" /> GanttForMe
       </a>
       <h1>{title}</h1>
       <p className="muted">Last updated {UPDATED}</p>

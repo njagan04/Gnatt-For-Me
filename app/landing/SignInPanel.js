@@ -72,7 +72,7 @@ export default function SignInPanel({ error }) {
 
   useEffect(() => {
     if (error) document.getElementById('signin').scrollIntoView(); // came back from a failed Google redirect
-    const ch = new BroadcastChannel('gnatt-auth');
+    const ch = new BroadcastChannel('gantt-auth');
     ch.onmessage = ({ data }) => {
       if (data.error) return setGoogleErr(data.error);
       if (data.setup) {

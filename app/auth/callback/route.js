@@ -10,7 +10,7 @@ function finish(req, to, error, extra) {
   const res = popup
     ? new NextResponse(
         `<!doctype html><meta charset="utf-8"><title>Signing in…</title><script>
-          try { new BroadcastChannel('gnatt-auth').postMessage(${JSON.stringify(error ? { error } : { to, ...extra })}); } catch {}
+          try { new BroadcastChannel('gantt-auth').postMessage(${JSON.stringify(error ? { error } : { to, ...extra })}); } catch {}
           window.close(); setTimeout(() => location.replace(${JSON.stringify(target)}), 300);
         </script>`,
         { headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store' } },

@@ -1,6 +1,6 @@
 import Legal from '../legal/Legal';
 
-export const metadata = { title: 'Privacy policy · GnattForMe' };
+export const metadata = { title: 'Privacy policy · GanttForMe' };
 
 const summary = [
   'We store only what is needed to run your work log: your account details and what you enter.',

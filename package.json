@@ -1,5 +1,5 @@
 {
-  "name": "gnattforme",
+  "name": "ganttforme",
   "private": true,
   "scripts": {
     "dev": "next dev",

@@ -12,7 +12,7 @@ export default function Settings({ section, session, row, welcome }) {
       {section === 'appearance' && (
         <section className="set-sec">
           <h2>Appearance</h2>
-          <p className="muted set-lead">How GnattForMe looks on this device.</p>
+          <p className="muted set-lead">How GanttForMe looks on this device.</p>
           <div className="set-card set-row">
             <div>
               <b>Theme</b>
@@ -28,7 +28,7 @@ export default function Settings({ section, session, row, welcome }) {
           {welcome && (
             <div className="acc-welcome">
               <div>
-                <h1>Welcome to GnattForMe 👋</h1>
+                <h1>Welcome to GanttForMe 👋</h1>
                 <p className="muted">
                   Your account is ready. Pick a username and password so you can also sign in on devices without Google.
                 </p>

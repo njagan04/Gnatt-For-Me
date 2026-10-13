@@ -1,6 +1,6 @@
 import Legal from '../legal/Legal';
 
-export const metadata = { title: 'Terms of service · GnattForMe' };
+export const metadata = { title: 'Terms of service · GanttForMe' };
 
 const summary = [
   'A free, personal tool, provided as is.',
@@ -10,11 +10,11 @@ const summary = [
 ];
 
 const sections = [
-  ['Agreement', <p key="a">By signing in to GnattForMe you agree to these terms.</p>],
+  ['Agreement', <p key="a">By signing in to GanttForMe you agree to these terms.</p>],
   [
     'The service',
     <p key="s">
-      GnattForMe is a free, personal tool for logging the work you do each day. It is provided as is, without warranties of any kind, and
+      GanttForMe is a free, personal tool for logging the work you do each day. It is provided as is, without warranties of any kind, and
       may change or stop at any time.
     </p>,
   ],

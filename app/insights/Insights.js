@@ -47,7 +47,7 @@ export default function Insights({ me, admin, tab, section, settings }) {
     <main className="insights">
       <header className="top">
         <a href="/" className="brand me-brand" title="Back to your board">
-          <span className="logo" /> GnattForMe
+          <span className="logo" /> GanttForMe
         </a>
         <span className="spacer" />
         <Avatar me={me} className="on" />

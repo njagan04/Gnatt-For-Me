@@ -4,7 +4,7 @@ import { fmt } from '../../lib/days';
 export default function TopBar({ user, picture, loading, from, to, total, onPrev, onToday, onNext, onNew }) {
   return (
     <header className="top" data-loading={loading || undefined}>
-      <div className="brand" title="GnattForMe">
+      <div className="brand" title="GanttForMe">
         <span className="logo" />
       </div>
       <nav className="nav">

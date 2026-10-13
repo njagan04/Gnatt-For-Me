@@ -4,7 +4,7 @@ import { sql } from '../../lib/db';
 import Insights from './Insights';
 import Settings from './Settings';
 
-export const metadata = { title: 'Insights · GnattForMe' };
+export const metadata = { title: 'Insights · GanttForMe' };
 
 // Your page: sidebar (who you are + sections) with Insights (charts, loaded client-side) or one Settings section
 // (?tab=settings&section=appearance|sign-in|admin).
