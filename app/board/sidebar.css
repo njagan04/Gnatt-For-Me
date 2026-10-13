@@ -155,12 +155,12 @@ button.cd:active {
 }
 /* daily log: the open day, and days that have a page */
 .cd.sel {
-  color: #fff;
-  font-weight: 700;
-  box-shadow: none;
+  /* the open day: marked like the ends of the board's band, so both calendars read the same */
+  font-weight: 800;
+  border-radius: 9px;
   background:
-    linear-gradient(to top, rgb(255 255 255 / 0.22) calc(var(--f, 0) * 100%), transparent 0),
-    linear-gradient(135deg, var(--accent), var(--accent-2));
+    var(--fill) padding-box,
+    rgb(91 91 246 / 0.42) border-box;
 }
 .cd.mark::after {
   content: '';
@@ -171,9 +171,6 @@ button.cd:active {
   height: 5px;
   border-radius: 50%;
   background: var(--accent-2);
-}
-.cd.sel.mark::after {
-  background: #fff;
 }
 
 .cats {
