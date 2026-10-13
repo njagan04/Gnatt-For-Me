@@ -39,7 +39,17 @@ const GoogleButton = ({ label }) => (
 
 // "Sign in" (nav and bottom of the page): bring the card in the hero into view, give it a short glow so the eye
 // lands on it, and put the cursor in its first field.
-export function SignInButton({ className, label = 'Sign in' }) {
+// With autoHide (the nav's button) it's only shown while the card itself is off screen.
+export function SignInButton({ className, label = 'Sign in', autoHide }) {
+  const [cardShown, setCardShown] = useState(!!autoHide);
+  useEffect(() => {
+    const card = autoHide && document.querySelector('#signin .lp-si-card');
+    if (!card) return;
+    const io = new IntersectionObserver(([e]) => setCardShown(e.isIntersecting), { threshold: 0.25 });
+    io.observe(card);
+    return () => io.disconnect();
+  }, [autoHide]);
+
   function call() {
     const card = document.querySelector('#signin .lp-si-card');
     if (!card) return;
@@ -53,7 +63,13 @@ export function SignInButton({ className, label = 'Sign in' }) {
     setTimeout(focus, inView ? 0 : 700);
   }
   return (
-    <button type="button" className={className} onClick={call}>
+    <button
+      type="button"
+      className={className + (autoHide && cardShown ? ' tucked' : '')}
+      onClick={call}
+      tabIndex={autoHide && cardShown ? -1 : undefined}
+      aria-hidden={autoHide && cardShown ? true : undefined}
+    >
       {label}
     </button>
   );

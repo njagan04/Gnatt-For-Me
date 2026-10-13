@@ -80,7 +80,7 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   position: absolute;
   left: calc(var(--c0) / 15 * 100% + 6px);
   width: calc(var(--n) / 15 * 100% - 12px);
-  top: calc(70px + var(--r) * 13%);
+  top: var(--top);
   height: 28px;
   border-radius: 8px;
   background: color-mix(in oklab, var(--k), transparent 70%);
@@ -208,55 +208,149 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
 .lp-nav-cta:hover {
   transform: translateY(-1px);
 }
+/* hidden while the sign-in card is on screen; slides in once it scrolls away */
+.lp-nav-cta {
+  transition:
+    transform 0.3s var(--spring),
+    opacity 0.25s;
+}
+.lp-nav-cta.tucked {
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+}
 
 .lp-hero {
   position: relative;
   z-index: 2;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 400px;
-  align-items: center;
-  gap: clamp(32px, 6vw, 96px);
-  max-width: 1200px;
-  min-height: calc(100vh - 66px);
-  margin: 0 auto;
-  padding: 6vh clamp(16px, 5vw, 56px) 8vh;
+  height: 800px;
 }
 .lp-hero > :not(.hf) {
   position: relative;
   z-index: 1;
 }
-.lp-hero-copy {
-  padding: 18px 22px 22px 0;
-  background: radial-gradient(closest-side, rgb(8 9 13 / 0.85), rgb(8 9 13 / 0.55) 70%, transparent);
-}
-.lp-hero .lp-signin {
-  animation: lp-in 0.9s 0.25s var(--ease) both;
-}
-.lp-ticks {
-  list-style: none;
-  display: grid;
-  gap: 10px;
+.lp-hl {
+  position: absolute;
+  inset: 0;
   margin: 0;
-  padding: 0;
-  font-size: 15px;
-  animation: lp-in 0.9s 0.3s var(--ease) both;
+  pointer-events: none;
 }
-.lp-ticks li {
+.hl-bar {
+  position: absolute;
+  left: calc(var(--c0) / 15 * 100% + 8px);
+  width: calc(var(--n) / 15 * 100% - 16px);
+  top: calc(124px + var(--row) * 124px);
+  height: clamp(66px, 7.2vw, 100px);
   display: flex;
   align-items: center;
-  gap: 10px;
-}
-.lp-ticks li::before {
-  content: '✓';
-  display: grid;
-  place-items: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 7px;
-  font-size: 12px;
+  gap: 16px;
+  padding: 0 22px 0 28px;
+  border-radius: 18px;
+  font-size: clamp(32px, 4.3vw, 64px);
   font-weight: 800;
-  color: #a9a9ff;
-  background: rgb(91 91 246 / 0.16);
+  letter-spacing: -0.035em;
+  line-height: 1;
+  color: #fff;
+  white-space: nowrap;
+  background: color-mix(in oklab, var(--k), #08090d 70%);
+  box-shadow:
+    inset 5px 0 0 var(--k),
+    inset -5px 0 0 var(--k),
+    0 30px 60px -30px color-mix(in oklab, var(--k), transparent 30%);
+  transform-origin: left;
+  animation: hf-draw 0.9s var(--ease) both;
+  animation-delay: var(--dl);
+}
+.hl-text {
+  animation: lp-in 0.7s var(--ease) both;
+  animation-delay: calc(var(--dl) + 0.3s);
+}
+.hl-hrs {
+  margin-left: auto;
+  padding: 4px 11px;
+  border-radius: 99px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0;
+  background: color-mix(in oklab, var(--k), transparent 55%);
+  animation: lp-in 0.6s var(--ease) both;
+  animation-delay: calc(var(--dl) + 0.5s);
+}
+/* the three statuses, same patterns as the board */
+.hl-bar.doing {
+  background:
+    repeating-linear-gradient(45deg, color-mix(in oklab, var(--k), transparent 72%) 0 2px, transparent 2px 11px),
+    repeating-linear-gradient(-45deg, color-mix(in oklab, var(--k), transparent 72%) 0 2px, transparent 2px 11px),
+    color-mix(in oklab, var(--k), #08090d 70%);
+}
+.hl-bar.done {
+  background:
+    radial-gradient(color-mix(in oklab, var(--k), transparent 50%) 1.6px, transparent 2px) 3px 3px / 11px 11px,
+    color-mix(in oklab, var(--k), #08090d 70%);
+}
+.hl-bar.done .hl-hrs::before {
+  content: '✓ ';
+}
+.lp-hero-foot {
+  position: absolute;
+  left: calc(1 / 15 * 100% * 0 + 8px);
+  top: 520px;
+  max-width: min(560px, 46%);
+  padding: 4px 18px 10px 20px;
+  border-left: 2px solid rgb(143 143 255 / 0.35);
+  animation: lp-in 0.9s 1.4s var(--ease) both;
+}
+.lp-sub {
+  margin: 0 0 16px;
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.lp-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.lp-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.lp-legend .lg {
+  width: 26px;
+  height: 12px;
+  border-radius: 4px;
+  background: color-mix(in oklab, var(--cat-0), #08090d 55%);
+  box-shadow: inset 2px 0 0 var(--cat-0);
+}
+.lp-legend .lg.doing {
+  background:
+    repeating-linear-gradient(45deg, color-mix(in oklab, var(--cat-1), transparent 40%) 0 1px, transparent 1px 5px),
+    repeating-linear-gradient(-45deg, color-mix(in oklab, var(--cat-1), transparent 40%) 0 1px, transparent 1px 5px),
+    color-mix(in oklab, var(--cat-1), #08090d 60%);
+  box-shadow: inset 2px 0 0 var(--cat-1);
+}
+.lp-legend .lg.done {
+  background:
+    radial-gradient(color-mix(in oklab, var(--cat-2), transparent 30%) 1px, transparent 1.3px) 1px 1px / 5px 5px,
+    color-mix(in oklab, var(--cat-2), #08090d 60%);
+  box-shadow: inset 2px 0 0 var(--cat-2);
+}
+.lp-legend-note {
+  flex-basis: 100%;
+  font-size: 12.5px;
+  opacity: 0.85;
+}
+/* sign-in docked on the right, like the board's sidebar */
+.lp-hero .lp-signin {
+  position: absolute;
+  top: 110px;
+  right: max(16px, 4vw);
+  width: min(380px, 30vw);
+  animation: lp-in 0.9s 0.25s var(--ease) both;
 }
 /* "Sign in" from the nav or the bottom: the card gives a short glow so the eye lands on it */
 .lp-si-card.called {
@@ -268,41 +362,6 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
       0 0 0 3px rgb(91 91 246 / 0.6),
       0 40px 80px -30px #000;
   }
-}
-.lp-kicker {
-  display: inline-block;
-  margin: 0 0 18px;
-  padding: 6px 14px;
-  border-radius: 99px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #c8c8ff;
-  background: rgb(91 91 246 / 0.12);
-  border: 1px solid rgb(91 91 246 / 0.3);
-  animation: lp-in 0.8s var(--ease) both;
-}
-.lp h1 {
-  margin: 0;
-  font-size: clamp(38px, 5.4vw, 70px);
-  line-height: 1.02;
-  letter-spacing: -0.035em;
-  font-weight: 800;
-  animation: lp-in 0.9s 0.1s var(--ease) both;
-}
-.lp-shine {
-  background: linear-gradient(90deg, #8f8fff, #d08bff, #7cc4ff, #8f8fff) 0 0 / 300% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: lp-shine 8s linear infinite;
-}
-.lp-sub {
-  max-width: 560px;
-  margin: 22px 0 28px;
-  font-size: clamp(16px, 2vw, 19px);
-  line-height: 1.55;
-  color: var(--muted);
-  animation: lp-in 0.9s 0.2s var(--ease) both;
 }
 .lp-cta {
   display: inline-flex;
@@ -741,177 +800,205 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   top: 172px;
 }
 
-/* ---------- how it works: three step cards ---------- */
-.lp-how {
+/* ---------- the week below the hero: Mon / Wed / Fri sections between weekend seams ---------- */
+.lp-seam {
   position: relative;
   z-index: 2;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 16vh clamp(16px, 5vw, 56px) 4vh;
-  text-align: center;
-}
-.lp-how > h2 {
-  margin: 0 0 44px;
-  font-size: clamp(30px, 4.4vw, 52px);
-  letter-spacing: -0.035em;
-}
-.lp-steps {
+  height: 38px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-  text-align: left;
+  place-items: center;
+  border-block: 1px solid var(--line);
+  background: repeating-linear-gradient(135deg, color-mix(in oklab, var(--muted) 30%, transparent) 0 1px, transparent 1px 7px), var(--bg);
 }
-.lp-step {
-  padding: 22px;
-  border-radius: 18px;
-  border: 1px solid var(--line);
-  background: linear-gradient(160deg, color-mix(in oklab, var(--panel-2), var(--accent) 6%), var(--panel));
+.lp-seam span {
+  padding: 2px 12px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: var(--bg);
+}
+.lp-week {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  align-items: center;
+  gap: clamp(28px, 5vw, 80px);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 13vh clamp(16px, 5vw, 56px);
+}
+.lp-week + .lp-week {
+  border-top: 1px solid rgb(255 255 255 / 0.04);
+}
+.lp-week.flip > .lp-week-copy {
+  order: 2;
+}
+.lp-week-copy {
   animation: lp-card-in linear both;
   animation-timeline: view();
-  animation-range: entry calc(var(--i) * 8%) entry calc(70% + var(--i) * 8%);
+  animation-range: entry 5% cover 30%;
 }
-.lp-step h3 {
-  margin: 6px 0 8px;
-  font-size: 19px;
-}
-.lp-step p {
-  margin: 0;
-  color: var(--muted);
-  line-height: 1.55;
-}
-.lp-step-art {
-  height: 96px;
-  margin-bottom: 18px;
-  border-radius: 12px;
-  border: 1px solid var(--line);
-  background: var(--bg);
-  position: relative;
-  overflow: hidden;
-}
-/* step 1: five days with a draft bar across Wed → Fri */
-.art-days {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-}
-.art-days span {
-  padding: 8px 0 0 10px;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--muted);
-  border-right: 1px solid var(--line);
-}
-.art-draft {
-  transform-origin: left;
-  animation: art-stretch linear both;
-  animation-timeline: view();
-  animation-range: entry 40% cover 45%;
-  position: absolute;
-  left: calc(40% + 6px);
-  right: 6px;
-  top: 46px;
-  height: 28px;
-  border-radius: 8px;
-  background: rgb(91 91 246 / 0.16);
-  box-shadow: inset 0 0 0 1.5px rgb(91 91 246 / 0.7);
-}
-/* step 2: day bars rising to their hours */
-.art-eq {
-  position: absolute;
-  inset: 14px 18px;
-  display: flex;
-  justify-content: space-around;
-  align-items: flex-end;
-}
-.art-eq span {
-  position: relative;
-  width: 18px;
-  height: 100%;
-  border-radius: 6px;
-  background: var(--panel-2);
-  overflow: hidden;
-}
-.art-eq i {
-  transform-origin: bottom;
-  animation: art-rise linear both;
-  animation-timeline: view();
-  animation-range: entry calc(30% + var(--d) * 6%) cover calc(40% + var(--d) * 3%);
-  position: absolute;
-  inset: auto 0 0;
-  height: calc(var(--v) * 100%);
-  border-radius: 6px;
-  background: linear-gradient(to top, hsl(160 70% 45%), hsl(160 80% 65%));
-}
-/* step 3: bars gathered by project */
-.art-groups {
-  position: absolute;
-  inset: 12px 14px;
-  display: grid;
-  gap: 6px;
-  align-content: center;
-}
-.art-groups i:nth-child(1) {
-  --sx: 40px;
-  --sy: 18px;
-  --sr: 6deg;
-}
-.art-groups i:nth-child(2) {
-  --sx: -30px;
-  --sy: -14px;
-  --sr: -5deg;
-}
-.art-groups i:nth-child(3) {
-  --sx: 60px;
-  --sy: -20px;
-  --sr: 4deg;
-}
-.art-groups i:nth-child(4) {
-  --sx: -50px;
-  --sy: 10px;
-  --sr: -7deg;
-}
-.art-groups i {
-  animation: art-gather linear both;
-  animation-timeline: view();
-  animation-range: entry 40% cover 45%;
-  height: 13px;
-  width: var(--w);
-  margin-left: var(--x, 0);
-  border-radius: 5px;
-  background: color-mix(in oklab, var(--c), transparent 35%);
-  box-shadow: inset 3px 0 0 var(--c);
-}
-
-/* ---------- insights showcase: the timeline fills in left to right as it scrolls into view ---------- */
-.lp-insights {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: minmax(260px, 0.8fr) minmax(0, 1.2fr);
-  align-items: center;
-  gap: clamp(24px, 5vw, 72px);
-  padding: 12vh clamp(16px, 5vw, 72px);
-  view-timeline-name: --ins;
-  --cat-0: #3987e5;
-  --cat-1: #d95926;
-  --cat-2: #199e70;
-  --cat-3: #c98500;
-  --cat-4: #d55181;
-}
-.lp-ins-copy h2 {
-  margin: 10px 0 14px;
-  font-size: clamp(30px, 4vw, 50px);
+.lp-week-copy h2 {
+  margin: 14px 0 12px;
+  font-size: clamp(30px, 3.8vw, 48px);
   letter-spacing: -0.035em;
   line-height: 1.05;
 }
-.lp-ins-copy p {
+.lp-week-copy p {
+  margin: 0;
+  max-width: 440px;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+/* the board's day header, used as each section's label */
+.lp-dayhead {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 8px 14px 8px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  box-shadow: inset 0 3px 0 var(--accent);
+}
+.lp-dayhead b {
+  font-size: 24px;
+  line-height: 1;
+}
+.lp-dayhead span {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.lp-dayhead em {
+  margin-left: 6px;
+  font-style: normal;
+  font-size: 13px;
+  font-weight: 700;
+  color: #b9b9ff;
+}
+#see-it {
+  view-timeline-name: --ins;
+}
+
+/* ---------- the daily-log page in miniature ---------- */
+.nm {
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  box-shadow:
+    0 50px 100px -40px rgb(0 0 0 / 0.9),
+    0 0 100px -50px rgb(91 91 246 / 0.6);
+  overflow: hidden;
+  animation: lp-card-in linear both;
+  animation-timeline: view();
+  animation-range: entry 0% cover 30%;
+}
+.nm-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line);
+}
+.nm-head b {
+  font-size: 15px;
+}
+.nm-chip {
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: color-mix(in oklab, var(--c), transparent 82%);
+  border: 1px solid color-mix(in oklab, var(--c), transparent 55%);
+}
+.nm-page {
+  position: relative;
+  height: 330px;
+  background-image: radial-gradient(color-mix(in oklab, var(--muted), transparent 72%) 1px, transparent 1.2px);
+  background-size: 20px 20px;
+}
+.nm-note {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: 40%;
+  padding: 10px 13px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: color-mix(in oklab, var(--panel), transparent 10%);
+  font-size: 13px;
+  line-height: 1.5;
+  animation: nm-in linear both;
+  animation-timeline: view();
+  animation-range: entry calc(20% + var(--d) * 10%) cover calc(40% + var(--d) * 6%);
+}
+.nm-note.tagged {
+  border-left: 3px solid var(--c);
+  background: color-mix(in oklab, var(--c), var(--panel) 92%);
+}
+.nm-tag {
+  position: absolute;
+  top: -9px;
+  left: 10px;
+  padding: 1px 8px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 800;
+  color: #fff;
+  background: var(--c);
+}
+.nm-note b {
+  display: block;
+  margin: 2px 0 2px;
+}
+.nm-note p {
   margin: 0;
   color: var(--muted);
-  font-size: 17px;
-  line-height: 1.55;
-  max-width: 420px;
 }
+.nm-note ul {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 3px;
+}
+.nm-note li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+}
+.nm-note li::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  border: 1.5px solid var(--muted);
+}
+.nm-note li.done {
+  text-decoration: line-through;
+}
+.nm-note li.done::before {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+@keyframes nm-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) rotate(-1.5deg);
+  }
+}
+
+/* ---------- insights card: fills in as it scrolls into view (timeline --ins on #see-it) ---------- */
 .lp-ins-stats {
   list-style: none;
   display: flex;
@@ -1052,83 +1139,24 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   }
 }
 
-/* ---------- features ---------- */
-.lp-features,
-.lp-foot {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 700px;
-}
-.lp-features {
-  position: relative;
-  z-index: 2;
-  padding: 14vh clamp(16px, 5vw, 72px) 6vh;
-  text-align: center;
-}
-.lp-features > h2 {
-  margin: 0 0 48px;
-  font-size: clamp(32px, 5vw, 56px);
-  letter-spacing: -0.035em;
-}
-.lp-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-  max-width: 1100px;
-  margin: 0 auto;
-  text-align: left;
-}
-.lp-card {
-  padding: 26px;
-  border-radius: 18px;
-  border: 1px solid var(--line);
-  background: linear-gradient(160deg, color-mix(in oklab, var(--panel-2), var(--accent) 6%), var(--panel));
-  transition:
-    border-color 0.3s,
-    transform 0.3s var(--spring);
-  animation: lp-card-in linear both;
-  animation-timeline: view();
-  animation-range: entry calc(var(--i) * 6%) entry calc(70% + var(--i) * 6%);
-}
-.lp-card:hover {
-  border-color: rgb(91 91 246 / 0.5);
-  transform: translateY(-4px);
-}
-.lp-card svg {
-  color: #a9a9ff;
-  padding: 9px;
-  box-sizing: content-box;
-  border-radius: 12px;
-  background: rgb(91 91 246 / 0.14);
-}
-.lp-card h3 {
-  margin: 16px 0 8px;
-  font-size: 18px;
-}
-.lp-card p {
-  margin: 0;
-  color: var(--muted);
-  line-height: 1.55;
-}
-
 /* ---------- end ---------- */
 .lp-end {
   position: relative;
   z-index: 2;
   text-align: center;
-  padding: 14vh 16px 16vh;
+  padding: 16vh 16px;
 }
 .lp-end h2 {
-  margin: 0 auto 14px;
-  max-width: 760px;
-  font-size: clamp(32px, 4.6vw, 56px);
+  margin: 0 0 12px;
+  font-size: clamp(34px, 5vw, 64px);
   letter-spacing: -0.04em;
-  line-height: 1.05;
+  line-height: 1.02;
   animation: lp-card-in linear both;
   animation-timeline: view();
   animation-range: entry 10% cover 40%;
 }
 .lp-end p {
-  margin: 0 0 28px;
+  margin: 0 0 30px;
   color: var(--muted);
   font-size: 17px;
 }
@@ -1140,10 +1168,17 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   cursor: pointer;
   animation: none;
 }
-.lp-small {
+.lp-foot {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 28px;
   color: var(--muted);
-  font-size: 13px;
-  margin-top: 18px;
+  font-weight: 600;
+  border-top: 1px solid var(--line);
 }
 .lp-foot-links {
   margin-left: 18px;
@@ -1157,18 +1192,6 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
 }
 .lp-foot-links a:hover {
   color: var(--text);
-}
-.lp-foot {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 28px;
-  color: var(--muted);
-  font-weight: 600;
-  border-top: 1px solid var(--line);
 }
 
 /* ---------- keyframes ---------- */
@@ -1201,25 +1224,45 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   }
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1100px) {
   .lp-hero {
-    grid-template-columns: 1fr;
-    min-height: 0;
-    padding-top: 6vh;
+    height: auto;
+    padding: 36px 16px 48px;
+    display: grid;
+    gap: 14px;
   }
+  .lp-hl {
+    position: static;
+    display: grid;
+    gap: 12px;
+  }
+  .hl-bar {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: max-content;
+    max-width: 100%;
+    margin-left: calc(var(--row) * 6%);
+    font-size: clamp(28px, 7vw, 52px);
+  }
+  .lp-hero-foot,
   .lp-hero .lp-signin {
-    justify-items: stretch;
+    position: static;
+    width: auto;
+    max-width: none;
+    margin-top: 14px;
+  }
+  .hf-bars {
+    display: none;
   }
   .lp-links {
     display: none;
   }
-  .lp-steps,
-  .lp-cards,
-  .lp-insights {
+  .lp-week {
     grid-template-columns: 1fr;
   }
-  .hf-cols span:nth-child(n + 11) {
-    display: none;
+  .lp-week.flip > .lp-week-copy {
+    order: 0;
   }
   .lp-bar i {
     display: none;
@@ -1236,19 +1279,21 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   }
 }
 
-@keyframes art-stretch {
-  from {
-    transform: scaleX(0.33);
-  }
+/* the rhyme, kept out of the hero: above the closing line and in the footer */
+.lp-rhyme {
+  margin: 0 0 18px;
+  font-size: clamp(15px, 1.6vw, 18px);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--text);
 }
-@keyframes art-rise {
-  from {
-    transform: scaleY(0);
-  }
+.lp-rhyme span {
+  color: #b9b9ff;
 }
-@keyframes art-gather {
-  from {
-    transform: translate(var(--sx), var(--sy)) rotate(var(--sr));
-    opacity: 0.4;
-  }
+.lp-foot-rhyme {
+  margin-left: 18px;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  opacity: 0.75;
 }

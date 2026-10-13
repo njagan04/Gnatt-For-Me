@@ -7,35 +7,27 @@ import { useEffect, useRef } from 'react';
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 const COLS = 15; // three working weeks
 const TODAY = 7; // the middle week's Wednesday
-// row, first column, length, colour slot (deterministic, so server and browser render the same)
+// top (px), first column, length, colour slot — kept clear of the headline bars (deterministic: same on server and browser)
 const BARS = [
-  [0, 0, 4, 0],
-  [0, 6, 5, 0],
-  [1, 1, 3, 2],
-  [1, 9, 4, 1],
-  [2, 3, 5, 0],
-  [2, 11, 3, 6],
-  [3, 0, 2, 4],
-  [3, 5, 3, 1],
-  [3, 12, 3, 2],
-  [4, 2, 4, 6],
-  [4, 8, 4, 3],
-  [5, 0, 3, 3],
-  [5, 6, 2, 4],
-  [6, 4, 6, 2],
-  [6, 12, 2, 0],
+  [56, 1, 3, 0],
+  [56, 6, 4, 2],
+  [56, 11, 3, 6],
+  [690, 0, 4, 3],
+  [690, 9, 5, 0],
+  [736, 2, 3, 4],
+  [736, 10, 3, 1],
 ];
-const DOING = [1, 6, 3, 5]; // a bar through today, still in progress
+const DOING = [714, 6, 3, 5]; // a bar through today, still in progress
 
 function Bars({ lit }) {
   return (
     <div className={'hf-bars' + (lit ? ' lit' : '')}>
-      {BARS.map(([r, c, n, k], i) => (
-        <i key={i} style={{ '--r': r, '--c0': c, '--n': n, '--k': `var(--cat-${k})`, '--d': i }} />
+      {BARS.map(([t, c, n, k], i) => (
+        <i key={i} style={{ '--top': t + 'px', '--c0': c, '--n': n, '--k': `var(--cat-${k})`, '--d': i }} />
       ))}
       <i
         className="doing"
-        style={{ '--r': DOING[0], '--c0': DOING[1], '--n': DOING[2], '--k': `var(--cat-${DOING[3]})`, '--d': BARS.length }}
+        style={{ '--top': DOING[0] + 'px', '--c0': DOING[1], '--n': DOING[2], '--k': `var(--cat-${DOING[3]})`, '--d': BARS.length }}
       />
     </div>
   );

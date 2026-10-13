@@ -3,8 +3,9 @@ import SignInPanel, { SignInButton } from './SignInPanel';
 import Tilt from './Tilt';
 import './landing.css';
 
-// Logged-out home. Sign-in sits in the hero; behind it a faint timeline that follows the mouse (HeroField). The rest
-// scrolls normally with one-shot reveals (CSS view timelines); browsers without them just show everything.
+// Logged-out home, built like a week on the board: the headline is three task bars drawn onto a timeline (the
+// mouse is its "now" cursor), sign-in is docked on the right like the app's sidebar, and the page below reads
+// Monday → Friday with weekend seams between. Reveals use CSS view timelines; without them everything just shows.
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 // Demo bars on the mini board: hours per day, like the real app.
 const BARS = [
@@ -13,7 +14,7 @@ const BARS = [
   { cls: 'b3', name: 'Bug fixes', h: 20, hrs: [4, 3] },
   { cls: 'b4', name: 'Onboarding docs', h: 160, hrs: [2, 3, 1] },
 ];
-// Demo activity for the Insights showcase: 20 weeks × Mon–Fri, busier towards recent weeks (deterministic).
+// Demo activity for the Insights card: 20 weeks × Mon–Fri, busier towards recent weeks (deterministic).
 const HEAT = Array.from({ length: 20 }, (_, w) =>
   Array.from({ length: 5 }, (_, d) => {
     const r = Math.abs(Math.sin(w * 12.9898 + d * 78.233) * 43758.5453) % 1;
@@ -27,20 +28,13 @@ const FOCUS = [
   ['Design', 4, 14],
   ['Meetings', 3, 10],
 ];
-const FEATURES = [
-  ['Drag to log', 'Drag across the days you worked. Name it, done. No tickets, no forms.', 'M4 12h16M14 6l6 6-6 6'],
-  ['Grouped by project', 'Categories gather their tasks together, so a busy week still reads at a glance.', 'M4 6h10M4 12h16M4 18h7'],
-  [
-    'Daily log',
-    'A OneNote-style page for every day: click anywhere, write, tag notes by category.',
-    'M6 3h11a2 2 0 0 1 2 2v16H7a2 2 0 0 1-2-2V4a1 1 0 0 1 1-1zM9 7h6M9 10h4',
-  ],
-  ['To do · Doing · Done', 'Every task carries its status right on the bar, so the week tells you what is still open.', 'M5 12l4 4 10-10'],
-  ['Scroll through weeks', 'Roll the board with your mouse wheel; weekends fold into a thin seam.', 'M4 12h16M8 8l-4 4 4 4M16 8l4 4-4 4'],
-  ['Just yours', 'Google or your own username. Each person sees only their own board.', 'M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z'],
+// The headline, as three bars on the timeline: [text, first column, columns, colour slot, status, hours]
+const HEADLINE = [
+  ['Remember what', 0, 7, 0, 'todo', '3h'],
+  ['you actually', 2, 7, 1, 'doing', '5h'],
+  ['worked on.', 4, 5, 2, 'done', '2h'],
 ];
 
-// A small static board for the preview.
 function Board() {
   return (
     <div className="lp-board">
@@ -71,19 +65,52 @@ function Board() {
   );
 }
 
-// The three steps, each with a tiny picture of that step.
-function Step({ n, title, text, children }) {
+// A daily-log page in miniature: free-placed notes on a dotted page, two tagged with their project.
+function NotesMock() {
   return (
-    <div className="lp-step" style={{ '--i': n }}>
-      <div className="lp-step-art" aria-hidden="true">
-        {children}
+    <div className="nm" aria-hidden="true">
+      <div className="nm-head">
+        <b>Wednesday, 7 October</b>
+        <span className="nm-chip" style={{ '--c': 'var(--cat-0)' }}>
+          API integration · 4h
+        </span>
       </div>
-      <span className="lp-num">0{n}</span>
-      <h3>{title}</h3>
-      <p>{text}</p>
+      <div className="nm-page">
+        <div className="nm-note tagged" style={{ '--c': 'var(--cat-0)', '--x': '6%', '--y': '14%', '--d': 0 }}>
+          <span className="nm-tag">Platform</span>
+          <b>Sync fix shipped</b>
+          <p>Retries now back off. Ask Priya to re-run the nightly import.</p>
+        </div>
+        <div className="nm-note" style={{ '--x': '55%', '--y': '8%', '--d': 1 }}>
+          <b>Tomorrow</b>
+          <ul>
+            <li className="done">Standup notes</li>
+            <li>Review PR #42</li>
+            <li>Book design review</li>
+          </ul>
+        </div>
+        <div className="nm-note tagged" style={{ '--c': 'var(--cat-1)', '--x': '30%', '--y': '60%', '--d': 2 }}>
+          <span className="nm-tag">Mobile app</span>
+          <p>Crash on Android 12, only when offline. Repro steps in the ticket.</p>
+        </div>
+      </div>
     </div>
   );
 }
+
+// A board-style day header for each section.
+const Day = ({ n, d, label }) => (
+  <div className="lp-dayhead">
+    <b>{n}</b>
+    <span>{d}</span>
+    <em>{label}</em>
+  </div>
+);
+const Seam = () => (
+  <div className="lp-seam" aria-hidden="true">
+    <span>Sat · Sun</span>
+  </div>
+);
 
 export default function Landing({ error }) {
   return (
@@ -94,82 +121,76 @@ export default function Landing({ error }) {
           Gantt For Me
         </a>
         <div className="lp-links">
-          <a href="#how">How it works</a>
-          <a href="#insights">Insights</a>
-          <a href="#features">Features</a>
+          <a href="#log-it">Track it</a>
+          <a href="#write-it">Note it</a>
+          <a href="#see-it">Know it</a>
         </div>
-        <SignInButton className="lp-nav-cta" />
+        <SignInButton className="lp-nav-cta" autoHide />
       </nav>
 
       <header className="lp-hero">
         <HeroField />
-        <div className="lp-hero-copy">
-          <p className="lp-kicker">A Gantt chart for your own week</p>
-          <h1>
-            Remember what <span className="lp-shine">you actually worked on.</span>
-          </h1>
+        <h1 className="lp-hl">
+          {HEADLINE.map(([t, c0, n, k, st, h], i) => (
+            <span
+              key={t}
+              className={'hl-bar ' + st}
+              style={{ '--c0': c0, '--n': n, '--k': `var(--cat-${k})`, '--row': i, '--dl': `${0.5 + i * 0.35}s` }}
+            >
+              <span className="hl-text">{t}</span>
+              <b className="hl-hrs">{h}</b>
+            </span>
+          ))}
+        </h1>
+        <div className="lp-hero-foot">
           <p className="lp-sub">
-            Drag across days, name the task, pull up the hours. GanttForMe keeps the week you would otherwise forget, grouped by project and
-            ready for standup.
+            Drag across days, name the task, pull up the hours. A Gantt chart of your own week, grouped by project and ready for standup.
           </p>
-          <ul className="lp-ticks">
-            <li>Free, no card, no setup</li>
-            <li>Private to your account</li>
-            <li>Google or your own username</li>
-          </ul>
+          <div className="lp-legend">
+            <span>
+              <i className="lg todo" /> To do
+            </span>
+            <span>
+              <i className="lg doing" /> Doing
+            </span>
+            <span>
+              <i className="lg done" /> Done
+            </span>
+            <span className="lp-legend-note">Free · private to you · Google or a username</span>
+          </div>
         </div>
         <SignInPanel error={error} />
       </header>
 
-      <section className="lp-preview" aria-label="The board">
-        <Tilt>
-          <Board />
-        </Tilt>
-      </section>
+      <Seam />
 
-      <section className="lp-how" id="how">
-        <h2>
-          Three moves. <span className="lp-shine">That&apos;s the whole app.</span>
-        </h2>
-        <div className="lp-steps">
-          <Step n={1} title="Drag across days" text="Press on Wednesday, let go on Friday, name it. That is the whole form.">
-            <div className="art-days">
-              {DAYS.map(d => (
-                <span key={d}>{d[0]}</span>
-              ))}
-              <i className="art-draft" />
-            </div>
-          </Step>
-          <Step n={2} title="Pull up the hours" text="Each day gets a bar you drag up to what it took. Totals add themselves up.">
-            <div className="art-eq">
-              {[3, 5.5, 8, 2, 6].map((h, i) => (
-                <span key={i}>
-                  <i style={{ '--v': h / 8, '--d': i }} />
-                </span>
-              ))}
-            </div>
-          </Step>
-          <Step n={3} title="See where it went" text="Bars group by project; the daily log and insights fill themselves in from the board.">
-            <div className="art-groups">
-              <i style={{ '--c': 'var(--cat-0)', '--w': '80%' }} />
-              <i style={{ '--c': 'var(--cat-0)', '--w': '55%', '--x': '30%' }} />
-              <i style={{ '--c': 'var(--cat-2)', '--w': '45%' }} />
-              <i style={{ '--c': 'var(--cat-1)', '--w': '60%', '--x': '25%' }} />
-            </div>
-          </Step>
+      <section className="lp-week" id="log-it">
+        <div className="lp-week-copy">
+          <Day n="5" d="Mon" label="Track it" />
+          <h2>Drag across the days you worked.</h2>
+          <p>Press on Wednesday, let go on Friday, give it a name. Pull each day up to what it took. That is the whole form.</p>
+        </div>
+        <div className="lp-preview">
+          <Tilt>
+            <Board />
+          </Tilt>
         </div>
       </section>
 
-      <section className="lp-insights" id="insights" aria-label="Insights">
-        <div className="lp-ins-copy">
-          <span className="lp-num">Insights</span>
-          <h2>
-            Your month, <span className="lp-shine">at a glance.</span>
-          </h2>
-          <p>
-            Every logged day lights up the timeline. Streaks, your busiest weekday and where the hours really went, without filling in a
-            single report.
-          </p>
+      <section className="lp-week flip" id="write-it">
+        <div className="lp-week-copy">
+          <Day n="7" d="Wed" label="Note it" />
+          <h2>A page for every day.</h2>
+          <p>Click anywhere to jot down what happened. Tag a note with its project and find it again from any day.</p>
+        </div>
+        <NotesMock />
+      </section>
+
+      <section className="lp-week" id="see-it">
+        <div className="lp-week-copy">
+          <Day n="9" d="Fri" label="Know it" />
+          <h2>Friday, with receipts.</h2>
+          <p>Streaks, your busiest weekday and where the hours really went, without filling in a single report.</p>
           <ul className="lp-ins-stats">
             <li>
               <b>12</b>
@@ -188,7 +209,7 @@ export default function Landing({ error }) {
         <div className="lp-ins-card">
           <p className="lp-ins-kicker">Last 30 days</p>
           <p className="lp-ins-head">
-            <b className="lp-shine">164h</b> across 21 days, mostly <u>Platform</u>.
+            <b>164h</b> across 21 days, mostly <u>Platform</u>.
           </p>
           <div className="lp-heat">
             {HEAT.map((week, col) => (
@@ -216,42 +237,20 @@ export default function Landing({ error }) {
         </div>
       </section>
 
-      <section className="lp-features" id="features">
-        <h2>
-          Small tool. <span className="lp-shine">No ceremony.</span>
-        </h2>
-        <div className="lp-cards">
-          {FEATURES.map(([t, s, d], i) => (
-            <div key={t} className="lp-card" style={{ '--i': i % 3 }}>
-              <svg
-                viewBox="0 0 24 24"
-                width="22"
-                height="22"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d={d} />
-              </svg>
-              <h3>{t}</h3>
-              <p>{s}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <Seam />
 
       <section className="lp-end">
-        <h2>
-          Start this week <span className="lp-shine">before you forget it.</span>
-        </h2>
+        <p className="lp-rhyme">
+          Track it. <span>Log it.</span> Note it. <span>Know it.</span>
+        </p>
+        <h2>Next week starts Monday.</h2>
         <p>Log a task in two seconds. Friday-you will thank you.</p>
-        <SignInButton className="lp-cta" label="Get started — it's free" />
+        <SignInButton className="lp-cta" label="Start your board" />
       </section>
 
       <footer className="lp-foot">
         <span className="logo" /> Gantt For Me
+        <span className="lp-foot-rhyme">Track it · Log it · Note it · Know it</span>
         <span className="lp-foot-links">
           <a href="/privacy">Privacy</a>
           <a href="/terms">Terms</a>
