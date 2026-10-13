@@ -6,9 +6,9 @@ import MiniCal from './MiniCal';
 import CategoryDialog from './CategoryDialog';
 
 // Right column: mini calendar, categories (with built-in Others), then the tasks you work on most.
-export default function Sidebar({ calendar, logs, today, colorOf, onLog, categories }) {
+export default function Sidebar({ open, calendar, logs, today, colorOf, onLog, categories }) {
   return (
-    <aside className="side">
+    <aside className={'side' + (open ? ' open' : '')}>
       <section className="card">
         <MiniCal {...calendar} today={today} />
       </section>

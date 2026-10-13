@@ -572,3 +572,67 @@ a.avatar img {
   background-size: 8px 8px;
   background-position: 2px 2px;
 }
+
+/* ---------- narrower windows ----------
+   The board keeps the width; the sidebar becomes a panel that slides in from the right (calendar button in the
+   top bar), and the top bar drops its extras so it stays on one line. */
+.app .top {
+  flex-wrap: nowrap;
+}
+.range {
+  white-space: nowrap;
+}
+.side-btn,
+.side-shade {
+  display: none;
+}
+@media (max-width: 1100px) {
+  .side-btn {
+    display: grid;
+    place-items: center;
+  }
+  .layout .side {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    width: min(320px, 88vw);
+    padding: 16px;
+    background: var(--bg);
+    border-left: 1px solid var(--line);
+    box-shadow: -30px 0 60px -20px rgb(0 0 0 / 0.5);
+    transform: translateX(105%);
+    transition: transform 0.35s var(--ease);
+    animation: none;
+  }
+  .layout .side.open {
+    transform: none;
+  }
+  .side-shade {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 39;
+    background: rgb(8 8 20 / 0.35);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .side-shade.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .quick-btn kbd,
+  .range .yr {
+    display: none;
+  }
+}
+@media (max-width: 820px) {
+  .sum-label {
+    display: none;
+  }
+  .layout {
+    padding-inline: 10px;
+  }
+}

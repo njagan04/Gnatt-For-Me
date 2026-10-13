@@ -41,6 +41,8 @@ export default function Board({ user, picture }) {
   const bodyRef = useRef(null); // vertically scrolling body
   const colW = useRef(0);
   const shift = useRef(0); // px: centres the 7-day strip when the board is too narrow to show all 7
+  const [span, setSpan] = useState([1, 5]); // which of the 7 columns count as "in view" (the middle five, or fewer when narrow)
+  const [sideOpen, setSideOpen] = useState(false); // narrow windows: the sidebar is a slide-in panel
   const dlg = useRef(null);
   const req = useRef(0);
   const lastClick = useRef(null);
@@ -175,6 +177,10 @@ export default function Board({ user, picture }) {
     const ro = new ResizeObserver(() => {
       colW.current = Math.max(MIN_COL, el.clientWidth / 7);
       shift.current = Math.min(0, el.clientWidth / 2 - 3.5 * colW.current);
+      // columns entirely on screen (at rest), kept within the middle five
+      const k0 = Math.max(1, Math.ceil((-shift.current - 1) / colW.current));
+      const k1 = Math.max(k0, Math.min(5, Math.floor((el.clientWidth - shift.current + 1) / colW.current) - 1));
+      setSpan(s => (s[0] === k0 && s[1] === k1 ? s : [k0, k1]));
       boardRef.current.style.setProperty('--w', colW.current + 'px');
       // the dimmed preview column at each edge: only the part of it still on screen
       boardRef.current.style.setProperty('--edge', Math.max(0, colW.current + shift.current) + 'px');
@@ -234,7 +240,7 @@ export default function Board({ user, picture }) {
       else if (e.key === 'ArrowRight') nudge(5);
       else if (e.key === 't') thisWeek();
       else if (e.key === 'n') (e.preventDefault(), newForToday());
-      else if (e.key === 'Escape') setFocus(null);
+      else if (e.key === 'Escape') (setFocus(null), setSideOpen(false));
     };
     addEventListener('keydown', onKey);
     return () => removeEventListener('keydown', onKey);
@@ -481,7 +487,7 @@ export default function Board({ user, picture }) {
   };
 
   const dayTotal = d => sum(data.logs.filter(l => l.day === d).map(l => l.hours));
-  const [midFrom, midTo] = [vis[1], vis[5]]; // the five full-brightness days in the middle
+  const [midFrom, midTo] = [vis[span[0]], vis[span[1]]]; // the days fully on screen (the middle five when wide)
   const catTotal = c => sum(data.logs.filter(l => l.label === c && inVis(l.day)).map(l => l.hours));
 
   return (
@@ -497,6 +503,7 @@ export default function Board({ user, picture }) {
         onToday={thisWeek}
         onNext={() => nudge(5)}
         onNew={() => newForToday()}
+        onSide={() => setSideOpen(o => !o)}
       />
 
       <div className="layout">
@@ -525,7 +532,15 @@ export default function Board({ user, picture }) {
           }}
         />
         <Sidebar
-          calendar={{ month: month ?? addDays(shown, 3).slice(0, 8) + '01', setMonth, from: midFrom, to: midTo, onPick: go, version }}
+          open={sideOpen}
+          calendar={{
+            month: month ?? addDays(shown, 3).slice(0, 8) + '01',
+            setMonth,
+            from: midFrom,
+            to: midTo,
+            onPick: w => (go(w), setSideOpen(false)),
+            version,
+          }}
           logs={data.logs}
           today={today}
           colorOf={colorOf}
@@ -534,6 +549,7 @@ export default function Board({ user, picture }) {
         />
       </div>
 
+      <div className={'side-shade' + (sideOpen ? ' open' : '')} onClick={() => setSideOpen(false)} aria-hidden="true" />
       <CategoryDelete
         name={sureCat}
         count={sureCat ? data.tasks.filter(t => t.label === sureCat).length : 0}
