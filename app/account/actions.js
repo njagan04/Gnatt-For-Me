@@ -112,5 +112,5 @@ export async function loginWithPassword(_, form) {
   if (!isAllowed(u.email)) return { error: 'This account is not allowed to sign in', username: name };
   await sql`update users set failed_logins = 0, locked_until = null, last_seen = now(), sign_ins = sign_ins + 1 where email = ${u.email}`;
   (await cookies()).set('session', sessionValue(u.email, 'password', u.stamp), cookieOpts(SESSION_DAYS * 86400));
-  redirect('/');
+  redirect('/home');
 }

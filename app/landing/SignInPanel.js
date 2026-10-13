@@ -79,7 +79,7 @@ export default function SignInPanel({ error }) {
         setTab('up');
         return setSetup({ email: data.email, name: data.name });
       }
-      location.assign('/');
+      location.assign('/home');
     };
     return () => ch.close();
   }, []);
@@ -180,7 +180,7 @@ function SetupForm({ email, name }) {
     setErr('');
     try {
       await saveCredentials({ username, password });
-      location.assign('/');
+      location.assign('/home');
     } catch (x) {
       setErr(x.message || 'Could not save');
       setBusy(false);
@@ -249,7 +249,7 @@ function SetupForm({ email, name }) {
         {busy ? 'Saving…' : 'Finish & open my board'}
       </button>
       {err && <p className="lp-err">{err}</p>}
-      <a href="/" className="lp-skip">
+      <a href="/home" className="lp-skip">
         Skip for now
       </a>
     </form>

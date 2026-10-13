@@ -67,7 +67,7 @@ export default function AccountForm({ welcome, email, method, username: savedNam
     setMsg(null);
     try {
       const r = await saveCredentials({ username, password: changingPassword ? password : '', current });
-      if (welcome) return router.push('/'); // first-time setup done, on to the board
+      if (welcome) return router.push('/home'); // first-time setup done, on to the board
       setMsg({
         ok: true,
         text: changingPassword ? `Saved. You can now sign in as “${r.username}” with your password.` : 'Username updated.',

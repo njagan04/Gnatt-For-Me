@@ -47,7 +47,7 @@ export default function Insights({ me, admin, tab, section, day, settings }) {
   return (
     <main className="insights">
       <header className="top">
-        <a href="/" className="brand me-brand" title="Back to your board">
+        <a href="/home" className="brand me-brand" title="Back to your board">
           <span className="logo" /> GanttForMe
         </a>
         <span className="spacer" />
@@ -130,7 +130,7 @@ function Sidebar({ me, admin, tab, section }) {
     <aside className="me-side">
       <nav className="me-nav" aria-label="Sections">
         <p className="me-label">Workspace</p>
-        {item('board', '/', 'Board')}
+        {item('board', '/home', 'Board')}
         {item('insights', '/insights', 'Insights')}
         {item('journal', '/insights?tab=journal', 'Daily log')}
         <p className="me-label">Settings</p>

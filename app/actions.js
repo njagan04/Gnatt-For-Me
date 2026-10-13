@@ -18,8 +18,11 @@ async function me() {
 }
 
 const isDay = d => /^\d{4}-\d{2}-\d{2}$/.test(d);
+const MAX_RANGE_DAYS = 400; // the board loads a few weeks at a time; nothing needs more than ~a year
 function checkRange(from, to) {
   if (!isDay(from) || !isDay(to)) throw new Error('Bad date');
+  const days = (Date.parse(to) - Date.parse(from)) / 864e5;
+  if (!(days >= 0 && days <= MAX_RANGE_DAYS)) throw new Error('Bad date range');
 }
 
 export async function load(from, to) {
@@ -101,8 +104,12 @@ const STATUSES = ['todo', 'doing', 'done'];
 // notes / status: undefined keeps the task's existing value.
 export async function saveBar({ name, label, days, old, notes, status }) {
   const owner = await me();
-  name = String(name || '').trim();
-  label = String(label || '').trim();
+  name = String(name || '')
+    .trim()
+    .slice(0, 200);
+  label = String(label || '')
+    .trim()
+    .slice(0, 40);
   notes = notes === undefined ? null : String(notes).slice(0, 20000);
   status = STATUSES.includes(status) ? status : null;
   if (!name || !Array.isArray(days) || !days.length || days.length > 62) throw new Error('Name and 1–62 days required');

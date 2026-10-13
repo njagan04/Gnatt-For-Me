@@ -42,7 +42,7 @@ export default function Settings({ section, session, row, cats, welcome }) {
                   Your account is ready. Pick a username and password so you can also sign in on devices without Google.
                 </p>
               </div>
-              <a href="/" className="back">
+              <a href="/home" className="back">
                 Skip for now →
               </a>
             </div>

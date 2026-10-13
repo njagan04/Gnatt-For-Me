@@ -45,7 +45,7 @@ export async function getDay(day) {
 // Days in [from, to] that have a page (calendar dots), and how many notes each category has (any day).
 export async function pageDays(from, to) {
   const owner = await me();
-  if (!isDay(from) || !isDay(to)) throw new Error('Bad date');
+  if (!isDay(from) || !isDay(to) || Date.parse(to) - Date.parse(from) > 120 * 864e5) throw new Error('Bad date range');
   const [inMonth, counts] = await Promise.all([
     sql`select to_char(day, 'YYYY-MM-DD') as day from journal where owner = ${owner} and day between ${from} and ${to}`,
     sql`select coalesce(n->>'cat', '') as cat, count(*)::int as n
