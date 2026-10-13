@@ -1,16 +1,5 @@
-/* Admin page: totals and the users table. Dialog/confirm styles come from board/editor.css (imported in page.js). */
+/* Settings → Admin: totals and the users table. Dialog/confirm styles come from board/editor.css. */
 
-.admin .back {
-  color: var(--muted);
-  text-decoration: none;
-  font-weight: 600;
-  padding: 6px 10px;
-  border-radius: 8px;
-}
-.admin .back:hover {
-  color: var(--text);
-  background: var(--panel-2);
-}
 .admin-badge {
   font-size: 12px;
   font-weight: 700;
@@ -25,15 +14,9 @@
   margin-left: 8px;
   vertical-align: 1px;
 }
-.admin-body {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 26px 32px 48px;
-}
-.admin-body h1 {
-  margin: 0 0 16px;
-  font-size: 26px;
-  letter-spacing: -0.02em;
+.admin-body h2 {
+  margin: 0;
+  font-size: 15px;
 }
 .admin-tiles {
   display: grid;
@@ -163,7 +146,7 @@
   gap: 16px;
   margin-bottom: 16px;
 }
-.admin-title h1 {
+.admin-title h2 {
   margin: 0;
 }
 .admin-search {

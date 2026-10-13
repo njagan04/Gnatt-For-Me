@@ -1,12 +1,14 @@
 import AccountForm from '../account/AccountForm';
+import AdminUsers from '../admin/AdminUsers';
 import ThemeSwitch from '../board/ThemeSwitch';
 import '../board/editor.css';
 import '../account/account.css';
+import '../admin/admin.css';
 
 // One settings section at a time, picked in the sidebar: appearance, sign-in, admin (admins only; checked by the page).
 export default function Settings({ section, session, row, welcome }) {
   return (
-    <div className="set" key={section}>
+    <div className={'set' + (section === 'admin' ? ' wide' : '')} key={section}>
       {section === 'appearance' && (
         <section className="set-sec">
           <h2>Appearance</h2>
@@ -52,14 +54,8 @@ export default function Settings({ section, session, row, welcome }) {
       {section === 'admin' && (
         <section className="set-sec">
           <h2>Admin</h2>
-          <p className="muted set-lead">Only you can see this.</p>
-          <a href="/admin" className="set-card set-row set-link">
-            <div>
-              <b>Users</b>
-              <p className="muted">Everyone who has signed in, their activity, and account removal.</p>
-            </div>
-            <span aria-hidden="true">→</span>
-          </a>
+          <p className="muted set-lead">Everyone who has signed in. Only you can see this.</p>
+          <AdminUsers me={session.user} />
         </section>
       )}
     </div>

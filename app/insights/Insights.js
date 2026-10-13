@@ -93,40 +93,47 @@ function Avatar({ me, className = '' }) {
   );
 }
 
-// Left rail: who you are, the two sections (settings with its parts), log out at the bottom.
+// Left rail: app navigation in two labelled groups (one active item at a time), you + log out pinned at the bottom.
+const ICONS = {
+  board: 'M3 4h18M3 4v16h18V4M8 9h8M8 13h5',
+  insights: 'M4 20V10M10 20V4M16 20v-7M22 20H2',
+  appearance: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 3v18M12 8h6M12 12h9M12 16h6',
+  'sign-in': 'M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4M12 15v2',
+  admin: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6zM9 12l2 2 4-4',
+  out: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9',
+};
+
 function Sidebar({ me, admin, tab, section }) {
-  const settings = tab === 'settings';
-  const sub = [['appearance', 'Appearance'], ['sign-in', 'Sign-in'], ...(admin ? [['admin', 'Admin']] : [])];
+  const active = tab === 'settings' ? section : 'insights';
+  const item = (id, href, label) => (
+    <Link key={id} href={href} className={active === id ? 'on' : ''} aria-current={active === id ? 'page' : undefined} scroll={false}>
+      <Icon d={ICONS[id]} />
+      <span>{label}</span>
+    </Link>
+  );
   return (
     <aside className="me-side">
-      <div className="me-who">
+      <nav className="me-nav" aria-label="Sections">
+        <p className="me-label">Workspace</p>
+        {item('board', '/', 'Board')}
+        {item('insights', '/insights', 'Insights')}
+        <p className="me-label">Settings</p>
+        {item('appearance', '/insights?tab=settings&section=appearance', 'Appearance')}
+        {item('sign-in', '/insights?tab=settings&section=sign-in', 'Sign-in')}
+        {admin && item('admin', '/insights?tab=settings&section=admin', 'Admin')}
+      </nav>
+      <div className="me-foot">
         <Avatar me={me} className="big" />
-        <div>
+        <div className="me-who">
           <b>{me.name || me.email.split('@')[0]}</b>
           <span>{me.username ? '@' + me.username : me.email}</span>
         </div>
+        <form action={logout}>
+          <button className="me-out" title="Log out" aria-label="Log out">
+            <Icon d={ICONS.out} />
+          </button>
+        </form>
       </div>
-      <nav className="me-nav" aria-label="Sections">
-        <Link href="/insights" className={settings ? '' : 'on'} scroll={false}>
-          <Icon d="M4 20V10M10 20V4M16 20v-7M22 20H2" /> Insights
-        </Link>
-        <Link href="/insights?tab=settings" className={settings ? 'on' : ''} scroll={false}>
-          <Icon d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />{' '}
-          Settings
-        </Link>
-        <div className="me-sub">
-          {sub.map(([id, label]) => (
-            <Link key={id} href={'/insights?tab=settings&section=' + id} className={settings && section === id ? 'on' : ''} scroll={false}>
-              {label}
-            </Link>
-          ))}
-        </div>
-      </nav>
-      <form action={logout} className="me-out">
-        <button>
-          <Icon d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" /> Log out
-        </button>
-      </form>
     </aside>
   );
 }
