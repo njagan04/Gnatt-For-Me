@@ -1,7 +1,7 @@
 import { fmt } from '../../lib/days';
 
 // Logo, week navigation, the visible range, "New", the in-view total and the account menu.
-export default function TopBar({ user, loading, from, to, total, onPrev, onToday, onNext, onNew }) {
+export default function TopBar({ user, picture, loading, from, to, total, onPrev, onToday, onNext, onNew }) {
   return (
     <header className="top" data-loading={loading || undefined}>
       <div className="brand" title="GnattForMe">
@@ -29,7 +29,7 @@ export default function TopBar({ user, loading, from, to, total, onPrev, onToday
         In view <b>{total}h</b>
       </span>
       <a href="/insights" className="avatar" title="Insights & settings" aria-label="Insights and settings">
-        {user[0].toUpperCase()}
+        {picture ? <img src={picture} alt="" referrerPolicy="no-referrer" /> : user[0].toUpperCase()}
       </a>
     </header>
   );

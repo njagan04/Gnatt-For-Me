@@ -6,17 +6,16 @@ import Settings from './Settings';
 
 export const metadata = { title: 'Insights · GnattForMe' };
 
-// Two tabs: Insights (charts, loaded client-side) and Settings (?tab=settings).
+// Your page: sidebar (who you are + sections) with Insights (charts, loaded client-side) or Settings (?tab=settings).
 export default async function Page({ searchParams }) {
   const session = await getSession();
   if (!session) redirect('/');
   const q = await searchParams;
   const tab = q.tab === 'settings' ? 'settings' : 'insights';
-  let settings = null;
-  if (tab === 'settings') {
-    const [row] = await sql`select name, picture, username, password_hash is not null as password_hash, password_set_at, first_seen
-                            from users where email = ${session.user}`;
-    settings = <Settings session={session} row={row} admin={isAdmin(session.user)} welcome={!!q.welcome} />;
-  }
-  return <Insights user={session.user} tab={tab} settings={settings} />;
+  const admin = isAdmin(session.user);
+  const [row] = await sql`select name, picture, username, password_hash is not null as has_password, password_set_at
+                          from users where email = ${session.user}`;
+  const me = { email: session.user, name: row?.name || '', picture: row?.picture || '', username: row?.username || '' };
+  const settings = tab === 'settings' && <Settings session={session} row={row} admin={admin} welcome={!!q.welcome} />;
+  return <Insights me={me} admin={admin} tab={tab} settings={settings} />;
 }

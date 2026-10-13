@@ -20,7 +20,7 @@ const typing = e => e.target.closest?.('input, textarea, select');
 
 // The board page: owns the data, the continuous week scroll, drag/click handling and every save.
 // Drawing lives in TopBar / Timeline / Sidebar / EditorDialog / CategoryDelete.
-export default function Board({ user }) {
+export default function Board({ user, picture }) {
   const [week, setWeek] = useState(null); // Monday of the anchor week; set on mount so server/client "today" can't mismatch
   const [month, setMonth] = useState(null);
   const [data, setData] = useState({ logs: [], tasks: [], cats: [] });
@@ -469,6 +469,7 @@ export default function Board({ user }) {
     <main className="app">
       <TopBar
         user={user}
+        picture={picture}
         loading={loading}
         from={midFrom}
         to={midTo}

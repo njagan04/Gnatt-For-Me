@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { stats } from '../actions';
+import { logout, stats } from '../actions';
 import './insights.css';
 import { addDays, monday, range, today as todayStr, fmt } from '../../lib/days';
 import { catVar } from '../../lib/palette';
@@ -15,7 +15,7 @@ const niceMax = v => {
   return Math.ceil(v / 50) * 50;
 };
 
-export default function Insights({ user, tab, settings }) {
+export default function Insights({ me, admin, tab, settings }) {
   const [r, setR] = useState(null);
   const [err, setErr] = useState(null);
   const [tip, setTip] = useState(null); // { x, y, text }
@@ -46,44 +46,36 @@ export default function Insights({ user, tab, settings }) {
   return (
     <main className="insights">
       <header className="top">
-        <a href="/" className="brand" title="GnattForMe">
-          <span className="logo" />
+        <a href="/" className="brand me-brand" title="Back to your board">
+          <span className="logo" /> GnattForMe
         </a>
-        <a href="/" className="back">
-          ← Board
-        </a>
-        <nav className="ins-tabs" aria-label="Sections">
-          <Link href="/insights" className={tab !== 'settings' ? 'on' : ''} replace scroll={false}>
-            Insights
-          </Link>
-          <Link href="/insights?tab=settings" className={tab === 'settings' ? 'on' : ''} replace scroll={false}>
-            Settings
-          </Link>
-        </nav>
         <span className="spacer" />
-        <span className="avatar" title={user}>
-          {user[0].toUpperCase()}
-        </span>
+        <Avatar me={me} className="on" />
       </header>
-      {tab === 'settings' ? (
-        <div className="set-body">{settings}</div>
-      ) : (
-        <div className="ins-body">
-          {err && <p className="err">{err}</p>}
-          {!r && !err && (
-            <>
-              <div className="skel a-focus" style={{ height: 330 }} />
-              <div className="skel a-act" style={{ height: 330 }} />
-              <div className="skel a-top" style={{ height: 380 }} />
-              <div className="a-bottom">
-                <div className="skel" style={{ height: 300 }} />
-                <div className="skel" style={{ height: 300 }} />
-              </div>
-            </>
+      <div className="me">
+        <Sidebar me={me} admin={admin} tab={tab} />
+        <div className="me-main">
+          {tab === 'settings' ? (
+            settings
+          ) : (
+            <div className="ins-body">
+              {err && <p className="err">{err}</p>}
+              {!r && !err && (
+                <>
+                  <div className="skel a-focus" style={{ height: 330 }} />
+                  <div className="skel a-act" style={{ height: 330 }} />
+                  <div className="skel a-top" style={{ height: 380 }} />
+                  <div className="a-bottom">
+                    <div className="skel" style={{ height: 300 }} />
+                    <div className="skel" style={{ height: 300 }} />
+                  </div>
+                </>
+              )}
+              {r && <Content r={r} tipFor={tipFor} />}
+            </div>
           )}
-          {r && <Content r={r} tipFor={tipFor} />}
         </div>
-      )}
+      </div>
       {tip && (
         <div className="ins-tip" style={{ left: tip.x, top: tip.y }}>
           {tip.text}
@@ -92,6 +84,68 @@ export default function Insights({ user, tab, settings }) {
     </main>
   );
 }
+
+function Avatar({ me, className = '' }) {
+  return me.picture ? (
+    <img src={me.picture} alt="" referrerPolicy="no-referrer" className={'avatar ' + className} />
+  ) : (
+    <span className={'avatar ' + className}>{me.email[0].toUpperCase()}</span>
+  );
+}
+
+// Left rail: who you are, the two sections (settings with its parts), log out at the bottom.
+function Sidebar({ me, admin, tab }) {
+  const settings = tab === 'settings';
+  const sub = [['appearance', 'Appearance'], ['sign-in', 'Sign-in'], ...(admin ? [['admin', 'Admin']] : [])];
+  return (
+    <aside className="me-side">
+      <div className="me-who">
+        <Avatar me={me} className="big" />
+        <div>
+          <b>{me.name || me.email.split('@')[0]}</b>
+          <span>{me.username ? '@' + me.username : me.email}</span>
+        </div>
+      </div>
+      <nav className="me-nav" aria-label="Sections">
+        <Link href="/insights" className={settings ? '' : 'on'} scroll={false}>
+          <Icon d="M4 20V10M10 20V4M16 20v-7M22 20H2" /> Insights
+        </Link>
+        <Link href="/insights?tab=settings" className={settings ? 'on' : ''} scroll={false}>
+          <Icon d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />{' '}
+          Settings
+        </Link>
+        <div className="me-sub">
+          {sub.map(([id, label]) => (
+            <Link key={id} href={'/insights?tab=settings#' + id}>
+              {label}
+            </Link>
+          ))}
+        </div>
+      </nav>
+      <form action={logout} className="me-out">
+        <button>
+          <Icon d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" /> Log out
+        </button>
+      </form>
+    </aside>
+  );
+}
+
+const Icon = ({ d }) => (
+  <svg
+    viewBox="0 0 24 24"
+    width="16"
+    height="16"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d={d} />
+  </svg>
+);
 
 function Content({ r, tipFor }) {
   const { s, t } = r;
