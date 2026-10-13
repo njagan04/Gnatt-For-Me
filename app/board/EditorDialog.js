@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { fmt, workRange } from '../../lib/days';
 import CatPicker from './CatPicker';
 import HoursEditor from './HoursEditor';
+import { STATUS_LABEL } from './Timeline';
 
 const MAX_DAYS = 45; // workdays per bar
 
@@ -16,7 +17,13 @@ export default function EditorDialog({ dlgRef, ed, setEd, tasks, cats, logs, col
   // Typing a known task's name brings in its category and notes.
   function setName(name) {
     const known = tasks.find(t => t.name === name);
-    setEd({ ...ed, name, label: known && !ed.label ? known.label : ed.label, notes: known && !ed.notes ? known.notes : ed.notes });
+    setEd({
+      ...ed,
+      name,
+      label: known && !ed.label ? known.label : ed.label,
+      notes: known && !ed.notes ? known.notes : ed.notes,
+      status: known ? known.status : ed.status,
+    });
   }
   function setRange(from, to) {
     if (workRange(from, to).length > MAX_DAYS) return say(`A bar can span at most ${MAX_DAYS} weekdays`, true);
@@ -72,57 +79,78 @@ export default function EditorDialog({ dlgRef, ed, setEd, tasks, cats, logs, col
                 key={k}
                 aria-selected={ed.tab === k}
                 className={ed.tab === k ? 'on' : ''}
-                onClick={() => setEd({ ...ed, tab: k })}
+                onClick={() => {
+                  setEd({ ...ed, tab: k });
+                  if (k === 'notes') setTimeout(() => dlgRef.current.querySelector('.notes textarea')?.focus());
+                }}
               >
                 {t}
               </button>
             ))}
           </div>
 
-          <div className={'tab-body' + (ed.tab === 'details' ? '' : ' hidden')}>
-            <label>
-              Task
-              <input
-                list="task-names"
-                value={ed.name}
-                onChange={e => setName(e.target.value)}
-                placeholder="What did you work on?"
-                required
-                autoFocus
-              />
-            </label>
-            <div className="field">
-              <span>Category</span>
-              <CatPicker cats={cats} value={ed.label} onChange={label => setEd({ ...ed, label })} />
-            </div>
-            <div className="dates">
+          {/* both tabs share one cell, so the card keeps the Details height whichever tab is open */}
+          <div className="tab-stack">
+            <div className={'tab-body' + (ed.tab === 'details' ? '' : ' off')} inert={ed.tab !== 'details'}>
               <label>
-                From
+                Task
                 <input
-                  type="date"
-                  value={ed.from}
+                  list="task-names"
+                  value={ed.name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="What did you work on?"
                   required
-                  onChange={e => e.target.value && setRange(e.target.value, e.target.value > ed.to ? e.target.value : ed.to)}
+                  autoFocus
                 />
               </label>
-              <label>
-                To
-                <input
-                  type="date"
-                  value={ed.to}
-                  min={ed.from}
-                  required
-                  onChange={e => e.target.value >= ed.from && setRange(ed.from, e.target.value)}
-                />
-              </label>
+              <div className="field">
+                <span>Category</span>
+                <CatPicker cats={cats} value={ed.label} onChange={label => setEd({ ...ed, label })} />
+              </div>
+              <div className="field">
+                <span>Status</span>
+                <div className="status-pick" role="radiogroup" aria-label="Status">
+                  {Object.entries(STATUS_LABEL).map(([k, l]) => (
+                    <button
+                      type="button"
+                      key={k}
+                      role="radio"
+                      aria-checked={ed.status === k}
+                      className={ed.status === k ? 'on' : ''}
+                      onClick={() => setEd({ ...ed, status: k })}
+                    >
+                      <i className={'st ' + k} />
+                      {l}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="dates">
+                <label>
+                  From
+                  <input
+                    type="date"
+                    value={ed.from}
+                    required
+                    onChange={e => e.target.value && setRange(e.target.value, e.target.value > ed.to ? e.target.value : ed.to)}
+                  />
+                </label>
+                <label>
+                  To
+                  <input
+                    type="date"
+                    value={ed.to}
+                    min={ed.from}
+                    required
+                    onChange={e => e.target.value >= ed.from && setRange(ed.from, e.target.value)}
+                  />
+                </label>
+              </div>
+              <HoursEditor days={workRange(ed.from, ed.to)} hours={ed.hours} onChange={hours => setEd({ ...ed, hours })} />
             </div>
-            <HoursEditor days={workRange(ed.from, ed.to)} hours={ed.hours} onChange={hours => setEd({ ...ed, hours })} />
-          </div>
 
-          {ed.tab === 'notes' && (
-            <div className="tab-body notes">
+            <div className={'tab-body notes' + (ed.tab === 'notes' ? '' : ' off')} inert={ed.tab !== 'notes'}>
               <textarea
-                autoFocus
                 value={ed.notes}
                 onChange={e => setEd({ ...ed, notes: e.target.value })}
                 maxLength={20000}
@@ -130,7 +158,7 @@ export default function EditorDialog({ dlgRef, ed, setEd, tasks, cats, logs, col
               />
               <span className="muted tiny">Shared by every stint of this task · saved with Save</span>
             </div>
-          )}
+          </div>
 
           <div className="actions">
             {ed.bar && (

@@ -38,15 +38,15 @@ img.avatar {
 .me {
   display: grid;
   grid-template-columns: 240px minmax(0, 1fr);
-  min-height: calc(100vh - 55px);
+  min-height: calc(100vh - 51px);
   /* the sidebar divider runs the full page height, however long the content */
   background: linear-gradient(90deg, color-mix(in oklab, var(--panel), transparent 30%) 239px, var(--line) 239px 240px, transparent 240px);
 }
 .me-side {
   position: sticky;
-  top: 55px;
+  top: 51px;
   align-self: start;
-  height: calc(100vh - 55px);
+  height: calc(100vh - 51px);
   display: flex;
   flex-direction: column;
   padding: 18px 12px 12px;
@@ -267,18 +267,23 @@ img.avatar {
   padding: 36px 40px 48px;
   display: grid;
   gap: 28px;
-  grid-template-columns: 220px minmax(0, 1fr) 260px;
+  /* three equal columns: activity spans two beside top tasks; focus sits beside the two charts */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-template-rows: auto auto;
   align-content: start;
-  align-items: start;
-  grid-template-areas: 'focus act top' 'focus bottom top';
+  align-items: stretch;
+  grid-template-areas: 'act act top' 'focus bottom bottom';
 }
 .a-focus {
   grid-area: focus;
 }
 .a-act {
   grid-area: act;
-  --cell: clamp(12px, calc((min(100vw, 1480px) - 690px) / 32), 26px);
+  container-type: inline-size;
+}
+/* square heatmap cells sized from the card's own width (26 week columns, 5px gaps, day labels) */
+.act {
+  --cell: clamp(10px, calc((100cqw - 40px - 125px) / 26), 30px);
 }
 .a-top {
   grid-area: top;
@@ -288,7 +293,7 @@ img.avatar {
   display: grid;
   grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
   gap: 28px;
-  align-items: start;
+  align-items: stretch;
 }
 .a-week,
 .a-rhythm,
@@ -734,9 +739,13 @@ img.avatar {
 .rk-name {
   font-weight: 650;
   font-size: 13.5px;
+  line-height: 1.35;
+  /* long task names wrap to two lines instead of being cut to a few words */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 .rk-meta {
   display: flex;
@@ -813,12 +822,111 @@ img.avatar {
   .a-bottom {
     grid-template-columns: 1fr;
   }
-  .a-act {
-    --cell: clamp(10px, calc((100vw - 120px) / 30), 30px);
-  }
   .cols,
   .rhythm {
     height: 200px;
     flex: none;
   }
+}
+
+/* Settings → Categories */
+.cs {
+  padding: 8px 10px 12px;
+}
+.cs-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.cs-list > li + li {
+  border-top: 1px solid var(--line);
+}
+.cs-list .palette {
+  margin: 0 10px 12px 52px;
+}
+.cs-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+}
+.cs-swatch {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: var(--c);
+  cursor: pointer;
+  transition:
+    transform 0.15s var(--spring),
+    box-shadow 0.15s;
+}
+.cs-swatch:hover {
+  transform: scale(1.08);
+  box-shadow:
+    0 0 0 2px var(--panel),
+    0 0 0 4px var(--c);
+}
+.cs-name {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text);
+  background: none;
+}
+.cs-name:hover {
+  border-color: var(--line);
+}
+.cs-name:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--panel-2);
+}
+.cs-meta {
+  flex: none;
+  font-size: 12.5px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.cs-del {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  color: var(--muted);
+  background: none;
+  cursor: pointer;
+}
+.cs-del:hover {
+  color: var(--danger);
+  background: color-mix(in oklab, var(--danger), transparent 90%);
+}
+.cs-empty {
+  margin: 10px;
+}
+.cs > .palette {
+  margin: 10px;
+}
+.cs-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 10px 0;
+  border-top: 1px solid var(--line);
+  margin-top: 4px;
+}
+.cs .err {
+  margin: 8px 10px 0;
 }

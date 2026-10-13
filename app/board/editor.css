@@ -44,8 +44,18 @@
 .tab-body {
   animation: rise 0.25s var(--ease);
 }
-.tab-body.hidden {
-  display: none;
+.tab-stack {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+}
+.tab-stack > .tab-body {
+  grid-area: 1 / 1;
+  min-width: 0;
+}
+.tab-body.off {
+  visibility: hidden;
+  animation: none;
 }
 .notes textarea {
   flex: 1;
@@ -347,7 +357,8 @@ dialog {
   border-radius: 18px;
   padding: 22px 24px;
   width: min(560px, 94vw);
-  height: min(700px, 92vh);
+  height: fit-content; /* a modal dialog with height:auto stretches to the viewport */
+  max-height: 94vh;
   color: var(--text);
   background: var(--panel);
   /* a dialog can live inside a table cell (admin delete): don't inherit its nowrap / right alignment */
@@ -391,8 +402,13 @@ dialog.confirm[open]::backdrop {
     backdrop-filter: blur(0);
   }
 }
+dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
 dialog > form {
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
@@ -473,4 +489,145 @@ dialog.nudge {
   border: 2px solid rgb(255 255 255 / 0.35);
   border-top-color: #fff;
   animation: spin 0.7s linear infinite;
+}
+
+/* task status: a small glyph (hollow = to do, half = doing, filled = done) in the bar name and the editor */
+.st {
+  display: inline-block;
+  flex: none;
+  width: 9px;
+  height: 9px;
+  margin-right: 6px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  vertical-align: 0;
+}
+.st.doing {
+  background: conic-gradient(currentColor 0 50%, transparent 0);
+}
+.st.done {
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 1;
+}
+.st.done::before {
+  content: '✓';
+}
+.status-pick {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 3px;
+  border-radius: 10px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+}
+.status-pick button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  background: none;
+}
+.status-pick button.on {
+  color: var(--text);
+  background: var(--panel);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.18);
+}
+
+/* category card: name + Excel-style colour grid */
+dialog.cat-dlg {
+  width: min(340px, 92vw);
+}
+.cat-dlg-name {
+  width: 100%;
+  margin: 6px 0 4px;
+}
+.cat-dlg-name[readonly] {
+  color: var(--muted);
+}
+.xl {
+  display: grid;
+  gap: 3px;
+  margin: 8px 0 2px;
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--panel-2);
+}
+.xl-row {
+  display: grid;
+  grid-template-columns: repeat(8, 22px);
+  gap: 5px;
+  justify-content: space-between;
+}
+.xl-row.base {
+  margin-bottom: 5px;
+}
+.xl-sw {
+  width: 22px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid rgb(0 0 0 / 0.15);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.xl-sw:hover:not(:disabled) {
+  outline: 2px solid var(--text);
+  outline-offset: 1px;
+}
+.xl-sw.on {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+.xl-sw:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+}
+.cat-dlg-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  margin-top: 6px;
+}
+.cat-dlg-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 200px;
+  padding: 4px 11px;
+  border-radius: 99px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: color-mix(in oklab, var(--c), transparent 82%);
+  border: 1px solid color-mix(in oklab, var(--c), transparent 50%);
+}
+.cat-dlg-chip i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--c);
+}
+.cat-dlg-preview code {
+  font-size: 12px;
+  color: var(--muted);
+}
+.cat-dlg .actions {
+  width: 100%;
+  justify-content: flex-end;
 }

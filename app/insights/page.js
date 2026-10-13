@@ -7,18 +7,27 @@ import Settings from './Settings';
 export const metadata = { title: 'Insights · GanttForMe' };
 
 // Your page: sidebar (who you are + sections) with Insights (charts, loaded client-side) or one Settings section
-// (?tab=settings&section=appearance|sign-in|admin).
+// (?tab=settings&section=appearance|categories|sign-in|admin) or the daily log (?tab=journal&day=YYYY-MM-DD).
 export default async function Page({ searchParams }) {
   const session = await getSession();
   if (!session) redirect('/');
   const q = await searchParams;
-  const tab = q.tab === 'settings' ? 'settings' : 'insights';
+  const tab = ['settings', 'journal'].includes(q.tab) ? q.tab : 'insights';
   const admin = isAdmin(session.user);
-  const sections = ['appearance', 'sign-in', ...(admin ? ['admin'] : [])];
+  const sections = ['appearance', 'categories', 'sign-in', ...(admin ? ['admin'] : [])];
   const section = sections.includes(q.section) ? q.section : q.welcome ? 'sign-in' : 'appearance';
   const [row] = await sql`select name, picture, username, password_hash is not null as has_password, password_set_at
                           from users where email = ${session.user}`;
   const me = { email: session.user, name: row?.name || '', picture: row?.picture || '', username: row?.username || '' };
-  const settings = tab === 'settings' && <Settings section={section} session={session} row={row} welcome={!!q.welcome} />;
-  return <Insights me={me} admin={admin} tab={tab} section={section} settings={settings} />;
+  // categories with how much uses them (tasks, hours, journal notes), for Settings → Categories
+  const cats =
+    tab === 'settings' && section === 'categories'
+      ? await sql`select c.name, c.hue, c.color,
+          (select count(*) from tasks t where t.owner = c.owner and t.label = c.name)::int as tasks,
+          (select coalesce(sum(l.hours), 0) from logs l join tasks t on t.id = l.task_id where t.owner = c.owner and t.label = c.name)::float as hours,
+          (select count(*) from journal j, jsonb_array_elements(j.notes) n where j.owner = c.owner and n->>'cat' = c.name)::int as notes
+          from categories c where c.owner = ${session.user} order by c.name`
+      : [];
+  const settings = tab === 'settings' && <Settings section={section} session={session} row={row} cats={cats} welcome={!!q.welcome} />;
+  return <Insights me={me} admin={admin} tab={tab} section={section} day={q.day || null} settings={settings} />;
 }

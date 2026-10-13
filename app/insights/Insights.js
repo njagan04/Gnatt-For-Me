@@ -2,9 +2,10 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { logout, stats } from '../actions';
+import Journal from '../journal/Journal';
 import './insights.css';
 import { addDays, monday, range, today as todayStr, fmt } from '../../lib/days';
-import { catVar } from '../../lib/palette';
+import { catColor } from '../../lib/palette';
 import { longestStreak, step, summarize } from '../../lib/stats';
 
 const n = v => +v.toFixed(1);
@@ -15,13 +16,13 @@ const niceMax = v => {
   return Math.ceil(v / 50) * 50;
 };
 
-export default function Insights({ me, admin, tab, section, settings }) {
+export default function Insights({ me, admin, tab, section, day, settings }) {
   const [r, setR] = useState(null);
   const [err, setErr] = useState(null);
   const [tip, setTip] = useState(null); // { x, y, text }
 
   useEffect(() => {
-    if (tab === 'settings' || r) return;
+    if (tab !== 'insights' || r) return;
     const t = todayStr();
     stats(t).then(
       d => setR({ ...d, t, s: summarize(d.days, t) }),
@@ -57,6 +58,8 @@ export default function Insights({ me, admin, tab, section, settings }) {
         <div className="me-main">
           {tab === 'settings' ? (
             settings
+          ) : tab === 'journal' ? (
+            <Journal initialDay={day} />
           ) : (
             <div className="ins-body">
               {err && <p className="err">{err}</p>}
@@ -100,25 +103,39 @@ const ICONS = {
   appearance: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 3v18M12 8h6M12 12h9M12 16h6',
   'sign-in': 'M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4M12 15v2',
   admin: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6zM9 12l2 2 4-4',
+  categories: 'M3 12V4h8l10 10-8 8L3 12zM7.5 8h.01',
+  journal: 'M6 3h11a2 2 0 0 1 2 2v16H7a2 2 0 0 1-2-2V4a1 1 0 0 1 1-1zM5 17a2 2 0 0 1 2-2h12M9 7h6M9 10h4',
   out: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9',
 };
 
 function Sidebar({ me, admin, tab, section }) {
-  const active = tab === 'settings' ? section : 'insights';
-  const item = (id, href, label) => (
-    <Link key={id} href={href} className={active === id ? 'on' : ''} aria-current={active === id ? 'page' : undefined} scroll={false}>
-      <Icon d={ICONS[id]} />
-      <span>{label}</span>
-    </Link>
-  );
+  const active = tab === 'settings' ? section : tab;
+  // The board is a full page load (so the slide transition plays); the rest switch in place.
+  const item = (id, href, label) => {
+    const A = id === 'board' ? 'a' : Link;
+    return (
+      <A
+        key={id}
+        href={href}
+        className={active === id ? 'on' : ''}
+        aria-current={active === id ? 'page' : undefined}
+        {...(A === Link && { scroll: false })}
+      >
+        <Icon d={ICONS[id]} />
+        <span>{label}</span>
+      </A>
+    );
+  };
   return (
     <aside className="me-side">
       <nav className="me-nav" aria-label="Sections">
         <p className="me-label">Workspace</p>
         {item('board', '/', 'Board')}
         {item('insights', '/insights', 'Insights')}
+        {item('journal', '/insights?tab=journal', 'Daily log')}
         <p className="me-label">Settings</p>
         {item('appearance', '/insights?tab=settings&section=appearance', 'Appearance')}
+        {item('categories', '/insights?tab=settings&section=categories', 'Categories')}
         {item('sign-in', '/insights?tab=settings&section=sign-in', 'Sign-in')}
         {admin && item('admin', '/insights?tab=settings&section=admin', 'Admin')}
       </nav>
@@ -156,7 +173,7 @@ const Icon = ({ d }) => (
 
 function Content({ r, tipFor }) {
   const { s, t } = r;
-  const colorOf = label => (label ? catVar(r.cats.find(c => c.name === label)?.hue) : 'var(--cat-none)');
+  const colorOf = label => catColor(r.cats.find(c => c.name === label));
 
   // 26-week activity grid (weekdays)
   const by = Object.fromEntries(r.days.map(d => [d.day, d]));

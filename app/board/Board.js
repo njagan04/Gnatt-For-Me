@@ -2,7 +2,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { deleteCategory, load, removeBar, saveBar, saveCategory } from '../actions';
 import { addDays, addWork, diff, isWork, monday, pack, toBars, today as todayStr, wdiff, workRange } from '../../lib/days';
-import { ALL_HUES, catVar, freeHue, MAX_CATS, striped } from '../../lib/palette';
+import { catColor, freeHue, MAX_CATS, striped } from '../../lib/palette';
 import CategoryDelete from './CategoryDelete';
 import EditorDialog from './EditorDialog';
 import Sidebar from './Sidebar';
@@ -263,9 +263,10 @@ export default function Board({ user, picture }) {
   for (const l of data.logs) if (inVis(l.day)) shownHours[l.label] = (shownHours[l.label] || 0) + (l.hours || 0);
   const cats = [...data.cats].sort((a, b) => (shownHours[b.name] || 0) - (shownHours[a.name] || 0) || a.name.localeCompare(b.name));
   const noted = new Set(data.tasks.filter(t => t.notes).map(t => t.name));
-  const catHue = Object.fromEntries(data.cats.map(c => [c.name, c.hue]));
-  const colorOf = label => (label in catHue ? catVar(catHue[label]) : 'var(--cat-none)');
-  const stripeOf = label => label in catHue && striped(catHue[label]);
+  const statusOf = Object.fromEntries(data.tasks.map(t => [t.name, t.status]));
+  const catBy = Object.fromEntries(data.cats.map(c => [c.name, c]));
+  const colorOf = label => catColor(catBy[label]);
+  const stripeOf = label => label in catBy && striped(catBy[label].hue);
 
   // Bars; the one open in the editor takes the editor's dates/category so it regroups live.
   const bars = toBars(data.logs).map(b => {
@@ -320,6 +321,7 @@ export default function Board({ user, picture }) {
       days: workRange(from, to),
       top: b.key === 'draft' && !b.label ? b.y : topOf(b), // an uncategorised draft stays where it was drawn
       color: colorOf(b.label),
+      status: b.key === 'draft' ? null : statusOf[b.name],
       striped: stripeOf(b.label),
       live: drag?.key === b.key || (ed?.bar && keyOf(ed.bar) === b.key),
       dim: focus !== null && b.label !== focus && b.key !== 'draft',
@@ -417,11 +419,26 @@ export default function Board({ user, picture }) {
 
   function openEditor(bar, from, to, preset = {}) {
     const hours = {};
-    for (const d of workRange(from, to)) hours[d] = data.logs.find(l => l.id === bar?.taskId && l.day === d)?.hours ?? '';
+    for (const d of workRange(from, to))
+      hours[d] = data.logs.find(l => l.id === bar?.taskId && l.day === d)?.hours ?? preset.hours?.[d] ?? '';
     const name = bar?.name ?? preset.name ?? '';
     const label = bar?.label ?? preset.label ?? (focus || '');
-    const notes = data.tasks.find(t => t.name === name)?.notes ?? '';
-    setEd({ bar, from, to, name, label, hours, notes, tab: 'details', y: preset.y ?? PAD });
+    const known = data.tasks.find(t => t.name === name);
+    const notes = known?.notes ?? '';
+    const status = known?.status ?? 'doing'; // logging hours on something new means you're on it
+    setEd({ bar, from, to, name, label, hours, notes, status, tab: 'details', y: preset.y ?? PAD });
+  }
+  // "Pick up again": jump to this week and open today's entry for that task, filled in (its usual hours),
+  // or its existing bar if today is already logged.
+  function pickUp(name, label) {
+    thisWeek();
+    const t = todayStr();
+    const d = isWork(t) ? t : addWork(t, 1);
+    const bar = bars.find(b => b.name === name && b.from <= d && b.to >= d);
+    if (bar) return openEditor(bar, bar.from, bar.to);
+    const hs = data.logs.filter(l => l.name === name && l.hours > 0).map(l => l.hours);
+    const usual = hs.length ? hs.sort((a, b) => a - b)[Math.floor(hs.length / 2)] : ''; // median day
+    openEditor(null, d, d, { name, label, hours: { [d]: usual } });
   }
   // N / "New": the same editor, for today (or the next weekday on a weekend).
   function newForToday(preset) {
@@ -438,26 +455,19 @@ export default function Board({ user, picture }) {
     setEd({ ...ed, busy: true });
     if (!bar && !ed.label) setArrive({ name: name.trim(), from: list[0].day, y: ed.y });
     setTimeout(() => setArrive(null), 1500);
-    run(() => saveBar({ name, label: ed.label, days: list, old: bar && oldOf(bar), notes: ed.notes }), 'Saved');
+    run(() => saveBar({ name, label: ed.label, days: list, old: bar && oldOf(bar), notes: ed.notes, status: ed.status }), 'Saved');
   };
   const del = () => {
     setEd({ ...ed, busy: true });
     run(() => removeBar(oldOf(ed.bar)), 'Deleted');
   };
 
-  const addCat = name => {
-    const hue = freeHue(data.cats.map(c => c.hue));
-    if (hue === null) return say(`Up to ${MAX_CATS} categories`, true);
-    run(() => saveCategory(name, hue), 'Category added');
+  // Colours come from the palette card in the sidebar (each category has its own; the server double-checks).
+  const addCat = (name, hue, color) => {
+    if (data.cats.length >= MAX_CATS) return say(`Up to ${MAX_CATS} categories`, true);
+    run(() => saveCategory(name, hue ?? freeHue(data.cats.map(c => c.hue)), color), 'Category added');
   };
-  const recolor = c => {
-    const hue = freeHue(
-      data.cats.filter(x => x !== c).map(x => x.hue),
-      ALL_HUES.indexOf(c.hue),
-    );
-    if (hue === null || hue === c.hue) return say('Every colour is in use', true);
-    run(() => saveCategory(c.name, hue), 'Colour changed');
-  };
+  const recolor = (c, hue, color) => run(() => saveCategory(c.name, hue, color), 'Colour changed');
   const dropCat = name => {
     if (focus === name) setFocus(null);
     run(() => deleteCategory(name), 'Category removed');
@@ -495,6 +505,7 @@ export default function Board({ user, picture }) {
           noted={noted}
           dayTotal={dayTotal}
           dragging={!!drag}
+          onOpenDay={d => location.assign('/insights?tab=journal&day=' + d)}
           handlers={{
             onPointerDown: down,
             onPointerMove: move,
@@ -511,7 +522,7 @@ export default function Board({ user, picture }) {
           logs={data.logs}
           today={today}
           colorOf={colorOf}
-          onLog={(name, label) => newForToday({ name, label })}
+          onLog={pickUp}
           categories={{ cats, total: catTotal, focus, setFocus, onAdd: addCat, onRecolor: recolor, onAskDelete: setSureCat }}
         />
       </div>

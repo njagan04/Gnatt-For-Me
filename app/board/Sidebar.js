@@ -1,18 +1,19 @@
 'use client';
 import { useState } from 'react';
-import { catVar, MAX_CATS, striped } from '../../lib/palette';
+import { catColor, MAX_CATS, striped } from '../../lib/palette';
 import { Trash } from './CategoryDelete';
 import MiniCal from './MiniCal';
+import CategoryDialog from './CategoryDialog';
 
-// Right column: mini calendar, the tasks you work on most, and categories (with built-in Others).
+// Right column: mini calendar, categories (with built-in Others), then the tasks you work on most.
 export default function Sidebar({ calendar, logs, today, colorOf, onLog, categories }) {
   return (
     <aside className="side">
       <section className="card">
         <MiniCal {...calendar} today={today} />
       </section>
-      <PickUpCard logs={logs} today={today} colorOf={colorOf} onLog={onLog} />
       <Categories {...categories} />
+      <PickUpCard logs={logs} today={today} colorOf={colorOf} onLog={onLog} />
     </aside>
   );
 }
@@ -56,19 +57,17 @@ function PickUpCard({ logs, today, colorOf, onLog }) {
 }
 
 function Categories({ cats, total, focus, setFocus, onAdd, onRecolor, onAskDelete }) {
-  const [name, setName] = useState('');
+  const [edit, setEdit] = useState(null); // { cat? }: the category card is open (new, or recolouring cat)
   const hours = c => (total(c) > 0 ? total(c) + 'h' : '');
   const toggle = c => setFocus(f => (f === c ? null : c));
-  const add = e => {
-    e.preventDefault();
-    if (!name.trim()) return;
-    onAdd(name);
-    setName('');
-  };
   return (
     <section className="card">
       <div className="card-head">
         <b>Categories</b>
+        <span className="spacer" />
+        <a href="/insights?tab=settings&section=categories" className="link manage" title="Rename, recolour and delete categories">
+          Manage
+        </a>
         {focus !== null && (
           <button className="link" onClick={() => setFocus(null)}>
             show all
@@ -77,8 +76,8 @@ function Categories({ cats, total, focus, setFocus, onAdd, onRecolor, onAskDelet
       </div>
       <ul className="cats">
         {cats.map(c => (
-          <li key={c.name} className={(focus === c.name ? 'on' : '') + (striped(c.hue) ? ' striped' : '')} style={{ '--c': catVar(c.hue) }}>
-            <button className="dot" onClick={() => onRecolor(c)} title="Change colour" aria-label={`Change colour of ${c.name}`} />
+          <li key={c.name} className={(focus === c.name ? 'on' : '') + (striped(c.hue) ? ' striped' : '')} style={{ '--c': catColor(c) }}>
+            <button className="dot" onClick={() => setEdit({ cat: c })} title="Change colour" aria-label={`Change colour of ${c.name}`} />
             <button className="cat-name" onClick={() => toggle(c.name)} title="Highlight its bars">
               {c.name}
             </button>
@@ -99,12 +98,18 @@ function Categories({ cats, total, focus, setFocus, onAdd, onRecolor, onAskDelet
         </li>
       </ul>
       {cats.length < MAX_CATS ? (
-        <form onSubmit={add} className="add-cat">
-          <input value={name} onChange={e => setName(e.target.value)} placeholder="+ New category" maxLength={40} />
-        </form>
+        <button className="add-cat-btn" onClick={() => setEdit({})}>
+          ＋ New category
+        </button>
       ) : (
         <p className="muted tiny">All {MAX_CATS} category colours are in use.</p>
       )}
+      <CategoryDialog
+        edit={edit}
+        cats={cats}
+        onClose={() => setEdit(null)}
+        onSave={(name, hue, color) => (edit.cat ? onRecolor(edit.cat, hue, color) : onAdd(name, hue, color))}
+      />
     </section>
   );
 }

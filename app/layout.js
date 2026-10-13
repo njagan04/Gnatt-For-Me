@@ -1,5 +1,4 @@
 import { Inter } from 'next/font/google';
-import Script from 'next/script';
 import { themeScript } from '../lib/theme';
 import './globals.css';
 
@@ -10,13 +9,11 @@ export const metadata = { title: 'GanttForMe' };
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        {/* applies the saved theme before first paint */}
-        <Script id="theme" strategy="beforeInteractive">
-          {themeScript}
-        </Script>
-        {children}
-      </body>
+      <head>
+        {/* must run before first paint (theme) and before the page is revealed (slide direction) */}
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
+      <body className={inter.className}>{children}</body>
     </html>
   );
 }

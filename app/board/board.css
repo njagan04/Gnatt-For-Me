@@ -106,18 +106,6 @@ button.icon.sm {
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in oklab, var(--muted) 45%, transparent) transparent;
-}
-.board-body::-webkit-scrollbar {
-  width: 8px;
-}
-.board-body::-webkit-scrollbar-thumb {
-  border-radius: 8px;
-  background: color-mix(in oklab, var(--muted) 40%, transparent);
-}
-.board-body::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in oklab, var(--muted) 65%, transparent);
 }
 .board {
   flex: 1;
@@ -193,7 +181,7 @@ button.icon.sm {
   left: 0;
   width: var(--seam);
   writing-mode: vertical-rl;
-  padding-top: 14px;
+  text-align: center; /* centred down the column */
   padding-left: 7px;
   font-size: 10px;
   font-weight: 700;
@@ -342,7 +330,7 @@ button.icon.sm {
   position: absolute;
   left: 0;
   right: -1px;
-  height: 40px;
+  height: 46px;
   padding: 0 10px 5px;
   z-index: 1;
   display: flex;
@@ -477,8 +465,8 @@ button.icon.sm {
   pointer-events: none;
   height: 18px;
   line-height: 18px;
-  left: calc((var(--i) + 3) * var(--w) + 18px + var(--s));
-  width: calc(var(--n) * var(--w) - 36px - var(--s));
+  left: calc((var(--i) + 3) * var(--w) + 24px + var(--s));
+  width: calc(var(--n) * var(--w) - 48px - var(--s));
   font-size: 12.5px;
   font-weight: 650;
   color: var(--bar-text);
@@ -561,4 +549,26 @@ a.avatar img {
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
+}
+
+/* double-click a day header to open that day's log */
+.head-cell {
+  cursor: pointer;
+}
+.head-cell:hover {
+  background: color-mix(in oklab, var(--accent), transparent 93%);
+}
+
+/* status on the bar. To do: the plain bar.
+   Doing: a soft cross-hatch over the whole bar.
+   Done: a fine dot grid over the whole bar (a sibling of doing's cross-hatch), and a check by its name. */
+.piece.doing {
+  background-image:
+    repeating-linear-gradient(45deg, color-mix(in oklab, var(--c), transparent 82%) 0 1.5px, transparent 1.5px 8px),
+    repeating-linear-gradient(-45deg, color-mix(in oklab, var(--c), transparent 82%) 0 1.5px, transparent 1.5px 8px);
+}
+.piece.done {
+  background-image: radial-gradient(color-mix(in oklab, var(--c), transparent 55%) 1.3px, transparent 1.6px);
+  background-size: 8px 8px;
+  background-position: 2px 2px;
 }

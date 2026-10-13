@@ -46,4 +46,19 @@ await sql`alter table users add column if not exists failed_logins int not null 
 await sql`alter table users add column if not exists locked_until timestamptz`;
 // Usernames are unique regardless of case.
 await sql`create unique index if not exists users_username_key on users (lower(username))`;
+// Task status shown on the board and in the editor.
+await sql`alter table tasks add column if not exists status text not null default 'todo'`;
+// Daily log: one page per person per day, holding free-placed notes (OneNote-style).
+await sql`create table if not exists journal (
+  owner text not null,
+  day date not null,
+  notes jsonb not null default '[]',
+  updated_at timestamptz not null default now(),
+  primary key (owner, day)
+)`;
+// Pages first stored one HTML body; now each page is a list of notes { id, x, y, w, html, cat }.
+await sql`alter table journal add column if not exists notes jsonb not null default '[]'`;
+await sql`alter table journal drop column if exists body`;
+// A category's exact colour code from the picker ('' = its family colour).
+await sql`alter table categories add column if not exists color text not null default ''`;
 console.log('tables ready');

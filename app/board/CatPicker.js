@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { catVar } from '../../lib/palette';
+import { catColor } from '../../lib/palette';
 
 // Searchable dropdown over the categories made in the sidebar. No free typing.
 export default function CatPicker({ cats, value, onChange }) {
@@ -37,7 +37,7 @@ export default function CatPicker({ cats, value, onChange }) {
   const label = c =>
     c?.name ? (
       <>
-        <span className="dot-s" style={{ '--c': catVar(c.hue) }} />
+        <span className="dot-s" style={{ '--c': catColor(c) }} />
         {c.name}
       </>
     ) : (

@@ -1,20 +1,56 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { busyDays } from '../actions';
-import { addDays, addMonths, monday, range, fmt } from '../../lib/days';
+import { addDays, addMonths, fmt, isoWeek, range } from '../../lib/days';
 
-// Sunday-first grid. The days on screen (from–to, may cross a weekend) show as one soft band with strong ends.
-// Click a day -> its work week. Dots mark logged days.
-export default function MiniCal({ month, setMonth, from, to, today, onPick, version }) {
-  const first = addDays(month, -new Date(month + 'T00:00:00Z').getUTCDay()); // the Sunday on/before the 1st
-  const cells = range(first, addDays(first, 41));
-  const [busy, setBusy] = useState([]);
+const FULL = 8; // hours that fill a day's square
+
+// Month calendar, Monday first, with the week number on the left. Each day is a square that fills from the
+// bottom with the hours logged that day (8h = full).
+// Board (no `day`): click a week's row to jump to it; the days on screen (from–to, may cross a weekend) are banded.
+// Daily log (`day` given): click a day; `marks` (days with a page) get a dot.
+export default function MiniCal({ month, setMonth, today, from, to, day, marks = [], onPick, version }) {
+  const first = addDays(month, -((new Date(month + 'T00:00:00Z').getUTCDay() + 6) % 7)); // the Monday on/before the 1st
+  const rows = Array.from({ length: 6 }, (_, w) => range(addDays(first, w * 7), addDays(first, w * 7 + 6)));
+  const [hours, setHours] = useState({});
 
   useEffect(() => {
-    busyDays(cells[0], cells[41]).then(setBusy, () => {});
+    busyDays(first, addDays(first, 41)).then(
+      r => setHours(Object.fromEntries(r.map(x => [x.day, x.hours]))),
+      () => {},
+    );
   }, [month, version]);
 
-  const weekOf = d => (new Date(d + 'T00:00:00Z').getUTCDay() === 0 ? addDays(d, 1) : monday(d)); // Sunday opens its row's week
+  const byDay = !!day;
+  const cell = (d, col) => {
+    const h = hours[d];
+    const band = !byDay && from && d >= from && d <= to;
+    const f = h === undefined ? 0 : Math.max(0.12, Math.min(1, h / FULL)); // logged without hours still shows a sliver
+    const cls = [
+      'cd',
+      d.slice(0, 7) !== month.slice(0, 7) && 'out',
+      [5, 6].includes((new Date(d + 'T00:00:00Z').getUTCDay() + 6) % 7) && 'we',
+      d === today && 'now',
+      d === day && 'sel',
+      marks.includes(d) && 'mark',
+      band && 'band',
+      band && (d === from || col === 0) && 'cap-l',
+      band && (d === to || col === 6) && 'cap-r',
+      band && (d === from || d === to) && 'end',
+    ]
+      .filter(Boolean)
+      .join(' ');
+    const title = `${fmt(d, { weekday: 'short', day: 'numeric', month: 'short' })}${h !== undefined ? ` · ${+h.toFixed(1)}h` : ''}`;
+    const props = { key: d, className: cls, style: { '--f': f }, title };
+    return byDay ? (
+      <button {...props} onClick={() => onPick(d)}>
+        {Number(d.slice(8))}
+      </button>
+    ) : (
+      <span {...props}>{Number(d.slice(8))}</span>
+    );
+  };
+
   return (
     <div className="cal">
       <div className="cal-head">
@@ -28,29 +64,29 @@ export default function MiniCal({ month, setMonth, from, to, today, onPick, vers
         </button>
       </div>
       <div className="cal-grid">
-        {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((w, i) => (
-          <span key={i} className={'wd' + (i % 6 ? '' : ' we')}>
-            {w}
-          </span>
-        ))}
-        {cells.map((d, i) => {
-          const band = d >= from && d <= to;
-          const cls = [
-            'cd',
-            d.slice(0, 7) !== month.slice(0, 7) && 'out',
-            d === today && 'now',
-            busy.includes(d) && 'busy',
-            (i % 7) % 6 === 0 && 'we',
-            band && 'band',
-            band && (d === from || i % 7 === 0) && 'cap-l',
-            band && (d === to || i % 7 === 6) && 'cap-r',
-            (d === from || d === to) && 'end',
-          ]
-            .filter(Boolean)
-            .join(' ');
-          return (
-            <button key={d} className={cls} onClick={() => onPick(weekOf(d))}>
-              {Number(d.slice(8))}
+        <div className="cal-row head" aria-hidden="true">
+          <span>Wk</span>
+          {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((w, i) => (
+            <span key={i} className={i > 4 ? 'we' : ''}>
+              {w}
+            </span>
+          ))}
+        </div>
+        {rows.map(r => {
+          const on = !byDay && from && r[0] <= to && r[6] >= from;
+          const inner = (
+            <>
+              <span className="wk-n">{isoWeek(r[0])}</span>
+              {r.map((d, col) => cell(d, col))}
+            </>
+          );
+          return byDay ? (
+            <div key={r[0]} className="cal-row">
+              {inner}
+            </div>
+          ) : (
+            <button key={r[0]} className={'cal-row' + (on ? ' on' : '')} onClick={() => onPick(r[0])} title={`Week ${isoWeek(r[0])}`}>
+              {inner}
             </button>
           );
         })}

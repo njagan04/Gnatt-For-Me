@@ -1,12 +1,13 @@
 import AccountForm from '../account/AccountForm';
 import AdminUsers from '../admin/AdminUsers';
+import CategorySettings from './CategorySettings';
 import ThemeSwitch from '../board/ThemeSwitch';
 import '../board/editor.css';
 import '../account/account.css';
 import '../admin/admin.css';
 
-// One settings section at a time, picked in the sidebar: appearance, sign-in, admin (admins only; checked by the page).
-export default function Settings({ section, session, row, welcome }) {
+// One settings section at a time, picked in the sidebar: appearance, categories, sign-in, admin (admins only; checked by the page).
+export default function Settings({ section, session, row, cats, welcome }) {
   return (
     <div className={'set' + (section === 'admin' ? ' wide' : '')} key={section}>
       {section === 'appearance' && (
@@ -20,6 +21,14 @@ export default function Settings({ section, session, row, welcome }) {
             </div>
             <ThemeSwitch />
           </div>
+        </section>
+      )}
+
+      {section === 'categories' && (
+        <section className="set-sec">
+          <h2>Categories</h2>
+          <p className="muted set-lead">Group your tasks and journal notes. Up to 8, each with its own colour.</p>
+          <CategorySettings cats={cats} />
         </section>
       )}
 

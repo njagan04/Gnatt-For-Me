@@ -4,13 +4,27 @@ import { fmt, isoWeek, monday, workRange, addDays } from '../../lib/days';
 export const C = 12; // strip index of the anchor week's Wednesday (strip = 5 weeks of workdays)
 export const SEAM = 26; // px, weekend seam (matches --seam)
 export const PAD = 18,
-  ROW = 48,
+  ROW = 56,
   GAP = 30; // px: top padding, lane height, gap between category groups
 export const stripOf = w => workRange(addDays(w, -14), addDays(w, 20)); // 25 workdays, anchor Mon at index 10
 
 // The board: a fixed header strip (week row + day headers) over a body that scrolls vertically.
 // Both tracks are slid sideways by Board (one transform each); this component only draws.
-export default function Timeline({ refs, strip, today, vis, drawn, height, hover, arrive, noted, dayTotal, dragging, handlers }) {
+export default function Timeline({
+  refs,
+  strip,
+  today,
+  vis,
+  drawn,
+  height,
+  hover,
+  arrive,
+  noted,
+  dayTotal,
+  dragging,
+  onOpenDay,
+  handlers,
+}) {
   return (
     <div className="board" ref={refs.board}>
       <div className="board-head">
@@ -30,6 +44,8 @@ export default function Timeline({ refs, strip, today, vis, drawn, height, hover
                 key={d}
                 className={'head-cell' + (d === today ? ' today' : '') + (d === monday(d) ? ' mon' : '')}
                 style={{ '--i': i - C }}
+                onDoubleClick={() => onOpenDay(d)}
+                title="Double-click to open this day's log"
               >
                 <div className="day">
                   <span className="dn">{Number(d.slice(8))}</span>
@@ -83,6 +99,7 @@ function Piece({ x, d, hover, arrive }) {
     'piece' +
     (d === x.from ? ' first' : '') +
     (d === x.to ? ' last' : '') +
+    (x.status === 'doing' || x.status === 'done' ? ' ' + x.status : '') +
     (x.striped ? ' striped' : '') +
     (x.key === 'draft' ? ' draft' : '') +
     (x.live ? ' live' : '') +
@@ -107,6 +124,8 @@ function Piece({ x, d, hover, arrive }) {
   );
 }
 
+export const STATUS_LABEL = { todo: 'To do', doing: 'Doing', done: 'Done' };
+
 // The task name across every visible day of its bar.
 function Label({ x, strip, vis, hover, arrive, noted }) {
   const ds = x.days.filter(d => d >= vis[0] && strip.includes(d));
@@ -125,10 +144,11 @@ function Label({ x, strip, vis, hover, arrive, noted }) {
         '--i': i0 - C,
         '--n': strip.indexOf(ds.at(-1)) - i0 + 1,
         '--s': ds[0] === monday(ds[0]) ? SEAM + 'px' : '0px',
-        top: x.top + 4,
-        '--from': (x.arrive ? arrive.y : x.top) + 4 + 'px',
+        top: x.top + 7,
+        '--from': (x.arrive ? arrive.y : x.top) + 7 + 'px',
       }}
     >
+      {x.status && <i className={'st ' + x.status} title={STATUS_LABEL[x.status]} />}
       {x.key === 'draft' ? x.name || `${x.days.length} day${x.days.length > 1 ? 's' : ''}` : x.name}
       {noted.has(x.name) && (
         <span className="noted" title="Has notes">
