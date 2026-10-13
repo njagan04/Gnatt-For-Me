@@ -77,52 +77,6 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   animation: lp-grid-run 8s linear infinite;
 }
 
-/* floating task pills, three depths: each drifts on its own and moves at its own speed with the page */
-.lp-float {
-  position: absolute;
-  z-index: 1;
-  height: 34px;
-  padding: 0 14px;
-  border-radius: 10px;
-  pointer-events: none;
-  display: flex;
-  align-items: center;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--bar-text);
-  white-space: nowrap;
-  background: hsl(var(--h) var(--bar-s) var(--bar-l));
-  box-shadow:
-    inset 3px 0 0 hsl(var(--h) 70% var(--bar-edge-l)),
-    inset -3px 0 0 hsl(var(--h) 70% var(--bar-edge-l)),
-    0 20px 40px -20px #000;
-  will-change: transform, translate;
-  animation:
-    lp-bob 7s ease-in-out infinite alternate,
-    lp-para linear both;
-  animation-timeline: auto, scroll(root);
-  animation-range:
-    normal,
-    0 120vh;
-}
-.lp-float.z1 {
-  --depth: -14vh;
-  opacity: 0.3;
-  scale: 0.8;
-  animation-duration: 9s, auto;
-}
-.lp-float.z2 {
-  --depth: -34vh;
-  opacity: 0.6;
-  animation-duration: 7s, auto;
-}
-.lp-float.z3 {
-  --depth: -62vh;
-  opacity: 0.85;
-  scale: 1.1;
-  animation-duration: 6s, auto;
-}
-
 /* ---------- nav + hero ---------- */
 .lp-nav {
   position: sticky;
@@ -141,13 +95,95 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   gap: 10px;
   font-weight: 800;
   font-size: 16px;
+  color: var(--text);
+  text-decoration: none;
+}
+.lp-links {
+  display: flex;
+  gap: 4px;
+}
+.lp-links a {
+  padding: 7px 12px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  transition:
+    color 0.15s,
+    background 0.15s;
+}
+.lp-links a:hover {
+  color: var(--text);
+  background: rgb(255 255 255 / 0.05);
+}
+.lp-nav-cta {
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: #15161c;
+  background: #fff;
+  cursor: pointer;
+  transition: transform 0.2s var(--spring);
+}
+.lp-nav-cta:hover {
+  transform: translateY(-1px);
 }
 
 .lp-hero {
   position: relative;
   z-index: 2;
-  text-align: center;
-  padding: 12vh 16px 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 400px;
+  align-items: center;
+  gap: clamp(32px, 6vw, 96px);
+  max-width: 1200px;
+  min-height: calc(100vh - 66px);
+  margin: 0 auto;
+  padding: 6vh clamp(16px, 5vw, 56px) 8vh;
+}
+.lp-hero .lp-signin {
+  animation: lp-in 0.9s 0.25s var(--ease) both;
+}
+.lp-ticks {
+  list-style: none;
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  font-size: 15px;
+  animation: lp-in 0.9s 0.3s var(--ease) both;
+}
+.lp-ticks li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.lp-ticks li::before {
+  content: '✓';
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #a9a9ff;
+  background: rgb(91 91 246 / 0.16);
+}
+/* "Sign in" from the nav or the bottom: the card gives a short glow so the eye lands on it */
+.lp-si-card.called {
+  animation: lp-called 1.1s var(--ease);
+}
+@keyframes lp-called {
+  30% {
+    box-shadow:
+      0 0 0 3px rgb(91 91 246 / 0.6),
+      0 40px 80px -30px #000;
+  }
 }
 .lp-kicker {
   display: inline-block;
@@ -163,7 +199,7 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
 }
 .lp h1 {
   margin: 0;
-  font-size: clamp(40px, 7vw, 84px);
+  font-size: clamp(38px, 5.4vw, 70px);
   line-height: 1.02;
   letter-spacing: -0.035em;
   font-weight: 800;
@@ -177,8 +213,8 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   animation: lp-shine 8s linear infinite;
 }
 .lp-sub {
-  max-width: 620px;
-  margin: 22px auto 30px;
+  max-width: 560px;
+  margin: 22px 0 28px;
   font-size: clamp(16px, 2vw, 19px);
   line-height: 1.55;
   color: var(--muted);
@@ -475,17 +511,19 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   text-wrap: balance;
 }
 
-/* the hero board starts tilted away and lays flat as you scroll */
-.lp-stage {
+/* board preview under the hero: eases in once when it comes into view */
+.lp-preview {
+  position: relative;
+  z-index: 2;
+  width: min(980px, 92vw);
+  margin: 0 auto;
   perspective: 1400px;
-  margin: 9vh auto 0;
-  width: min(980px, 94vw);
 }
-.lp-stage .lp-board {
+.lp-preview .lp-board {
   transform-origin: 50% 0;
   animation: lp-tilt linear both;
-  animation-timeline: scroll(root);
-  animation-range: 0 70vh;
+  animation-timeline: view();
+  animation-range: entry 0% cover 35%;
 }
 
 /* ---------- the mini board ---------- */
@@ -614,265 +652,115 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   top: 172px;
 }
 
-/* ---------- pinned story ---------- */
-.lp-story {
+/* ---------- how it works: three step cards ---------- */
+.lp-how {
   position: relative;
   z-index: 2;
-  height: 420vh;
-  view-timeline-name: --story;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 16vh clamp(16px, 5vw, 56px) 4vh;
+  text-align: center;
 }
-.lp-sticky {
-  position: sticky;
-  top: 0;
-  height: 100vh;
+.lp-how > h2 {
+  margin: 0 0 44px;
+  font-size: clamp(30px, 4.4vw, 52px);
+  letter-spacing: -0.035em;
+}
+.lp-steps {
   display: grid;
-  grid-template-columns: minmax(260px, 1fr) minmax(0, 1.6fr);
-  align-items: center;
-  gap: clamp(20px, 4vw, 64px);
-  padding: 0 clamp(16px, 5vw, 72px);
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  text-align: left;
 }
-.lp-caps {
-  position: relative;
-  height: 260px;
+.lp-step {
+  padding: 22px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: linear-gradient(160deg, color-mix(in oklab, var(--panel-2), var(--accent) 6%), var(--panel));
+  animation: lp-card-in linear both;
+  animation-timeline: view();
+  animation-range: entry calc(var(--i) * 8%) entry calc(70% + var(--i) * 8%);
 }
-.lp-cap {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  will-change: opacity, transform;
-  animation: lp-cap linear both;
-  animation-timeline: --story;
+.lp-step h3 {
+  margin: 6px 0 8px;
+  font-size: 19px;
 }
-.lp-cap.c1 {
-  animation-range: contain 0% contain 25%;
-}
-.lp-cap.c2 {
-  animation-range: contain 25% contain 50%;
-}
-.lp-cap.c3 {
-  animation-range: contain 50% contain 75%;
-}
-.lp-cap.c4 {
-  animation-name: lp-cap-last;
-  animation-range: contain 75% contain 92%;
-}
-.lp-num {
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  color: var(--accent);
-}
-.lp-cap h2 {
-  margin: 10px 0 12px;
-  font-size: clamp(30px, 4vw, 48px);
-  letter-spacing: -0.03em;
-  line-height: 1.05;
-}
-.lp-cap p {
+.lp-step p {
   margin: 0;
   color: var(--muted);
-  font-size: 17px;
   line-height: 1.55;
-  max-width: 380px;
 }
-.lp-progress {
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 160px;
-  height: 3px;
-  border-radius: 3px;
-  background: var(--line);
-  overflow: hidden;
-}
-.lp-progress i {
-  display: block;
-  height: 100%;
-  transform-origin: left;
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
-  animation: lp-grow linear both;
-  animation-timeline: --story;
-  animation-range: contain 0% contain 100%;
-}
-.lp-story-stage {
-  perspective: 1600px;
-}
-.lp-board.story {
-  transform: rotateY(-8deg) rotateX(4deg);
-  transition: transform 0.6s var(--ease);
-}
-.lp-board.story:hover {
-  transform: none;
-}
-.lp-board.story {
-  container-type: inline-size;
-}
-.lp-board.story .lp-lanes {
-  height: 250px;
-}
-
-/* step 1: a draft bar is dragged across Wed → Fri, cursor in tow */
-.lp-bar.draft {
-  left: calc(40% + 8px);
-  width: calc(60% - 16px);
-  top: 172px;
-  justify-content: center;
-  color: #b9b9ff;
-  font-size: 12px;
-  background: rgb(91 91 246 / 0.14);
-  box-shadow: inset 0 0 0 1.5px rgb(91 91 246 / 0.7);
-  transform-origin: left;
-  animation: lp-draft linear both;
-  animation-timeline: --story;
-  animation-range: contain 2% contain 34%;
-}
-.lp-cursor {
-  position: absolute;
-  top: 186px;
-  left: calc(40% + 12px);
-  width: 18px;
-  height: 18px;
-  z-index: 3;
-  background: no-repeat center / contain
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 3l14 8-6 2-3 6z' fill='white' stroke='black' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E");
-  filter: drop-shadow(0 4px 6px rgb(0 0 0 / 0.6));
-  animation: lp-cursor linear both;
-  animation-timeline: --story;
-  animation-range: contain 2% contain 30%;
-}
-/* step 2: the bars start scattered and gather into their groups; the draft becomes "Tech doc" */
-.lp-board.story .lp-bar.b1,
-.lp-board.story .lp-bar.b2,
-.lp-board.story .lp-bar.b3 {
-  animation: lp-gather linear both;
-  animation-timeline: --story;
-  animation-range: contain 26% contain 48%;
-}
-.lp-board.story .lp-bar.b1 {
-  --sx: 30px;
-  --sy: 150px;
-  --sr: 4deg;
-}
-.lp-board.story .lp-bar.b2 {
-  --sx: -60px;
-  --sy: -30px;
-  --sr: -5deg;
-}
-.lp-board.story .lp-bar.b3 {
-  --sx: 120px;
-  --sy: -80px;
-  --sr: 3deg;
-}
-.lp-board.story .lp-bar.b4 {
-  animation: lp-appear linear both;
-  animation-timeline: --story;
-  animation-range: contain 30% contain 40%;
-}
-
-/* step 3: an hours card slides up and each day's bar rises */
-.lp-eq {
-  position: absolute;
-  right: 18px;
-  bottom: 18px;
-  z-index: 4;
-  display: flex;
-  gap: 10px;
-  padding: 14px 16px;
-  border-radius: 14px;
-  background: var(--panel-2);
+.lp-step-art {
+  height: 96px;
+  margin-bottom: 18px;
+  border-radius: 12px;
   border: 1px solid var(--line);
-  box-shadow: 0 30px 60px -20px #000;
-  animation: lp-card linear both;
-  animation-timeline: --story;
-  animation-range: contain 50% contain 58%;
-}
-.lp-eq > div {
-  display: grid;
-  justify-items: center;
-  gap: 5px;
-  font-size: 11px;
-}
-.lp-eq b {
-  font-size: 11px;
-}
-.lp-eq small {
-  color: var(--muted);
-  font-weight: 700;
-}
-.lp-eq span {
+  background: var(--bg);
   position: relative;
-  width: 20px;
-  height: 70px;
-  border-radius: 6px;
-  background: var(--panel);
-  border: 1px solid var(--line);
   overflow: hidden;
 }
-.lp-eq span i {
+/* step 1: five days with a draft bar across Wed → Fri */
+.art-days {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: calc(var(--v) * 100%);
-  transform-origin: bottom;
-  background: linear-gradient(to top, hsl(160 70% 45%), hsl(160 80% 65%));
-  animation: lp-rise linear both;
-  animation-timeline: --story;
-  animation-range: contain calc(54% + var(--d) * 3%) contain calc(66% + var(--d) * 2%);
-}
-/* step 4: the board rolls left and the weekend seam passes through */
-.lp-seam {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 100%;
-  width: 26px;
-  z-index: 2;
+  inset: 0;
   display: grid;
-  justify-items: center;
-  padding-top: 70px;
-  background: repeating-linear-gradient(135deg, var(--line) 0 1px, transparent 1px 6px), var(--bg);
-  border-inline: 1px solid var(--line);
-  animation: lp-seam linear both;
-  animation-timeline: --story;
-  animation-range: contain 76% contain 96%;
+  grid-template-columns: repeat(5, 1fr);
 }
-.lp-next {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: calc(100% + 26px);
-  width: 60%;
-  z-index: 2;
-  background: var(--panel);
-  animation: lp-seam linear both;
-  animation-timeline: --story;
-  animation-range: contain 76% contain 96%;
-}
-.lp-next .lp-days {
-  grid-template-columns: repeat(3, 1fr);
-}
-.lp-seam span {
-  writing-mode: vertical-rl;
-  font-size: 10px;
+.art-days span {
+  padding: 8px 0 0 10px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.14em;
   color: var(--muted);
+  border-right: 1px solid var(--line);
 }
-.lp-board.story > .lp-days,
-.lp-board.story > .lp-lanes {
-  animation: lp-roll linear both;
-  animation-timeline: --story;
-  animation-range: contain 76% contain 96%;
+.art-draft {
+  position: absolute;
+  left: calc(40% + 6px);
+  right: 6px;
+  top: 46px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgb(91 91 246 / 0.16);
+  box-shadow: inset 0 0 0 1.5px rgb(91 91 246 / 0.7);
 }
-.lp-board.story .lp-eq {
-  animation:
-    lp-card linear both,
-    lp-card-out linear both;
-  animation-timeline: --story, --story;
-  animation-range:
-    contain 50% contain 58%,
-    contain 72% contain 78%;
+/* step 2: day bars rising to their hours */
+.art-eq {
+  position: absolute;
+  inset: 14px 18px;
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+}
+.art-eq span {
+  position: relative;
+  width: 18px;
+  height: 100%;
+  border-radius: 6px;
+  background: var(--panel-2);
+  overflow: hidden;
+}
+.art-eq i {
+  position: absolute;
+  inset: auto 0 0;
+  height: calc(var(--v) * 100%);
+  border-radius: 6px;
+  background: linear-gradient(to top, hsl(160 70% 45%), hsl(160 80% 65%));
+}
+/* step 3: bars gathered by project */
+.art-groups {
+  position: absolute;
+  inset: 12px 14px;
+  display: grid;
+  gap: 6px;
+  align-content: center;
+}
+.art-groups i {
+  height: 13px;
+  width: var(--w);
+  margin-left: var(--x, 0);
+  border-radius: 5px;
+  background: color-mix(in oklab, var(--c), transparent 35%);
+  box-shadow: inset 3px 0 0 var(--c);
 }
 
 /* ---------- insights showcase: the timeline fills in left to right as it scrolls into view ---------- */
@@ -1103,60 +991,34 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
 }
 
 /* ---------- end ---------- */
-.lp-end-copy p {
-  margin: 18px 0 0;
-  max-width: 440px;
-  text-wrap: pretty;
-  font-size: 17px;
-  line-height: 1.55;
-  color: var(--muted);
-}
-.lp-end-copy ul {
-  list-style: none;
-  display: grid;
-  gap: 10px;
-  margin: 24px 0 0;
-  padding: 0;
-  font-size: 15px;
-}
-.lp-end-copy li {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.lp-end-copy li::before {
-  content: '✓';
-  display: grid;
-  place-items: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 7px;
-  font-size: 12px;
-  font-weight: 800;
-  color: #a9a9ff;
-  background: rgb(91 91 246 / 0.16);
-}
-/* closing section: headline on the left, sign-in card on the right */
 .lp-end {
   position: relative;
   z-index: 2;
-  display: grid;
-  grid-template-columns: minmax(0, 500px) minmax(0, 400px);
-  justify-content: center;
-  align-items: center;
-  gap: clamp(32px, 7vw, 110px);
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 16vh clamp(16px, 5vw, 72px) 18vh;
+  text-align: center;
+  padding: 14vh 16px 16vh;
 }
 .lp-end h2 {
-  margin: 0;
-  font-size: clamp(30px, 3.4vw, 44px);
+  margin: 0 auto 14px;
+  max-width: 760px;
+  font-size: clamp(32px, 4.6vw, 56px);
   letter-spacing: -0.04em;
-  line-height: 1.02;
+  line-height: 1.05;
   animation: lp-card-in linear both;
   animation-timeline: view();
   animation-range: entry 10% cover 40%;
+}
+.lp-end p {
+  margin: 0 0 28px;
+  color: var(--muted);
+  font-size: 17px;
+}
+.lp-end .lp-cta {
+  border: 0;
+  font: inherit;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  animation: none;
 }
 .lp-small {
   color: var(--muted);
@@ -1211,127 +1073,15 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
     background-position: 300% 0;
   }
 }
-@keyframes lp-bob {
-  to {
-    translate: 0 -16px;
-  }
-}
-@keyframes lp-para {
-  to {
-    transform: translateY(var(--depth)) rotate(-4deg);
-    opacity: 0;
-  }
-}
 @keyframes lp-tilt {
   from {
     transform: rotateX(34deg) translateY(30px) scale(0.9);
     opacity: 0.6;
   }
 }
-/* captions hand over quickly: each is fully visible for most of its step, so there is never a blank gap */
-@keyframes lp-cap {
-  0% {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  12%,
-  88% {
-    opacity: 1;
-    transform: none;
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-16px);
-  }
-}
-@keyframes lp-cap-last {
-  0% {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  20%,
-  100% {
-    opacity: 1;
-    transform: none;
-  }
-}
 @keyframes lp-grow {
   from {
     transform: scaleX(0);
-  }
-}
-@keyframes lp-draft {
-  0% {
-    opacity: 0;
-    transform: scaleX(0.33);
-  }
-  8% {
-    opacity: 1;
-    transform: scaleX(0.33);
-  }
-  70% {
-    opacity: 1;
-    transform: scaleX(1);
-  }
-  100% {
-    opacity: 0;
-    transform: scaleX(1);
-  }
-}
-@keyframes lp-cursor {
-  0% {
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-    transform: none;
-  }
-  80% {
-    opacity: 1;
-    transform: translateX(calc(min(560px, 55vw) * 0.55));
-  }
-  100% {
-    opacity: 0;
-    transform: translateX(calc(min(560px, 55vw) * 0.55));
-  }
-}
-@keyframes lp-gather {
-  from {
-    transform: translate(var(--sx), var(--sy)) rotate(var(--sr));
-    opacity: 0.55;
-  }
-}
-@keyframes lp-appear {
-  from {
-    opacity: 0;
-    transform: scale(0.96);
-  }
-}
-@keyframes lp-card {
-  from {
-    opacity: 0;
-    transform: translateY(40px) scale(0.95);
-  }
-}
-@keyframes lp-card-out {
-  to {
-    opacity: 0;
-    transform: translateY(20px) scale(0.97);
-  }
-}
-@keyframes lp-rise {
-  from {
-    transform: scaleY(0);
-  }
-}
-@keyframes lp-roll {
-  to {
-    transform: translateX(-62%);
-  }
-}
-@keyframes lp-seam {
-  to {
-    transform: translateX(-62cqw);
   }
 }
 @keyframes lp-card-in {
@@ -1341,69 +1091,22 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   }
 }
 
-/* No scroll-driven animation support: show the story as plain stacked steps. */
-@supports not (animation-timeline: scroll()) {
-  .lp-story {
-    height: auto;
+@media (max-width: 960px) {
+  .lp-hero {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    padding-top: 6vh;
   }
-  .lp-sticky {
-    position: static;
-    height: auto;
-    padding-block: 10vh;
+  .lp-hero .lp-signin {
+    justify-items: stretch;
   }
-  .lp-caps {
-    height: auto;
-    display: grid;
-    gap: 28px;
-  }
-  .lp-cap {
-    position: static;
-    opacity: 1;
-    animation: none;
-  }
-  .lp-progress,
-  .lp-cursor,
-  .lp-bar.draft,
-  .lp-seam,
-  .lp-eq,
-  .lp-next {
+  .lp-links {
     display: none;
   }
-  .lp-board.story > .lp-days,
-  .lp-board.story > .lp-lanes {
-    animation: none;
-  }
-}
-
-@media (max-width: 860px) {
-  .lp-end {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    text-align: center;
-  }
-  .lp-end-copy p {
-    margin-inline: auto;
-  }
-  .lp-end-copy ul {
-    justify-content: center;
-  }
-  .lp-cards {
-    grid-template-columns: 1fr;
-  }
+  .lp-steps,
+  .lp-cards,
   .lp-insights {
     grid-template-columns: 1fr;
-  }
-  .lp-sticky {
-    grid-template-columns: 1fr;
-    align-content: center;
-    gap: 24px;
-  }
-  .lp-caps {
-    height: 190px;
-  }
-  .lp-float.z1,
-  .lp-float.z2 {
-    display: none;
   }
   .lp-aurora,
   .lp-grid::before {
@@ -1418,33 +1121,7 @@ html:has(.lp)::-webkit-scrollbar-thumb:hover {
   .lp *,
   .lp *::before,
   .lp-aurora,
-  .lp-grid,
-  .lp-float {
+  .lp-grid {
     animation: none !important;
-  }
-  .lp-story {
-    height: auto;
-  }
-  .lp-sticky {
-    position: static;
-    height: auto;
-    padding-block: 10vh;
-  }
-  .lp-caps {
-    height: auto;
-    display: grid;
-    gap: 28px;
-  }
-  .lp-cap {
-    position: static;
-    opacity: 1;
-  }
-  .lp-progress,
-  .lp-cursor,
-  .lp-bar.draft,
-  .lp-seam,
-  .lp-eq,
-  .lp-next {
-    display: none;
   }
 }

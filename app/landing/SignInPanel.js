@@ -37,33 +37,29 @@ const GoogleButton = ({ label }) => (
   </button>
 );
 
-// Hero "Sign in": an eased, medium-speed glide down to the panel (native smooth scroll rushes long distances).
-export function SignInLink() {
-  function glide(e) {
-    const el = document.getElementById('signin');
-    if (!el || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    e.preventDefault();
-    // Sections below lazy-render (content-visibility), so the page grows while we glide: re-aim every frame.
-    const target = () => el.getBoundingClientRect().top + scrollY - Math.max(0, (innerHeight - el.offsetHeight) / 2);
-    const from = scrollY;
-    const ms = Math.min(2000, Math.max(1200, Math.abs(target() - from) / 4));
-    const ease = t => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
-    const t0 = performance.now();
-    const step = now => {
-      const t = Math.min(1, (now - t0) / ms);
-      scrollTo({ top: from + (target() - from) * ease(t), behavior: 'instant' });
-      if (t < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
+// "Sign in" (nav and bottom of the page): bring the card in the hero into view, give it a short glow so the eye
+// lands on it, and put the cursor in its first field.
+export function SignInButton({ className, label = 'Sign in' }) {
+  function call() {
+    const card = document.querySelector('#signin .lp-si-card');
+    if (!card) return;
+    const r = card.getBoundingClientRect();
+    const inView = r.top >= 0 && r.bottom <= innerHeight;
+    if (!inView) scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    card.classList.remove('called');
+    void card.offsetWidth; // restart the glow
+    card.classList.add('called');
+    const focus = () => card.querySelector('.lp-si-panel.on input, .lp-si-panel.on .lp-google')?.focus({ preventScroll: true });
+    setTimeout(focus, inView ? 0 : 700);
   }
   return (
-    <a href="#signin" className="lp-cta" onClick={glide}>
-      Sign in <span aria-hidden="true">↓</span>
-    </a>
+    <button type="button" className={className} onClick={call}>
+      {label}
+    </button>
   );
 }
 
-// The card the hero's "Sign in" glides to. Tabs: Sign in (Google or username) and Sign up (Google, then pick a
+// The sign-in card in the hero. Tabs: Sign in (Google or username) and Sign up (Google, then pick a
 // username and password right here). All panels share one grid cell, so the card never changes height.
 export default function SignInPanel({ error }) {
   const [tab, setTab] = useState('in');
