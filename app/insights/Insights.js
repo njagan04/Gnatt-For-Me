@@ -15,7 +15,7 @@ const niceMax = v => {
   return Math.ceil(v / 50) * 50;
 };
 
-export default function Insights({ me, admin, tab, settings }) {
+export default function Insights({ me, admin, tab, section, settings }) {
   const [r, setR] = useState(null);
   const [err, setErr] = useState(null);
   const [tip, setTip] = useState(null); // { x, y, text }
@@ -53,7 +53,7 @@ export default function Insights({ me, admin, tab, settings }) {
         <Avatar me={me} className="on" />
       </header>
       <div className="me">
-        <Sidebar me={me} admin={admin} tab={tab} />
+        <Sidebar me={me} admin={admin} tab={tab} section={section} />
         <div className="me-main">
           {tab === 'settings' ? (
             settings
@@ -94,7 +94,7 @@ function Avatar({ me, className = '' }) {
 }
 
 // Left rail: who you are, the two sections (settings with its parts), log out at the bottom.
-function Sidebar({ me, admin, tab }) {
+function Sidebar({ me, admin, tab, section }) {
   const settings = tab === 'settings';
   const sub = [['appearance', 'Appearance'], ['sign-in', 'Sign-in'], ...(admin ? [['admin', 'Admin']] : [])];
   return (
@@ -116,7 +116,7 @@ function Sidebar({ me, admin, tab }) {
         </Link>
         <div className="me-sub">
           {sub.map(([id, label]) => (
-            <Link key={id} href={'/insights?tab=settings#' + id}>
+            <Link key={id} href={'/insights?tab=settings&section=' + id} className={settings && section === id ? 'on' : ''} scroll={false}>
               {label}
             </Link>
           ))}

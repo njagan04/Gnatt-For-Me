@@ -4,7 +4,8 @@ import { useRouter } from 'next/navigation';
 import { checkUsername, generatePassword, passwordStrength } from '../../lib/credentials';
 import { removePassword, saveCredentials, usernameStatus } from './actions';
 
-const fmtDate = iso => new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' });
+// Fixed locale and zone: the server and the browser must print the same text, or hydration fails.
+const fmtDate = iso => new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
 
 export default function AccountForm({ welcome, email, method, username: savedName, hasPassword, passwordSetAt }) {
   const router = useRouter();

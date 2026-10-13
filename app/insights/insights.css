@@ -124,6 +124,10 @@ img.avatar {
   font-size: 13px;
   font-weight: 500;
 }
+.me-sub a.on {
+  color: var(--text);
+  background: var(--panel-2);
+}
 .me-out {
   margin-top: auto;
 }
@@ -146,14 +150,19 @@ img.avatar {
 /* ---------- Settings ---------- */
 .set {
   max-width: 760px;
-  padding: 28px 36px 64px;
+  margin: 0 auto;
+  padding: 32px 36px 64px;
   display: grid;
   gap: 30px;
+  animation: rise 0.3s var(--ease) both;
+}
+.set-lead {
+  margin: -6px 0 4px;
+  font-size: 13.5px;
 }
 .set-sec {
   display: grid;
   gap: 12px;
-  scroll-margin-top: 70px;
 }
 .set-sec > h2 {
   margin: 0;
@@ -210,14 +219,25 @@ img.avatar {
     border-right: 0;
     border-bottom: 1px solid var(--line);
   }
-  .me-nav {
-    display: flex;
-  }
-  .me-sub {
-    display: none;
+  /* phone: who you are + log out on top, then one wrapping row of sections */
+  .me-who {
+    flex: 1;
   }
   .me-out {
-    margin: 0 0 0 auto;
+    margin: 0;
+  }
+  .me-nav {
+    order: 3;
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .me-sub {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+    padding-left: 8px;
   }
   .set {
     padding: 20px 16px 48px;
@@ -228,6 +248,7 @@ img.avatar {
 .ins-body {
   width: 100%;
   max-width: 1400px;
+  margin: 0 auto;
   padding: 26px 32px 30px;
   display: grid;
   gap: 18px;
