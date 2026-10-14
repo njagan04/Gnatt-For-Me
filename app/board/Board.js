@@ -1,9 +1,11 @@
 'use client';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { deleteCategory, load, removeBar, saveBar, saveCategory } from '../actions';
+import { deleteCategory, load, pinTask, removeBar, saveBar, saveCategory } from '../actions';
 import { addDays, addWork, diff, isWork, monday, pack, toBars, today as todayStr, wdiff, workRange } from '../../lib/days';
 import { catColor, freeHue, MAX_CATS, striped } from '../../lib/palette';
+import { zoom } from '../../lib/zoom';
 import CategoryDelete from './CategoryDelete';
+import DueSoon from './DueSoon';
 import EditorDialog from './EditorDialog';
 import Sidebar from './Sidebar';
 import Timeline, { C, GAP, PAD, ROW, SEAM, stripOf } from './Timeline';
@@ -33,6 +35,7 @@ export default function Board({ user, picture }) {
   const [hover, setHover] = useState(null);
   const [arrive, setArrive] = useState(null);
   const [sureCat, setSureCat] = useState(null);
+  const [due, setDue] = useState(null); // unfinished tasks ending on the next workday, shown once per visit
   const [ci, setCi] = useState(0); // whole days the view is scrolled from the anchor week's Wednesday
   const boardRef = useRef(null);
   const drumRef = useRef(null);
@@ -246,6 +249,22 @@ export default function Board({ user, picture }) {
     return () => removeEventListener('keydown', onKey);
   });
 
+  // On opening the site (first load, once per browser session): to-do / in-progress tasks whose last day is the next workday.
+  useEffect(() => {
+    if (version !== 1) return;
+    const t = todayStr();
+    try {
+      if (sessionStorage.getItem('due-seen') === t) return;
+      sessionStorage.setItem('due-seen', t);
+    } catch {}
+    const next = addWork(t, 1);
+    const last = {};
+    for (const l of data.logs) if (!(l.day <= last[l.name])) last[l.name] = l.day; // logs come sorted, but don't rely on it
+    const open = new Set(data.tasks.filter(x => x.status === 'todo' || x.status === 'doing').map(x => x.name));
+    const list = Object.keys(last).filter(n => last[n] === next && open.has(n));
+    if (list.length) setDue({ day: next, tasks: data.tasks.filter(x => list.includes(x.name)) });
+  }, [version]);
+
   // The week in the middle of the screen drives the mini calendar's month.
   const shown = week && monday(stripOf(week)[C + ci]);
   useEffect(() => {
@@ -452,7 +471,7 @@ export default function Board({ user, picture }) {
     if (bar) return openEditor(bar, bar.from, bar.to);
     const hs = data.logs.filter(l => l.name === name && l.hours > 0).map(l => l.hours);
     const usual = hs.length ? hs.sort((a, b) => a - b)[Math.floor(hs.length / 2)] : ''; // median day
-    openEditor(null, d, d, { name, label, hours: { [d]: usual } });
+    openEditor(null, d, d, { name, label, hours: { [d]: usual }, status: 'doing', autofill: true }); // picked up = back in progress
   }
   // N / "New": the same editor, for today (or the next weekday on a weekend).
   function newForToday(preset) {
@@ -483,6 +502,23 @@ export default function Board({ user, picture }) {
   const addCat = (name, hue, color) => {
     if (data.cats.length >= MAX_CATS) return say(`Up to ${MAX_CATS} categories`, true);
     run(() => saveCategory(name, hue ?? freeHue(data.cats.map(c => c.hue)), color), 'Category added');
+  };
+  const unpin = name => run(() => pinTask(name, false), 'Removed from Pick up again');
+  // From the due-soon card: open the bar that ends on that day.
+  const openDue = (name, day) => {
+    const b = bars.find(x => x.name === name && x.to === day);
+    if (b) openEditor(b, b.from, b.to);
+  };
+  // "+ New category" in the editor's dropdown: create it and select it, keeping the editor open.
+  const addCatFromEditor = async (name, hue, color) => {
+    try {
+      await saveCategory(name, hue, color);
+      await refresh();
+      setEd(e => e && { ...e, label: name });
+      say('Category added');
+    } catch (err) {
+      say(err.message || 'Could not add the category', true);
+    }
   };
   const recolor = (c, hue, color) => run(() => saveCategory(c.name, hue, color), 'Colour changed');
   const dropCat = name => {
@@ -545,10 +581,10 @@ export default function Board({ user, picture }) {
             onPick: w => (go(w), setSideOpen(false)),
             version,
           }}
-          logs={data.logs}
-          today={today}
+          tasks={data.tasks}
           colorOf={colorOf}
           onLog={pickUp}
+          onUnpin={unpin}
           categories={{ cats, total: catTotal, focus, setFocus, onAdd: addCat, onRecolor: recolor, onAskDelete: setSureCat }}
         />
       </div>
@@ -560,6 +596,7 @@ export default function Board({ user, picture }) {
         onClose={() => setSureCat(null)}
         onDelete={dropCat}
       />
+      <DueSoon due={due} colorOf={colorOf} onClose={() => setDue(null)} onOpen={openDue} />
       <EditorDialog
         dlgRef={dlg}
         ed={ed}
@@ -570,6 +607,7 @@ export default function Board({ user, picture }) {
         colorOf={colorOf}
         onSave={save}
         onDelete={del}
+        onNewCat={addCatFromEditor}
         say={say}
       />
       {toastEl}

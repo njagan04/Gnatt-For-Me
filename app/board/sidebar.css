@@ -14,8 +14,13 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+  overflow-x: hidden; /* overflow-y:auto would otherwise add a sideways scrollbar for anything poking out */
   overflow-y: auto;
+  scrollbar-width: none; /* still scrolls (wheel / touch), without a bar along the edge */
   animation: slide-in 0.5s var(--ease);
+}
+.side::-webkit-scrollbar {
+  display: none;
 }
 .card {
   background: var(--panel);
@@ -260,6 +265,36 @@ button.cd:active {
 .today-list.recent button:hover em {
   opacity: 1;
   color: var(--accent);
+}
+.today-list.recent .unpin {
+  flex: none;
+  width: 26px;
+  padding: 6px 0;
+  justify-content: center;
+  color: var(--muted);
+  opacity: 0;
+}
+.today-list.recent li:hover .unpin,
+.today-list.recent .unpin:focus-visible {
+  opacity: 1;
+}
+.today-list.recent .unpin:hover {
+  color: var(--danger);
+}
+@media (hover: none) {
+  .today-list.recent .unpin {
+    opacity: 1;
+  }
+}
+.pick-search {
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 7px 10px;
+  font-size: 13px;
+}
+.due-list {
+  width: 100%;
+  margin-bottom: 12px;
 }
 .today-sub {
   margin: 12px 0 4px 6px;
