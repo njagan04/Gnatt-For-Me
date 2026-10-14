@@ -358,7 +358,7 @@ dialog {
   padding: 22px 24px;
   width: min(560px, 94vw);
   height: fit-content; /* a modal dialog with height:auto stretches to the viewport */
-  max-height: 94vh;
+  max-height: calc(var(--screen) * 0.94);
   color: var(--text);
   background: var(--panel);
   /* a dialog can live inside a table cell (admin delete): don't inherit its nowrap / right alignment */

@@ -38,7 +38,7 @@ a.avatar:hover {
 /* layout */
 /* app shell: exactly the window height, so the page itself never scrolls */
 main.app {
-  height: 100vh;
+  height: var(--screen);
   display: flex;
   flex-direction: column;
   overflow: hidden;

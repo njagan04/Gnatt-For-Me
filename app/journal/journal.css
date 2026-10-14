@@ -3,7 +3,7 @@
 .jr {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 300px;
-  height: calc(100vh - 51px);
+  height: calc(var(--screen) - 51px);
   animation: rise 0.35s var(--ease) both;
 }
 .jr-main {

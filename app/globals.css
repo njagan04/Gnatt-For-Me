@@ -1,3 +1,15 @@
+/* The whole site renders at 90% (like browser zoom at 90%) on larger screens; phones keep 100%.
+   Viewport units shrink with the zoom, so full-screen heights use --screen. Pointer maths divides by it (lib/zoom.js). */
+:root {
+  --screen: 100vh;
+}
+@media (min-width: 760px) {
+  :root {
+    zoom: 0.9;
+    --screen: calc(100vh / 0.9);
+  }
+}
+
 /* Theme tokens. Light by default; dark from the OS unless the user picked light, or when they picked dark. */
 :root {
   color-scheme: light;
@@ -231,7 +243,7 @@ input:focus {
 
 /* splash */
 .splash {
-  height: 100vh;
+  height: var(--screen);
   display: grid;
   place-items: center;
 }

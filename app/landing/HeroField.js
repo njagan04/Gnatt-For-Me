@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useRef } from 'react';
+import { zoom } from '../../lib/zoom';
 
 // The hero's background is a faint timeline: day columns and task bars that draw themselves in. The mouse is the
 // "now" cursor: a playhead glides to the column under it (with that day's name) and a soft light around the
@@ -51,17 +52,18 @@ export default function HeroField() {
       raf = Math.abs(tx - x) > 0.4 ? requestAnimationFrame(tick) : 0;
     };
     const move = e => {
-      const r = el.getBoundingClientRect();
+      const r = el.getBoundingClientRect(),
+        z = zoom();
       const inside = e.clientY >= r.top && e.clientY <= r.bottom && e.clientX >= r.left && e.clientX <= r.right;
       el.classList.toggle('live', inside);
       if (!inside) return;
-      el.style.setProperty('--mx', e.clientX - r.left + 'px');
-      el.style.setProperty('--my', e.clientY - r.top + 'px');
+      el.style.setProperty('--mx', (e.clientX - r.left) / z + 'px');
+      el.style.setProperty('--my', (e.clientY - r.top) / z + 'px');
       const c = Math.min(COLS - 1, Math.floor(((e.clientX - r.left) / r.width) * COLS));
       if (c !== col) {
-        if (col < 0) x = ((c + 0.5) / COLS) * r.width; // first time: appear in place, don't fly in
+        if (col < 0) x = ((c + 0.5) / COLS) * (r.width / z); // first time: appear in place, don't fly in
         col = c;
-        tx = ((c + 0.5) / COLS) * r.width;
+        tx = ((c + 0.5) / COLS) * (r.width / z);
         label.current.textContent = DAYS[c % 5] + (c === TODAY ? ' · today' : '');
         raf ||= requestAnimationFrame(tick);
       }

@@ -1,7 +1,7 @@
 /* Insights page. */
 /* ---------- Insights page ---------- */
 main.insights {
-  min-height: 100vh;
+  min-height: var(--screen);
 }
 .insights .brand {
   color: var(--text);
@@ -38,7 +38,7 @@ img.avatar {
 .me {
   display: grid;
   grid-template-columns: 240px minmax(0, 1fr);
-  min-height: calc(100vh - 51px);
+  min-height: calc(var(--screen) - 51px);
   /* the sidebar divider runs the full page height, however long the content */
   background: linear-gradient(90deg, color-mix(in oklab, var(--panel), transparent 30%) 239px, var(--line) 239px 240px, transparent 240px);
 }
@@ -46,7 +46,7 @@ img.avatar {
   position: sticky;
   top: 51px;
   align-self: start;
-  height: calc(100vh - 51px);
+  height: calc(var(--screen) - 51px);
   display: flex;
   flex-direction: column;
   padding: 18px 12px 12px;

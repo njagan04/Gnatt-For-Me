@@ -7,6 +7,7 @@ import './insights.css';
 import { addDays, monday, range, today as todayStr, fmt } from '../../lib/days';
 import { catColor } from '../../lib/palette';
 import { longestStreak, step, summarize } from '../../lib/stats';
+import { zoom } from '../../lib/zoom';
 
 const n = v => +v.toFixed(1);
 const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
@@ -80,7 +81,7 @@ export default function Insights({ me, admin, tab, section, day, settings }) {
         </div>
       </div>
       {tip && (
-        <div className="ins-tip" style={{ left: tip.x, top: tip.y }}>
+        <div className="ins-tip" style={{ left: tip.x / zoom(), top: tip.y / zoom() }}>
           {tip.text}
         </div>
       )}
