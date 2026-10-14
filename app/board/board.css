@@ -38,7 +38,7 @@ a.avatar:hover {
 /* layout */
 /* app shell: exactly the window height, so the page itself never scrolls */
 main.app {
-  height: 100vh;
+  height: var(--screen);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -330,8 +330,8 @@ button.icon.sm {
   position: absolute;
   left: 0;
   right: -1px;
-  height: 46px;
-  padding: 0 10px 5px;
+  height: 44px;
+  padding: 0 10px 4px;
   z-index: 1;
   display: flex;
   align-items: flex-end;
@@ -412,12 +412,15 @@ button.icon.sm {
 .piece .hrs {
   margin-left: auto;
   flex: none;
-  font-size: 10.5px;
-  font-weight: 700;
-  padding: 0 6px;
+  position: relative; /* above the status patterns and the cancelled line */
+  font-size: 11px;
+  font-weight: 750;
+  padding: 0 7px;
   border-radius: 99px;
   line-height: 16px;
-  background: color-mix(in oklab, var(--c) 22%, transparent);
+  /* solid, so the hours stay readable over any status pattern */
+  background: color-mix(in oklab, var(--c) 30%, var(--panel));
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--c), transparent 55%);
   font-variant-numeric: tabular-nums;
 }
 .piece .edge {
@@ -559,18 +562,54 @@ a.avatar img {
   background: color-mix(in oklab, var(--accent), transparent 93%);
 }
 
-/* status on the bar. To do: the plain bar.
-   Doing: a soft cross-hatch over the whole bar.
-   Done: a fine dot grid over the whole bar (a sibling of doing's cross-hatch), and a check by its name. */
+/* status on the bar.
+   To do: a pale bar with a dotted outline (planned, not started).
+   In progress: a soft cross-hatch over the whole bar.
+   On hold: a faded bar with a pause button by its name.
+   Completed: a fine dot grid over the whole bar (a sibling of the cross-hatch).
+   Cancelled: one line struck through the bar. */
+.piece.todo {
+  background: color-mix(in oklab, var(--c) 6%, var(--panel));
+  border: 2px dotted var(--c);
+  border-width: 2px 0;
+  --le: inset 0 0 transparent;
+  --re: inset 0 0 transparent;
+}
+.piece.todo.first {
+  border-left-width: 2px;
+}
+.piece.todo.last {
+  border-right-width: 2px;
+}
 .piece.doing {
   background-image:
     repeating-linear-gradient(45deg, color-mix(in oklab, var(--c), transparent 82%) 0 1.5px, transparent 1.5px 8px),
     repeating-linear-gradient(-45deg, color-mix(in oklab, var(--c), transparent 82%) 0 1.5px, transparent 1.5px 8px);
 }
+.piece.hold {
+  background: color-mix(in oklab, var(--c) 7%, var(--panel));
+}
+/* on hold: a pause button (ring + two bars) in front of the name instead of a pattern behind it */
+.bar-label .st.hold {
+  width: 15px;
+  height: 15px;
+  margin-right: 6px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  vertical-align: -3px;
+  background: linear-gradient(90deg, transparent 3px, currentColor 3px 5px, transparent 5px 7px, currentColor 7px 9px, transparent 9px)
+    center / 100% 6px no-repeat;
+}
+
 .piece.done {
   background-image: radial-gradient(color-mix(in oklab, var(--c), transparent 55%) 1.3px, transparent 1.6px);
   background-size: 8px 8px;
   background-position: 2px 2px;
+}
+/* one line through the middle of the bar: below the task name, above the hours */
+.piece.cancelled {
+  background-color: color-mix(in oklab, var(--c) 6%, var(--panel));
+  background-image: linear-gradient(transparent 21.5px, var(--c) 21.5px 23px, transparent 23px);
 }
 
 /* ---------- narrower windows ----------

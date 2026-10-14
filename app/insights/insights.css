@@ -1,7 +1,7 @@
 /* Insights page. */
 /* ---------- Insights page ---------- */
 main.insights {
-  min-height: 100vh;
+  min-height: var(--screen);
 }
 .insights .brand {
   color: var(--text);
@@ -38,7 +38,7 @@ img.avatar {
 .me {
   display: grid;
   grid-template-columns: 240px minmax(0, 1fr);
-  min-height: calc(100vh - 51px);
+  min-height: calc(var(--screen) - 51px);
   /* the sidebar divider runs the full page height, however long the content */
   background: linear-gradient(90deg, color-mix(in oklab, var(--panel), transparent 30%) 239px, var(--line) 239px 240px, transparent 240px);
 }
@@ -46,7 +46,7 @@ img.avatar {
   position: sticky;
   top: 51px;
   align-self: start;
-  height: calc(100vh - 51px);
+  height: calc(var(--screen) - 51px);
   display: flex;
   flex-direction: column;
   padding: 18px 12px 12px;
@@ -829,68 +829,151 @@ img.avatar {
   }
 }
 
-/* Settings → Categories */
+/* Settings → Categories: full width, a card per category with its tasks in five status columns */
+.set.full {
+  max-width: none;
+}
 .cs {
-  padding: 8px 10px 12px;
+  display: grid;
+  gap: 16px;
 }
-.cs-list {
-  list-style: none;
+.cs-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+.cs-top h2 {
+  margin: 0 0 4px;
+  font-size: 22px;
+  letter-spacing: -0.015em;
+}
+.cs-top p {
   margin: 0;
-  padding: 0;
+  font-size: 13.5px;
 }
-.cs-list > li + li {
-  border-top: 1px solid var(--line);
+.cs-empty {
+  margin: 0;
 }
-.cs-list .palette {
-  margin: 0 10px 12px 52px;
+.cs .err {
+  margin: 0;
 }
-.cs-row {
+.cs-cat {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  /* the category colour runs down the left edge */
+  background-image: linear-gradient(90deg, var(--c) 0 4px, transparent 4px);
+}
+.cs-head {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px;
+  padding: 14px 18px 14px 14px;
 }
-.cs-swatch {
+.cs-cat.open .cs-head {
+  border-bottom: 1px solid var(--line);
+  background-color: color-mix(in oklab, var(--c) 6%, transparent);
+}
+.cs-open {
   flex: none;
   width: 28px;
   height: 28px;
   padding: 0;
   border: 0;
   border-radius: 8px;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--muted);
+  background: none;
+  cursor: pointer;
+  transition: rotate 0.2s var(--ease);
+}
+.cs-open:hover {
+  color: var(--text);
+  background: var(--panel-2);
+}
+.cs-cat.open .cs-open {
+  rotate: 90deg;
+}
+.cs-swatch {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 9px;
   background: var(--c);
   cursor: pointer;
   transition:
     transform 0.15s var(--spring),
     box-shadow 0.15s;
 }
-.cs-swatch:hover {
+span.cs-swatch {
+  cursor: default;
+}
+button.cs-swatch:hover {
   transform: scale(1.08);
   box-shadow:
     0 0 0 2px var(--panel),
     0 0 0 4px var(--c);
 }
 .cs-name {
-  flex: 1;
+  flex: 0 1 260px;
   min-width: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
   padding: 6px 8px;
   border: 1px solid transparent;
   border-radius: 8px;
   font: inherit;
-  font-size: 14.5px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
   color: var(--text);
   background: none;
 }
-.cs-name:hover {
+input.cs-name:hover {
   border-color: var(--line);
 }
-.cs-name:focus {
+input.cs-name:focus {
   outline: none;
   border-color: var(--accent);
   background: var(--panel-2);
 }
+/* how many tasks in each status, as small glyph + number pills */
+.cs-tally {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+.cs-tally span {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+}
+.cs-tally span b {
+  margin-left: 5px;
+  color: var(--c);
+}
+.cs-tally span.zero {
+  opacity: 0.4;
+}
 .cs-meta {
   flex: none;
+  min-width: 150px;
+  text-align: right;
   font-size: 12.5px;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
@@ -899,8 +982,8 @@ img.avatar {
   flex: none;
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   padding: 0;
   border: 0;
   border-radius: 8px;
@@ -908,25 +991,194 @@ img.avatar {
   background: none;
   cursor: pointer;
 }
-.cs-del:hover {
+button.cs-del:hover {
   color: var(--danger);
   background: color-mix(in oklab, var(--danger), transparent 90%);
 }
-.cs-empty {
-  margin: 10px;
+.cs-board {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(200px, 1fr));
+  overflow-x: auto;
+  animation: rise 0.25s var(--ease);
 }
-.cs > .palette {
-  margin: 10px;
+.cs-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  min-height: 140px;
+  padding: 14px 16px 20px;
 }
-.cs-foot {
+.cs-col + .cs-col {
+  border-left: 1px solid var(--line);
+}
+.cs-col-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 10px 0;
-  border-top: 1px solid var(--line);
-  margin-top: 4px;
+  gap: 2px;
+  padding: 0 4px 4px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
-.cs .err {
-  margin: 8px 10px 0;
+.cs-count {
+  margin-left: auto;
+  min-width: 22px;
+  padding: 1px 7px;
+  border-radius: 99px;
+  text-align: center;
+  font-size: 11.5px;
+  color: var(--text);
+  background: var(--panel-2);
+  font-variant-numeric: tabular-nums;
+}
+.cs-task {
+  display: grid;
+  gap: 5px;
+  width: min(100%, 250px);
+  padding: 10px 12px 10px 13px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--c);
+  background: var(--panel-2);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  transition:
+    border-color 0.15s,
+    translate 0.15s var(--ease);
+}
+.cs-task:hover {
+  border-color: color-mix(in oklab, var(--c), transparent 40%);
+  translate: 0 -1px;
+}
+.cs-task b {
+  min-width: 0;
+  font-size: 13.5px;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cs-task p {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--muted);
+  white-space: pre-line;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.cs-task small {
+  font-size: 11.5px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.cs-col.done .cs-task,
+.cs-col.cancelled .cs-task {
+  opacity: 0.75;
+}
+.cs-add {
+  width: min(100%, 250px);
+  padding: 9px 12px;
+  border: 1px dashed color-mix(in oklab, var(--c), transparent 40%);
+  border-radius: 8px;
+  text-align: left;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  background: none;
+  cursor: pointer;
+}
+.cs-add:hover {
+  background: color-mix(in oklab, var(--c) 10%, transparent);
+  border-style: solid;
+}
+.cs-none {
+  width: min(100%, 250px);
+  padding: 14px;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+button.cs-task {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: var(--text);
+  cursor: pointer;
+}
+/* progress: the completed share of the category; the bar is shaded by status (solid = completed … faint = to do) */
+.cs-progress {
+  flex: 0 1 260px;
+  min-width: 140px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+.cs-track {
+  flex: 1;
+  display: flex;
+  gap: 2px;
+  height: 5px;
+  border-radius: 99px;
+  overflow: hidden;
+  background: var(--panel-2);
+}
+.cs-seg {
+  min-width: 4px;
+  background: color-mix(in oklab, var(--c) var(--p), var(--panel-2));
+  transition: flex-grow 0.4s var(--ease);
+}
+.cs-seg.cancelled,
+.cs-key.cancelled {
+  background: repeating-linear-gradient(135deg, var(--muted) 0 1.5px, transparent 1.5px 4px);
+}
+.cs-progress b {
+  min-width: 36px;
+  text-align: right;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.cs-key {
+  width: 8px;
+  height: 8px;
+  margin-right: 6px;
+  border-radius: 2px;
+  background: color-mix(in oklab, var(--c) var(--p), var(--panel-2));
+  border: 1px solid color-mix(in oklab, var(--c), transparent 50%);
+}
+/* drag and drop between status columns */
+.cs-task[draggable='true'] {
+  cursor: grab;
+}
+.cs-task[draggable='true']:active {
+  cursor: grabbing;
+}
+.cs-col {
+  transition: background-color 0.15s;
+}
+.cs-col.hot {
+  background: color-mix(in oklab, var(--c) 10%, transparent);
+  box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--c), transparent 40%);
+}
+@media (max-width: 900px) {
+  .cs-head {
+    flex-wrap: wrap;
+  }
+  .cs-tally {
+    order: 5;
+    width: 100%;
+    margin-left: 40px;
+    flex-wrap: wrap;
+  }
+  .cs-meta {
+    min-width: 0;
+  }
 }

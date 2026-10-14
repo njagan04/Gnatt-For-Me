@@ -61,4 +61,6 @@ await sql`alter table journal add column if not exists notes jsonb not null defa
 await sql`alter table journal drop column if exists body`;
 // A category's exact colour code from the picker ('' = its family colour).
 await sql`alter table categories add column if not exists color text not null default ''`;
+// Tasks ticked "Pick up again" in the editor show in the board sidebar's list.
+await sql`alter table tasks add column if not exists pinned boolean not null default false`;
 console.log('tables ready');

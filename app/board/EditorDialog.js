@@ -1,20 +1,23 @@
 'use client';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { fmt, workRange } from '../../lib/days';
 import CatPicker from './CatPicker';
+import CategoryDialog from './CategoryDialog';
 import HoursEditor from './HoursEditor';
 import { STATUS_LABEL } from './Timeline';
 
 const MAX_DAYS = 45; // workdays per bar
 
-// Log / edit work: task, category, dates and hours (Details tab) plus a notepad (Notes tab).
+// Log / edit work: task, description, category, status, dates and hours.
 // `ed` is the editor state owned by Board; this component only edits it.
-export default function EditorDialog({ dlgRef, ed, setEd, tasks, cats, logs, colorOf, onSave, onDelete, say }) {
+// deleteLabel: set where Delete removes the whole task (Settings → Categories); the button then always shows.
+export default function EditorDialog({ dlgRef, ed, setEd, tasks, cats, logs, colorOf, onSave, onDelete, onNewCat, say, deleteLabel }) {
+  const [newCat, setNewCat] = useState(null); // { name }: the colour card for a category made from the dropdown
   useEffect(() => {
     if (ed && !dlgRef.current.open) dlgRef.current.showModal();
   }, [ed]);
 
-  // Typing a known task's name brings in its category and notes.
+  // Typing a known task's name brings in its category and description.
   function setName(name) {
     const known = tasks.find(t => t.name === name);
     setEd({
@@ -23,6 +26,7 @@ export default function EditorDialog({ dlgRef, ed, setEd, tasks, cats, logs, col
       label: known && !ed.label ? known.label : ed.label,
       notes: known && !ed.notes ? known.notes : ed.notes,
       status: known ? known.status : ed.status,
+      pinned: known ? known.pinned : ed.pinned,
     });
   }
   function setRange(from, to) {
@@ -47,82 +51,69 @@ export default function EditorDialog({ dlgRef, ed, setEd, tasks, cats, logs, col
   }
 
   return (
-    <dialog ref={dlgRef} onClose={() => setEd(null)} onPointerDown={backdrop}>
-      {ed && (
-        <form onSubmit={onSave} style={{ '--c': colorOf(ed.label) }}>
-          <div className="dlg-head">
-            <span className="swatch" />
-            <div>
-              <h2>{ed.bar ? 'Edit work' : 'Log work'}</h2>
-              <p className="muted">
-                {ed.from === ed.to
-                  ? fmt(ed.from, { weekday: 'long', day: 'numeric', month: 'long' })
-                  : `${fmt(ed.from, { day: 'numeric', month: 'short' })} → ${fmt(ed.to, { day: 'numeric', month: 'short' })}`}
-              </p>
-            </div>
-            <span className="spacer" />
-            <button type="button" className="icon-btn" onClick={() => dlgRef.current.close()} title="Close (Esc)" aria-label="Close">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-                <path d="M6 6l12 12M18 6L6 18" />
-              </svg>
-            </button>
-          </div>
-
-          <div className="tabs" role="tablist">
-            {[
-              ['details', 'Details'],
-              ['notes', ed.notes ? 'Notes ✎' : 'Notes'],
-            ].map(([k, t]) => (
-              <button
-                type="button"
-                role="tab"
-                key={k}
-                aria-selected={ed.tab === k}
-                className={ed.tab === k ? 'on' : ''}
-                onClick={() => {
-                  setEd({ ...ed, tab: k });
-                  if (k === 'notes') setTimeout(() => dlgRef.current.querySelector('.notes textarea')?.focus());
-                }}
-              >
-                {t}
+    <>
+      <dialog ref={dlgRef} onClose={() => setEd(null)} onPointerDown={backdrop}>
+        {ed && (
+          <form onSubmit={onSave} style={{ '--c': colorOf(ed.label) }}>
+            <div className="dlg-head">
+              <span className="swatch" />
+              <div>
+                <h2>{ed.bar ? 'Edit work' : 'Log work'}</h2>
+                <p className="muted">
+                  {ed.from === ed.to
+                    ? fmt(ed.from, { weekday: 'long', day: 'numeric', month: 'long' })
+                    : `${fmt(ed.from, { day: 'numeric', month: 'short' })} → ${fmt(ed.to, { day: 'numeric', month: 'short' })}`}
+                </p>
+              </div>
+              <span className="spacer" />
+              <button type="button" className="icon-btn" onClick={() => dlgRef.current.close()} title="Close (Esc)" aria-label="Close">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
+                  <path d="M6 6l12 12M18 6L6 18" />
+                </svg>
               </button>
-            ))}
-          </div>
+            </div>
 
-          {/* both tabs share one cell, so the card keeps the Details height whichever tab is open */}
-          <div className="tab-stack">
-            <div className={'tab-body' + (ed.tab === 'details' ? '' : ' off')} inert={ed.tab !== 'details'}>
+            <div className="tab-body">
+              {ed.autofill && (
+                <p className="autofill-note" role="status">
+                  Everything here is filled in from your earlier work on this task (category, status, description and your usual hours).
+                  Check it and update anything that&apos;s changed.
+                </p>
+              )}
               <label>
                 Task
                 <input
-                  list="task-names"
                   value={ed.name}
                   onChange={e => setName(e.target.value)}
                   placeholder="What did you work on?"
+                  autoComplete="off"
                   required
                   autoFocus
                 />
               </label>
-              <div className="field">
-                <span>Category</span>
-                <CatPicker cats={cats} value={ed.label} onChange={label => setEd({ ...ed, label })} />
-              </div>
-              <div className="field">
-                <span>Status</span>
-                <div className="status-pick" role="radiogroup" aria-label="Status">
-                  {Object.entries(STATUS_LABEL).map(([k, l]) => (
-                    <button
-                      type="button"
-                      key={k}
-                      role="radio"
-                      aria-checked={ed.status === k}
-                      className={ed.status === k ? 'on' : ''}
-                      onClick={() => setEd({ ...ed, status: k })}
-                    >
-                      <i className={'st ' + k} />
-                      {l}
-                    </button>
-                  ))}
+              <label className="pin-check" title="Keep this task in the sidebar's “Pick up again” list, one click to log it again">
+                <input type="checkbox" checked={ed.pinned} onChange={e => setEd({ ...ed, pinned: e.target.checked })} />
+                Pick up again
+              </label>
+              <label>
+                Description
+                <textarea
+                  className="desc"
+                  rows={2}
+                  value={ed.notes}
+                  onChange={e => setEd({ ...ed, notes: e.target.value })}
+                  maxLength={20000}
+                  placeholder="Links, decisions, what's left to do…"
+                />
+              </label>
+              <div className="dates">
+                <div className="field">
+                  <span>Category</span>
+                  <CatPicker cats={cats} value={ed.label} onChange={label => setEd({ ...ed, label })} onNew={name => setNewCat({ name })} />
+                </div>
+                <div className="field">
+                  <span>Status</span>
+                  <StatusPicker value={ed.status} onChange={status => setEd({ ...ed, status })} />
                 </div>
               </div>
               <div className="dates">
@@ -149,35 +140,89 @@ export default function EditorDialog({ dlgRef, ed, setEd, tasks, cats, logs, col
               <HoursEditor days={workRange(ed.from, ed.to)} hours={ed.hours} onChange={hours => setEd({ ...ed, hours })} />
             </div>
 
-            <div className={'tab-body notes' + (ed.tab === 'notes' ? '' : ' off')} inert={ed.tab !== 'notes'}>
-              <textarea
-                value={ed.notes}
-                onChange={e => setEd({ ...ed, notes: e.target.value })}
-                maxLength={20000}
-                placeholder={`Anything about ${ed.name || 'this task'}… links, decisions, what's left to do.`}
-              />
-              <span className="muted tiny">Shared by every stint of this task · saved with Save</span>
-            </div>
-          </div>
-
-          <div className="actions">
-            {ed.bar && (
-              <button type="button" className="danger" onClick={onDelete} disabled={ed.busy}>
-                Delete
+            <div className="actions">
+              {(ed.bar || (deleteLabel && ed.orig)) && (
+                <button type="button" className="danger" onClick={onDelete} disabled={ed.busy}>
+                  {deleteLabel || 'Delete'}
+                </button>
+              )}
+              <span className="spacer" />
+              <button className="primary" disabled={ed.busy}>
+                {ed.busy ? <span className="spin" /> : 'Save'}
               </button>
-            )}
-            <span className="spacer" />
-            <button className="primary" disabled={ed.busy}>
-              {ed.busy ? <span className="spin" /> : 'Save'}
-            </button>
-          </div>
-        </form>
+            </div>
+          </form>
+        )}
+      </dialog>
+      {/* outside the editor's form: a form can't sit inside another */}
+      <CategoryDialog edit={newCat} cats={cats} onClose={() => setNewCat(null)} onSave={onNewCat} />
+    </>
+  );
+}
+
+// Status dropdown, styled like the category one (no search: there are only five).
+function StatusPicker({ value, onChange }) {
+  const [open, setOpen] = useState(false);
+  const [hi, setHi] = useState(0);
+  const box = useRef(null);
+  const keys = Object.keys(STATUS_LABEL);
+
+  useEffect(() => {
+    if (!open) return;
+    const off = e => !box.current.contains(e.target) && setOpen(false);
+    document.addEventListener('pointerdown', off);
+    return () => document.removeEventListener('pointerdown', off);
+  }, [open]);
+
+  const pick = k => {
+    onChange(k);
+    setOpen(false);
+  };
+  function key(e) {
+    if (!open) return;
+    if (e.key === 'ArrowDown') setHi(Math.min(hi + 1, keys.length - 1));
+    else if (e.key === 'ArrowUp') setHi(Math.max(hi - 1, 0));
+    else if (e.key === 'Enter') pick(keys[hi]);
+    else if (e.key === 'Escape')
+      setOpen(false); // close the list, not the dialog
+    else return;
+    e.preventDefault();
+  }
+
+  return (
+    <div className="picker" ref={box} onKeyDown={key}>
+      <button
+        type="button"
+        className={'picker-btn' + (open ? ' open' : '')}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => {
+          setOpen(!open);
+          setHi(Math.max(0, keys.indexOf(value)));
+        }}
+      >
+        {STATUS_LABEL[value]}
+        <span className="caret">▾</span>
+      </button>
+      {open && (
+        <div className="picker-pop">
+          <ul role="listbox">
+            {keys.map((k, i) => (
+              <li
+                key={k}
+                role="option"
+                aria-selected={k === value}
+                className={(i === hi ? 'hi' : '') + (k === value ? ' sel' : '')}
+                onPointerEnter={() => setHi(i)}
+                onClick={() => pick(k)}
+              >
+                {STATUS_LABEL[k]}
+                {k === value && <span className="tick">✓</span>}
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
-      <datalist id="task-names">
-        {tasks.map(t => (
-          <option key={t.name} value={t.name} />
-        ))}
-      </datalist>
-    </dialog>
+    </div>
   );
 }

@@ -4,7 +4,7 @@ import { fmt, isoWeek, monday, workRange, addDays } from '../../lib/days';
 export const C = 12; // strip index of the anchor week's Wednesday (strip = 5 weeks of workdays)
 export const SEAM = 26; // px, weekend seam (matches --seam)
 export const PAD = 18,
-  ROW = 56,
+  ROW = 54,
   GAP = 30; // px: top padding, lane height, gap between category groups
 export const stripOf = w => workRange(addDays(w, -14), addDays(w, 20)); // 25 workdays, anchor Mon at index 10
 
@@ -99,7 +99,7 @@ function Piece({ x, d, hover, arrive }) {
     'piece' +
     (d === x.from ? ' first' : '') +
     (d === x.to ? ' last' : '') +
-    (x.status === 'doing' || x.status === 'done' ? ' ' + x.status : '') +
+    (x.status ? ' ' + x.status : '') +
     (x.striped ? ' striped' : '') +
     (x.key === 'draft' ? ' draft' : '') +
     (x.live ? ' live' : '') +
@@ -124,7 +124,8 @@ function Piece({ x, d, hover, arrive }) {
   );
 }
 
-export const STATUS_LABEL = { todo: 'To do', doing: 'Doing', done: 'Done' };
+// In the order they're listed everywhere (editor, Settings → Categories).
+export const STATUS_LABEL = { todo: 'To do', doing: 'In progress', hold: 'On hold', done: 'Completed', cancelled: 'Cancelled' };
 
 // The task name across every visible day of its bar.
 function Label({ x, strip, vis, hover, arrive, noted }) {
@@ -139,6 +140,7 @@ function Label({ x, strip, vis, hover, arrive, noted }) {
     (x.arrive ? ' arrive' : '');
   return (
     <div
+      data-label={x.key}
       className={cls}
       style={{
         '--i': i0 - C,
@@ -151,7 +153,7 @@ function Label({ x, strip, vis, hover, arrive, noted }) {
       {x.status && <i className={'st ' + x.status} title={STATUS_LABEL[x.status]} />}
       {x.key === 'draft' ? x.name || `${x.days.length} day${x.days.length > 1 ? 's' : ''}` : x.name}
       {noted.has(x.name) && (
-        <span className="noted" title="Has notes">
+        <span className="noted" title="Has a description">
           ✎
         </span>
       )}

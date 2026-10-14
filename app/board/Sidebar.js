@@ -5,53 +5,63 @@ import { Trash } from './CategoryDelete';
 import MiniCal from './MiniCal';
 import CategoryDialog from './CategoryDialog';
 
-// Right column: mini calendar, categories (with built-in Others), then the tasks you work on most.
-export default function Sidebar({ open, calendar, logs, today, colorOf, onLog, categories }) {
+// Right column: mini calendar, categories (with built-in Others), then the tasks you chose to pick up again.
+export default function Sidebar({ open, calendar, today, tasks, colorOf, onLog, onUnpin, categories }) {
   return (
     <aside className={'side' + (open ? ' open' : '')}>
       <section className="card">
         <MiniCal {...calendar} today={today} />
       </section>
       <Categories {...categories} />
-      <PickUpCard logs={logs} today={today} colorOf={colorOf} onLog={onLog} />
+      <PickUpCard tasks={tasks} colorOf={colorOf} onLog={onLog} onUnpin={onUnpin} />
     </aside>
   );
 }
 
-// The tasks you've put the most into lately; one click logs them again for today.
-function PickUpCard({ logs, today, colorOf, onLog }) {
-  const by = new Map();
-  for (const l of logs) {
-    if (l.day > today) continue;
-    const t = by.get(l.name) ?? { name: l.name, label: l.label, hours: 0, days: 0, last: l.day };
-    t.hours += l.hours || 0;
-    t.days += 1;
-    if (l.day > t.last) t.last = l.day;
-    by.set(l.name, t);
-  }
-  // most hours first, then most days, then most recent
-  const top = [...by.values()].sort((a, b) => b.hours - a.hours || b.days - a.days || b.last.localeCompare(a.last)).slice(0, 6);
-  if (!top.length) return null;
+// Tasks ticked "Pick up again" in the editor; one click logs them again for today, × takes them off the list.
+function PickUpCard({ tasks, colorOf, onLog, onUnpin }) {
+  const [q, setQ] = useState('');
+  const pinned = tasks.filter(t => t.pinned);
+  const list = pinned.filter(t => (t.name + ' ' + t.label).toLowerCase().includes(q.trim().toLowerCase()));
   return (
     <section className="card today-card">
       <div className="card-head">
         <b>Pick up again</b>
-        <span className="muted tiny">most worked on</span>
       </div>
-      <ul className="today-list recent">
-        {top.map(t => (
-          <li key={t.name}>
-            <button onClick={() => onLog(t.name, t.label)} title={`Log “${t.name}” for today`}>
-              <i className="dot-s" style={{ '--c': colorOf(t.label) }} />
-              <span>{t.name}</span>
-              <small>
-                {+t.hours.toFixed(1)}h · {t.days}d
-              </small>
-              <em>＋</em>
-            </button>
-          </li>
-        ))}
-      </ul>
+      {pinned.length > 0 && (
+        <input
+          className="pick-search"
+          type="search"
+          value={q}
+          onChange={e => setQ(e.target.value)}
+          placeholder="Search tasks…"
+          aria-label="Search Pick up again"
+        />
+      )}
+      {pinned.length > 0 && !list.length && <p className="muted tiny">No task matches “{q.trim()}”.</p>}
+      {list.length ? (
+        <ul className="today-list recent">
+          {list.map(t => (
+            <li key={t.name}>
+              <button onClick={() => onLog(t.name, t.label)} title={`Log “${t.name}” for today`}>
+                <i className="dot-s" style={{ '--c': colorOf(t.label) }} />
+                <span>{t.name}</span>
+                <em>＋</em>
+              </button>
+              <button
+                className="unpin"
+                onClick={() => onUnpin(t.name)}
+                title="Take off this list"
+                aria-label={`Take ${t.name} off this list`}
+              >
+                ×
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        !pinned.length && <p className="muted tiny">Tick “Pick up again” when you log a task to keep it here.</p>
+      )}
     </section>
   );
 }

@@ -8,6 +8,7 @@ import MiniCal from '../board/MiniCal';
 import { getDay, notesByCategory, pageDays, saveDay } from './actions';
 import '../board/sidebar.css';
 import './journal.css';
+import { zoom } from '../../lib/zoom';
 
 // A starting point for an empty page.
 const TEMPLATE =
@@ -135,8 +136,9 @@ export default function Journal({ initialDay }) {
     } else flush();
   }
   const at = e => {
-    const r = canvas.current.getBoundingClientRect();
-    return [e.clientX - r.left - 10, e.clientY - r.top - 14];
+    const r = canvas.current.getBoundingClientRect(),
+      z = zoom();
+    return [(e.clientX - r.left) / z - 10, (e.clientY - r.top) / z - 14];
   };
   function canvasDown(e) {
     if (e.target !== canvas.current || e.button !== 0) return;
@@ -435,12 +437,12 @@ function Note({ n, cat, color, focus, flash, dim, onText, onMove, onLeave, onMen
     if (e.button !== 0) return;
     e.preventDefault();
     e.stopPropagation();
-    const s = { x: e.clientX, y: e.clientY, nx: n.x, ny: n.y, w: n.w };
+    const s = { x: e.clientX, y: e.clientY, nx: n.x, ny: n.y, w: n.w, z: zoom() };
     const mv = ev =>
       onMove(
         mode === 'move'
-          ? { x: Math.max(0, s.nx + ev.clientX - s.x), y: Math.max(0, s.ny + ev.clientY - s.y) }
-          : { w: Math.min(1400, Math.max(160, s.w + ev.clientX - s.x)) },
+          ? { x: Math.max(0, s.nx + (ev.clientX - s.x) / s.z), y: Math.max(0, s.ny + (ev.clientY - s.y) / s.z) }
+          : { w: Math.min(1400, Math.max(160, s.w + (ev.clientX - s.x) / s.z)) },
       );
     const up = () => {
       removeEventListener('pointermove', mv);
@@ -493,10 +495,11 @@ function Note({ n, cat, color, focus, flash, dim, onText, onMove, onLeave, onMen
 // Right-click menu, kept on screen; closes on outside click, Escape or scroll.
 function Menu({ menu, onClose, children }) {
   const ref = useRef(null);
-  const [pos, setPos] = useState({ left: menu.x, top: menu.y });
+  const [pos, setPos] = useState(() => ({ left: menu.x / zoom(), top: menu.y / zoom() }));
   useEffect(() => {
-    const r = ref.current.getBoundingClientRect();
-    setPos({ left: Math.min(menu.x, innerWidth - r.width - 8), top: Math.min(menu.y, innerHeight - r.height - 8) });
+    const r = ref.current.getBoundingClientRect(),
+      z = zoom();
+    setPos({ left: Math.min(menu.x, innerWidth - r.width - 8) / z, top: Math.min(menu.y, innerHeight - r.height - 8) / z });
     const close = e =>
       (e.type !== 'pointerdown' || !ref.current.contains(e.target)) && (e.type !== 'keydown' || e.key === 'Escape') && onClose();
     addEventListener('pointerdown', close);

@@ -33,7 +33,7 @@ export async function load(from, to) {
         from logs l join tasks t on t.id = l.task_id
         where t.owner = ${owner} and l.day between ${from} and ${to}
         order by l.day`,
-    sql`select name, label, notes, status from tasks where owner = ${owner} order by name`,
+    sql`select name, label, notes, status, pinned from tasks where owner = ${owner} order by name`,
     sql`select name, hue, color from categories where owner = ${owner} order by name`,
   ]);
   return { logs, tasks, cats };
@@ -98,11 +98,11 @@ function checkOld(old) {
   checkRange(old.from, old.to);
 }
 
-const STATUSES = ['todo', 'doing', 'done'];
+const STATUSES = ['todo', 'doing', 'hold', 'done', 'cancelled'];
 
 // old = { taskId, from, to } of the bar being edited; it's replaced in the same transaction.
-// notes / status: undefined keeps the task's existing value.
-export async function saveBar({ name, label, days, old, notes, status }) {
+// notes / status / pinned: undefined keeps the task's existing value.
+export async function saveBar({ name, label, days, old, notes, status, pinned }) {
   const owner = await me();
   name = String(name || '')
     .trim()
@@ -112,6 +112,7 @@ export async function saveBar({ name, label, days, old, notes, status }) {
     .slice(0, 40);
   notes = notes === undefined ? null : String(notes).slice(0, 20000);
   status = STATUSES.includes(status) ? status : null;
+  pinned = typeof pinned === 'boolean' ? pinned : null;
   if (!name || !Array.isArray(days) || !days.length || days.length > 62) throw new Error('Name and 1–62 days required');
   for (const d of days) {
     if (!isDay(d.day)) throw new Error('Bad date');
@@ -120,14 +121,38 @@ export async function saveBar({ name, label, days, old, notes, status }) {
   if (old) checkOld(old);
   await sql.transaction([
     ...(old ? [deleteOld(owner, old)] : []),
-    sql`insert into tasks (owner, name, label, notes, status) values (${owner}, ${name}, ${label}, coalesce(${notes}, ''), coalesce(${status}, 'todo'))
+    sql`insert into tasks (owner, name, label, notes, status, pinned)
+        values (${owner}, ${name}, ${label}, coalesce(${notes}, ''), coalesce(${status}, 'todo'), coalesce(${pinned}, false))
         on conflict (owner, name) do update set label = excluded.label, notes = coalesce(${notes}, tasks.notes),
-          status = coalesce(${status}, tasks.status)`,
+          status = coalesce(${status}, tasks.status), pinned = coalesce(${pinned}, tasks.pinned)`,
     sql`insert into logs (task_id, day, hours)
         select (select id from tasks where owner = ${owner} and name = ${name}), x.d, x.h
         from unnest(${days.map(d => d.day)}::date[], ${days.map(d => d.hours)}::numeric[]) as x(d, h)
         on conflict (task_id, day) do update set hours = coalesce(excluded.hours, logs.hours)`,
+    ...(old ? [dropIfEmpty(owner, old.taskId)] : []), // renamed: the old name has nothing left
   ]);
+}
+
+// Take a task off (or put it on) the sidebar's "Pick up again" list.
+export async function pinTask(name, pinned) {
+  const owner = await me();
+  await sql`update tasks set pinned = ${!!pinned} where owner = ${owner} and name = ${String(name || '')}`;
+}
+
+// Settings → Categories: a task dropped into another status column.
+export async function setStatus(name, status) {
+  const owner = await me();
+  if (!STATUSES.includes(status)) throw new Error('Bad status');
+  await sql`update tasks set status = ${status} where owner = ${owner} and name = ${String(name || '')}`;
+}
+
+// Every logged day of one task (same shape as load()'s logs), so its latest stint can open in the editor.
+export async function taskLogs(name) {
+  const owner = await me();
+  return sql`select t.id, t.name, t.label, t.status, to_char(l.day, 'YYYY-MM-DD') as day, l.hours::float as hours
+             from logs l join tasks t on t.id = l.task_id
+             where t.owner = ${owner} and t.name = ${String(name || '')}
+             order by l.day`;
 }
 
 // Hours logged per day, for the fill of each day in the mini calendar.
@@ -140,10 +165,21 @@ export async function busyDays(from, to) {
              group by l.day`;
 }
 
+// A task lives as long as it has logged days: removing its last bar (or renaming it) removes it too.
+const dropIfEmpty = (owner, taskId) =>
+  sql`delete from tasks t where t.owner = ${owner} and t.id = ${taskId}
+      and not exists (select 1 from logs l where l.task_id = t.id)`;
+
 export async function removeBar(old) {
   const owner = await me();
   checkOld(old);
-  await deleteOld(owner, old);
+  await sql.transaction([deleteOld(owner, old), dropIfEmpty(owner, old.taskId)]);
+}
+
+// Settings → Categories: delete a whole task, every logged day with it.
+export async function deleteTask(name) {
+  const owner = await me();
+  await sql`delete from tasks where owner = ${owner} and name = ${String(name || '')}`; // logs go with it (on delete cascade)
 }
 
 // Analytics, as of the client's local `today`: daily totals for 26 weeks, plus categories and top tasks for 30 days.

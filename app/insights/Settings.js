@@ -7,9 +7,9 @@ import '../account/account.css';
 import '../admin/admin.css';
 
 // One settings section at a time, picked in the sidebar: appearance, categories, sign-in, admin (admins only; checked by the page).
-export default function Settings({ section, session, row, cats, welcome }) {
+export default function Settings({ section, session, row, cats, tasks, welcome }) {
   return (
-    <div className={'set' + (section === 'admin' ? ' wide' : '')} key={section}>
+    <div className={'set' + (section === 'admin' ? ' wide' : section === 'categories' ? ' full' : '')} key={section}>
       {section === 'appearance' && (
         <section className="set-sec">
           <h2>Appearance</h2>
@@ -26,9 +26,7 @@ export default function Settings({ section, session, row, cats, welcome }) {
 
       {section === 'categories' && (
         <section className="set-sec">
-          <h2>Categories</h2>
-          <p className="muted set-lead">Group your tasks and journal notes. Up to 8, each with its own colour.</p>
-          <CategorySettings cats={cats} />
+          <CategorySettings cats={cats} tasks={tasks} />
         </section>
       )}
 

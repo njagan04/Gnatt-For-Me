@@ -41,13 +41,15 @@ export default function MiniCal({ month, setMonth, today, from, to, day, marks =
       .filter(Boolean)
       .join(' ');
     const title = `${fmt(d, { weekday: 'short', day: 'numeric', month: 'short' })}${h !== undefined ? ` · ${+h.toFixed(1)}h` : ''}`;
-    const props = { key: d, className: cls, style: { '--f': f }, title };
+    const props = { className: cls, style: { '--f': f }, title };
     return byDay ? (
-      <button {...props} onClick={() => onPick(d)}>
+      <button key={d} {...props} onClick={() => onPick(d)}>
         {Number(d.slice(8))}
       </button>
     ) : (
-      <span {...props}>{Number(d.slice(8))}</span>
+      <span key={d} {...props}>
+        {Number(d.slice(8))}
+      </span>
     );
   };
 
