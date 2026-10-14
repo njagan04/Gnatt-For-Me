@@ -491,7 +491,8 @@ dialog.nudge {
   animation: spin 0.7s linear infinite;
 }
 
-/* task status: a small glyph (hollow = to do, half = doing, filled = done) in the bar name and the editor */
+/* task status: a small glyph in the bar name, the editor and the lists.
+   dotted ring = to do, half = in progress, pause = on hold, check = completed, cross = cancelled */
 .st {
   display: inline-block;
   flex: none;
@@ -502,10 +503,20 @@ dialog.nudge {
   border: 1.5px solid currentColor;
   vertical-align: 0;
 }
+.st.todo {
+  border-style: dotted;
+}
 .st.doing {
   background: conic-gradient(currentColor 0 50%, transparent 0);
 }
-.st.done {
+.st.hold {
+  width: 8px;
+  border: 0;
+  border-radius: 0;
+  background: linear-gradient(90deg, currentColor 0 3px, transparent 3px 5px, currentColor 5px);
+}
+.st.done,
+.st.cancelled {
   width: auto;
   height: auto;
   border: 0;
