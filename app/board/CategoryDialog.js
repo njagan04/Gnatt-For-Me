@@ -5,6 +5,7 @@ import { CAT_HUES, SHADES } from '../../lib/palette';
 // "New category" / "Colour for …": a small card like the app's other dialogs. Name + an Excel-style colour grid
 // (8 families across, base on top, lighter tints and darker shades below). A family another category uses is
 // greyed out. The chosen colour's code is shown and saved. onSave(name, hue, color).
+// edit = { cat } to recolour, {} for a new one, or { name } for a new one with its name filled in.
 export default function CategoryDialog({ edit, cats, onSave, onClose }) {
   const ref = useRef(null);
   const [name, setName] = useState('');
@@ -15,7 +16,7 @@ export default function CategoryDialog({ edit, cats, onSave, onClose }) {
   useEffect(() => {
     if (!edit) return;
     const col = edit.cat ? CAT_HUES.indexOf(edit.cat.hue % 1000) : CAT_HUES.findIndex((_, i) => !owner(i));
-    setName(edit.cat?.name ?? '');
+    setName(edit.cat?.name ?? edit.name ?? '');
     setPick(col < 0 ? null : { col, color: edit.cat?.color || SHADES[col][0] });
     if (!ref.current.open) ref.current.showModal();
   }, [edit]);

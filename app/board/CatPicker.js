@@ -1,9 +1,9 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { catColor } from '../../lib/palette';
+import { catColor, MAX_CATS } from '../../lib/palette';
 
-// Searchable dropdown over the categories made in the sidebar. No free typing.
-export default function CatPicker({ cats, value, onChange }) {
+// Searchable dropdown over your categories. No free typing; onNew(name) offers a new one (opens the colour card).
+export default function CatPicker({ cats, value, onChange, onNew }) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
   const [hi, setHi] = useState(0);
@@ -81,8 +81,21 @@ export default function CatPicker({ cats, value, onChange }) {
                 {c.name === value && <span className="tick">✓</span>}
               </li>
             ))}
-            {!opts.length && <li className="none muted">No match. Create it in the sidebar.</li>}
+            {!opts.length && <li className="none muted">No match.</li>}
           </ul>
+          {onNew && cats.length < MAX_CATS && (
+            <button
+              type="button"
+              className="picker-new"
+              onClick={() => {
+                setOpen(false);
+                setQ('');
+                onNew(q.trim());
+              }}
+            >
+              ＋ {q.trim() && !opts.length ? `New category “${q.trim()}”` : 'New category'}
+            </button>
+          )}
         </div>
       )}
     </div>

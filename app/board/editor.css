@@ -1,85 +1,43 @@
-/* Editor dialog and the "delete category?" card: tabs, fields, category dropdown, hours. */
-/* editor tabs */
-.tabs {
-  display: flex;
-  gap: 22px;
-  margin: 0 -24px 18px;
-  padding: 0 24px;
-  border-bottom: 1px solid var(--line);
-}
-.tabs button {
-  position: relative;
-  border: 0;
-  background: none;
-  padding: 10px 2px;
-  border-radius: 0;
-  color: var(--muted);
-  font-weight: 600;
-  font-size: 13.5px;
-}
-.tabs button::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: 2.5px;
-  border-radius: 2px;
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
-  transform: scaleX(0);
-  transition: transform 0.25s var(--spring);
-}
-.tabs button:hover {
-  color: var(--text);
-}
-.tabs button.on {
-  color: var(--accent);
-}
-.tabs button.on::after {
-  transform: scaleX(1);
-}
-.tabs button:active {
-  transform: none;
-}
+/* Editor dialog and the "delete category?" card: fields, category dropdown, hours. */
 .tab-body {
   animation: rise 0.25s var(--ease);
 }
-.tab-stack {
-  flex: 1;
-  min-height: 0;
-  display: grid;
+/* "Pick up again" filled the card in: say so */
+.autofill-note {
+  margin: 0 0 14px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--text);
+  background: color-mix(in oklab, #f5a524 16%, var(--panel));
+  border: 1px solid color-mix(in oklab, #f5a524 45%, transparent);
 }
-.tab-stack > .tab-body {
-  grid-area: 1 / 1;
-  min-width: 0;
+.autofill-note::before {
+  content: '⚠  ';
 }
-.tab-body.off {
-  visibility: hidden;
-  animation: none;
-}
-.notes textarea {
-  flex: 1;
+/* task description, under the name */
+.tab-body textarea.desc {
   width: 100%;
-  resize: none;
-  padding: 14px 16px;
-  font: 14px/1.6 inherit;
+  min-height: 52px;
+  max-height: 180px;
+  resize: vertical;
+  padding: 9px 11px;
+  font: 14px/1.5 inherit;
+  font-weight: 400;
   color: var(--text);
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 10px;
   outline: none;
   background: var(--panel-2);
+  field-sizing: content; /* grows with what you type, where supported */
   transition:
     border-color 0.15s,
     box-shadow 0.15s;
 }
-.notes textarea:focus {
+.tab-body textarea.desc:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgb(91 91 246 / 0.18);
-}
-.notes {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
 }
 
 /* hours: one equaliser bar per day */
@@ -259,6 +217,9 @@ dialog.confirm {
   gap: 10px;
   margin-bottom: 4px;
 }
+.dates .field {
+  margin-bottom: 8px;
+}
 .dates label {
   display: grid;
   gap: 5px;
@@ -271,7 +232,7 @@ dialog.confirm {
   font-weight: 400;
 }
 
-/* category dropdown */
+/* category and status dropdowns */
 .picker {
   position: relative;
   font-weight: 400;
@@ -340,6 +301,22 @@ dialog.confirm {
 }
 .picker-pop li.sel {
   font-weight: 600;
+}
+.picker-new {
+  width: 100%;
+  margin-top: 4px;
+  padding: 8px 9px;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0 0 7px 7px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  background: none;
+}
+.picker-new:hover {
+  background: var(--panel-2);
 }
 .picker-pop li.none {
   cursor: default;
@@ -528,32 +505,25 @@ dialog.nudge {
 .st.done::before {
   content: '✓';
 }
-.status-pick {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
-  padding: 3px;
-  border-radius: 10px;
-  background: var(--panel-2);
-  border: 1px solid var(--line);
+.st.cancelled::before {
+  content: '✕';
 }
-.status-pick button {
+/* "Pick up again" tick in the editor */
+.tab-body > label.pin-check {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 2px;
-  padding: 6px 8px;
-  border: 0;
-  border-radius: 7px;
+  gap: 8px;
+  margin: -4px 0 14px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--muted);
-  background: none;
-}
-.status-pick button.on {
   color: var(--text);
-  background: var(--panel);
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.18);
+  cursor: pointer;
+}
+.pin-check input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--accent);
 }
 
 /* category card: name + Excel-style colour grid */

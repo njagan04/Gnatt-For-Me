@@ -438,8 +438,9 @@ export default function Board({ user, picture }) {
     const label = bar?.label ?? preset.label ?? (focus || '');
     const known = data.tasks.find(t => t.name === name);
     const notes = known?.notes ?? '';
-    const status = known?.status ?? 'doing'; // logging hours on something new means you're on it
-    setEd({ bar, from, to, name, label, hours, notes, status, tab: 'details', y: preset.y ?? PAD });
+    const status = preset.status ?? known?.status ?? 'doing'; // logging hours on something new means you're on it
+    const pinned = known?.pinned ?? false;
+    setEd({ bar, from, to, name, label, hours, notes, status, pinned, y: preset.y ?? PAD, autofill: !!preset.autofill });
   }
   // "Pick up again": jump to this week and open today's entry for that task, filled in (its usual hours),
   // or its existing bar if today is already logged.
@@ -468,7 +469,10 @@ export default function Board({ user, picture }) {
     setEd({ ...ed, busy: true });
     if (!bar && !ed.label) setArrive({ name: name.trim(), from: list[0].day, y: ed.y });
     setTimeout(() => setArrive(null), 1500);
-    run(() => saveBar({ name, label: ed.label, days: list, old: bar && oldOf(bar), notes: ed.notes, status: ed.status }), 'Saved');
+    run(
+      () => saveBar({ name, label: ed.label, days: list, old: bar && oldOf(bar), notes: ed.notes, status: ed.status, pinned: ed.pinned }),
+      'Saved',
+    );
   };
   const del = () => {
     setEd({ ...ed, busy: true });

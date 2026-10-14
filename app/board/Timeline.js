@@ -152,7 +152,7 @@ function Label({ x, strip, vis, hover, arrive, noted }) {
       {x.status && <i className={'st ' + x.status} title={STATUS_LABEL[x.status]} />}
       {x.key === 'draft' ? x.name || `${x.days.length} day${x.days.length > 1 ? 's' : ''}` : x.name}
       {noted.has(x.name) && (
-        <span className="noted" title="Has notes">
+        <span className="noted" title="Has a description">
           ✎
         </span>
       )}
