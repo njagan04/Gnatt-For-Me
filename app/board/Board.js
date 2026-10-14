@@ -332,12 +332,7 @@ export default function Board({ user, picture }) {
       to = b.to,
       hourAt;
     const byDay = Object.fromEntries(b.days.map(l => [l.day, l.hours]));
-    if (drag?.key === b.key && drag.move) {
-      const s = moveBy(drag);
-      from = addWork(b.from, s);
-      to = addWork(b.to, s);
-      hourAt = d => byDay[addWork(d, -s)];
-    } else if (drag?.key === b.key) {
+    if (drag?.key === b.key && !drag.move) {
       [from, to] = [drag.fixed, drag.cur].sort();
       hourAt = d => byDay[d];
     } else if (ed && (ed.bar ? keyOf(ed.bar) === b.key : b.key === 'draft')) {
@@ -372,10 +367,19 @@ export default function Board({ user, picture }) {
     const el = e.target.closest('[data-bar]');
     const bar = el && bars.find(b => b.key === el.dataset.bar);
     const edge = e.target.dataset.edge;
-    if (bar && !edge) press.current = { bar, key: bar.key, move: true, origin: d, cur: d };
+    if (bar && !edge) press.current = { bar, key: bar.key, move: true, origin: d, cur: d, x0: e.clientX };
     else if (bar) press.current = { bar, key: bar.key, fixed: edge === 'l' ? bar.to : bar.from, cur: d };
-    else press.current = { fixed: d, cur: d, y: Math.max(PAD, e.clientY - drumRef.current.getBoundingClientRect().top - 20) };
+    else press.current = { fixed: d, cur: d, y: Math.max(PAD, (e.clientY - drumRef.current.getBoundingClientRect().top) / zoom() - 20) };
     e.currentTarget.setPointerCapture(e.pointerId);
+  }
+  // A bar being moved follows the pointer pixel for pixel (styles set directly, no re-render per frame);
+  // on release it snaps to the day under the pointer, or glides back if it didn't change day.
+  function slide(key, dx) {
+    for (const el of drumRef.current.querySelectorAll(`[data-bar="${key}"], [data-label="${key}"]`)) {
+      el.style.transition = dx === null ? '' : 'none';
+      el.style.translate = dx === null ? '' : `${dx}px -2px`;
+      el.style.zIndex = dx === null ? '' : el.dataset.label ? 7 : 6;
+    }
   }
   function move(e) {
     const cur = drag ?? press.current;
@@ -384,6 +388,7 @@ export default function Board({ user, picture }) {
       if (k !== hover) setHover(k);
       return;
     }
+    if (cur.move && (drag || Math.abs(e.clientX - cur.x0) > 3)) slide(cur.key, (e.clientX - cur.x0) / zoom());
     const d = dayAt(e);
     if (d && d !== cur.cur && inVis(d)) {
       press.current = null;
@@ -395,6 +400,7 @@ export default function Board({ user, picture }) {
     press.current = null;
     if (!d) return;
     if (drag) setDrag(null);
+    if (d.move) slide(d.key, null);
     if (d.move) {
       const s = moveBy(d);
       return s ? moveBar(d.bar, s) : clickBar(d.bar, e.timeStamp);
@@ -566,6 +572,8 @@ export default function Board({ user, picture }) {
             onPointerUp: up,
             onPointerLeave: () => !drag && setHover(null),
             onPointerCancel: () => {
+              const d = drag ?? press.current;
+              if (d?.move) slide(d.key, null);
               press.current = null;
               setDrag(null);
             },

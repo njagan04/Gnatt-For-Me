@@ -140,6 +140,7 @@ function Label({ x, strip, vis, hover, arrive, noted }) {
     (x.arrive ? ' arrive' : '');
   return (
     <div
+      data-label={x.key}
       className={cls}
       style={{
         '--i': i0 - C,
