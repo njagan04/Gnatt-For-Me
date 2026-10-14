@@ -28,6 +28,16 @@ export default async function Page({ searchParams }) {
           (select count(*) from journal j, jsonb_array_elements(j.notes) n where j.owner = c.owner and n->>'cat' = c.name)::int as notes
           from categories c where c.owner = ${session.user} order by c.name`
       : [];
-  const settings = tab === 'settings' && <Settings section={section} session={session} row={row} cats={cats} welcome={!!q.welcome} />;
+  // every task with its category, status, description, first/last logged day and totals, for the per-category status lists
+  const tasks =
+    tab === 'settings' && section === 'categories'
+      ? await sql`select t.name, t.label, t.status, t.notes, t.pinned, to_char(min(l.day), 'YYYY-MM-DD') as first, to_char(max(l.day), 'YYYY-MM-DD') as last,
+          coalesce(sum(l.hours), 0)::float as hours, count(l.day)::int as days
+          from tasks t left join logs l on l.task_id = t.id
+          where t.owner = ${session.user} group by t.id order by max(l.day) desc nulls last, t.name`
+      : [];
+  const settings = tab === 'settings' && (
+    <Settings section={section} session={session} row={row} cats={cats} tasks={tasks} welcome={!!q.welcome} />
+  );
   return <Insights me={me} admin={admin} tab={tab} section={section} day={q.day || null} settings={settings} />;
 }
