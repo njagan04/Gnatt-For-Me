@@ -86,9 +86,6 @@ export default function CategorySettings({ cats, tasks }) {
       <header className="cs-top">
         <div>
           <h2>Categories</h2>
-          <p className="muted">
-            Group your tasks and journal notes · {cats.length} of {MAX_CATS} colours used · tasks without a category live in Others
-          </p>
         </div>
         {cats.length < MAX_CATS && (
           <button className="primary" onClick={() => setEdit({})}>

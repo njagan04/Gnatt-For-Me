@@ -682,14 +682,14 @@ main.insights {
 }
 .cs-top {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
   margin-bottom: 4px;
 }
 .cs-top h2 {
-  margin: 0 0 4px;
+  margin: 0;
   font-size: 22px;
   letter-spacing: -0.015em;
 }
@@ -776,7 +776,7 @@ button.cs-swatch:hover {
   border-radius: 8px;
   font: inherit;
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text);
   background: none;
 }
@@ -800,7 +800,7 @@ input.cs-name:focus {
   padding: 3px 9px;
   border-radius: 99px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
   background: var(--panel-2);
@@ -809,6 +809,7 @@ input.cs-name:focus {
 .cs-tally span b {
   margin-left: 5px;
   color: var(--c);
+  font-weight: 600;
 }
 .cs-tally span.zero {
   opacity: 0.4;
@@ -861,7 +862,7 @@ button.cs-del:hover {
   gap: 2px;
   padding: 0 4px 4px;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--muted);
@@ -876,6 +877,7 @@ button.cs-del:hover {
   color: var(--text);
   background: var(--panel-2);
   font-variant-numeric: tabular-nums;
+  font-weight: 500;
 }
 .cs-task {
   display: grid;
@@ -902,6 +904,7 @@ button.cs-del:hover {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-weight: 500;
 }
 .cs-task p {
   margin: 0;
@@ -919,9 +922,11 @@ button.cs-del:hover {
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
-.cs-col.done .cs-task,
-.cs-col.cancelled .cs-task {
-  opacity: 0.75;
+.pri-tag {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 500;
+  color: var(--text);
 }
 .cs-add {
   width: min(100%, 250px);
@@ -931,7 +936,7 @@ button.cs-del:hover {
   text-align: left;
   font: inherit;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--text);
   background: none;
   cursor: pointer;
@@ -988,6 +993,7 @@ button.cs-task {
   text-align: right;
   font-size: 13px;
   font-variant-numeric: tabular-nums;
+  font-weight: 600;
 }
 .cs-key {
   width: 8px;
