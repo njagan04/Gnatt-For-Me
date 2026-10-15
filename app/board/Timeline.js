@@ -125,6 +125,7 @@ function Piece({ x, d, hover, arrive }) {
 }
 
 // In the order they're listed everywhere (editor, Settings → Categories).
+export const PRIORITY_LABEL = { low: 'Low', medium: 'Medium', high: 'High' };
 export const STATUS_LABEL = { todo: 'To do', doing: 'In progress', hold: 'On hold', done: 'Completed', cancelled: 'Cancelled' };
 
 // The task name across every visible day of its bar.

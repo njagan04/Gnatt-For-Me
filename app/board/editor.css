@@ -217,6 +217,38 @@ dialog.confirm {
   gap: 10px;
   margin-bottom: 4px;
 }
+.dates.three {
+  grid-template-columns: 1.3fr 1fr 1fr;
+}
+/* priority marker: one, two or three rising bars */
+.pri {
+  flex: none;
+  display: inline-block;
+  width: 11px;
+  height: 10px;
+  margin-right: 6px;
+  --on: currentColor;
+  --off: color-mix(in oklab, currentColor, transparent 75%);
+  background:
+    linear-gradient(var(--on), var(--on)) 0 100% / 3px 40% no-repeat,
+    linear-gradient(var(--b2), var(--b2)) 4px 100% / 3px 70% no-repeat,
+    linear-gradient(var(--b3), var(--b3)) 8px 100% / 3px 100% no-repeat;
+}
+.pri.low {
+  --b2: var(--off);
+  --b3: var(--off);
+  color: #8a93a6;
+}
+.pri.medium {
+  --b2: var(--on);
+  --b3: var(--off);
+  color: #e0a21b;
+}
+.pri.high {
+  --b2: var(--on);
+  --b3: var(--on);
+  color: var(--danger);
+}
 .dates .field {
   margin-bottom: 8px;
 }

@@ -7,7 +7,7 @@ import { deleteCategory, deleteTask, renameCategory, saveBar, saveCategory, setS
 import CategoryDelete, { Trash } from '../../board/CategoryDelete';
 import CategoryDialog from '../../board/CategoryDialog';
 import EditorDialog from '../../board/EditorDialog';
-import { STATUS_LABEL } from '../../board/Timeline';
+import { PRIORITY_LABEL, STATUS_LABEL } from '../../board/Timeline';
 
 const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
 const short = d => fmt(d, { day: 'numeric', month: 'short' });
@@ -56,7 +56,20 @@ export default function CategorySettings({ cats, tasks }) {
       const [from, to] = bar ? [bar.from, bar.to] : [d, d];
       const hours = Object.fromEntries(workRange(from, to).map(x => [x, list.find(l => l.day === x)?.hours ?? '']));
       setLogs(list);
-      setEd({ bar, from, to, orig: t.name, name: t.name, label: t.label, hours, notes: t.notes, status: t.status, pinned: t.pinned, y: 0 });
+      setEd({
+        bar,
+        from,
+        to,
+        orig: t.name,
+        name: t.name,
+        label: t.label,
+        hours,
+        notes: t.notes,
+        status: t.status,
+        pinned: t.pinned,
+        priority: t.priority,
+        y: 0,
+      });
     } catch (e) {
       setErr(e.message || 'Could not open the task');
     }
@@ -77,8 +90,8 @@ export default function CategorySettings({ cats, tasks }) {
     e.preventDefault();
     const days = workRange(ed.from, ed.to).map(day => ({ day, hours: ed.hours[day] === '' ? null : Number(ed.hours[day]) }));
     if (!days.length) return setErr('Pick at least one weekday');
-    const { name, label, notes, status, pinned, bar } = ed;
-    closeAndRefresh(() => saveBar({ name, label, days, old: oldOf(bar), notes, status, pinned }));
+    const { name, label, notes, status, pinned, priority, bar } = ed;
+    closeAndRefresh(() => saveBar({ name, label, days, old: oldOf(bar), notes, status, pinned, priority }));
   };
 
   return (
@@ -104,7 +117,7 @@ export default function CategorySettings({ cats, tasks }) {
           tasks={shown.filter(t => t.label === c.name)}
           meta={`${+c.hours.toFixed(1)}h · ${plural(c.notes, 'note')}`}
           onTask={openTask}
-          onNew={() => openTask({ name: '', label: c.name, status: 'todo', notes: '', pinned: false })}
+          onNew={() => openTask({ name: '', label: c.name, status: 'todo', notes: '', pinned: false, priority: 'medium' })}
           onDrop={drop}
           open={openCat === c.name}
           onToggle={() => toggle(c.name)}
@@ -148,7 +161,7 @@ export default function CategorySettings({ cats, tasks }) {
           name="Others"
           tasks={others}
           onTask={openTask}
-          onNew={() => openTask({ name: '', label: '', status: 'todo', notes: '', pinned: false })}
+          onNew={() => openTask({ name: '', label: '', status: 'todo', notes: '', pinned: false, priority: 'medium' })}
           onDrop={drop}
           open={openCat === ''}
           onToggle={() => toggle('')}
@@ -278,7 +291,13 @@ function Card({ color, name, tasks, meta, open, onToggle, onTask, onNew, onDrop,
                   >
                     <b title={t.name}>{t.name}</b>
                     {t.notes && <p>{t.notes}</p>}
-                    <small>{span(t)}</small>
+                    <small>
+                      <span className={'pri-tag ' + t.priority}>
+                        <i className={'pri ' + t.priority} />
+                        {PRIORITY_LABEL[t.priority]}
+                      </span>
+                      {span(t)}
+                    </small>
                   </button>
                 ))
               ) : (

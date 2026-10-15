@@ -33,7 +33,7 @@ export async function load(from, to) {
         from logs l join tasks t on t.id = l.task_id
         where t.owner = ${owner} and l.day between ${from} and ${to}
         order by l.day`,
-    sql`select name, label, notes, status, pinned from tasks where owner = ${owner} order by name`,
+    sql`select name, label, notes, status, pinned, priority from tasks where owner = ${owner} order by name`,
     sql`select name, hue, color from categories where owner = ${owner} order by name`,
   ]);
   return { logs, tasks, cats };
@@ -99,10 +99,11 @@ function checkOld(old) {
 }
 
 const STATUSES = ['todo', 'doing', 'hold', 'done', 'cancelled'];
+const PRIORITIES = ['low', 'medium', 'high'];
 
 // old = { taskId, from, to } of the bar being edited; it's replaced in the same transaction.
-// notes / status / pinned: undefined keeps the task's existing value.
-export async function saveBar({ name, label, days, old, notes, status, pinned }) {
+// notes / status / pinned / priority: undefined keeps the task's existing value.
+export async function saveBar({ name, label, days, old, notes, status, pinned, priority }) {
   const owner = await me();
   name = String(name || '')
     .trim()
@@ -113,6 +114,7 @@ export async function saveBar({ name, label, days, old, notes, status, pinned })
   notes = notes === undefined ? null : String(notes).slice(0, 20000);
   status = STATUSES.includes(status) ? status : null;
   pinned = typeof pinned === 'boolean' ? pinned : null;
+  priority = PRIORITIES.includes(priority) ? priority : null;
   if (!name || !Array.isArray(days) || !days.length || days.length > 62) throw new Error('Name and 1–62 days required');
   for (const d of days) {
     if (!isDay(d.day)) throw new Error('Bad date');
@@ -121,10 +123,12 @@ export async function saveBar({ name, label, days, old, notes, status, pinned })
   if (old) checkOld(old);
   await sql.transaction([
     ...(old ? [deleteOld(owner, old)] : []),
-    sql`insert into tasks (owner, name, label, notes, status, pinned)
-        values (${owner}, ${name}, ${label}, coalesce(${notes}, ''), coalesce(${status}, 'todo'), coalesce(${pinned}, false))
+    sql`insert into tasks (owner, name, label, notes, status, pinned, priority)
+        values (${owner}, ${name}, ${label}, coalesce(${notes}, ''), coalesce(${status}, 'todo'), coalesce(${pinned}, false),
+          coalesce(${priority}, 'medium'))
         on conflict (owner, name) do update set label = excluded.label, notes = coalesce(${notes}, tasks.notes),
-          status = coalesce(${status}, tasks.status), pinned = coalesce(${pinned}, tasks.pinned)`,
+          status = coalesce(${status}, tasks.status), pinned = coalesce(${pinned}, tasks.pinned),
+          priority = coalesce(${priority}, tasks.priority)`,
     sql`insert into logs (task_id, day, hours)
         select (select id from tasks where owner = ${owner} and name = ${name}), x.d, x.h
         from unnest(${days.map(d => d.day)}::date[], ${days.map(d => d.hours)}::numeric[]) as x(d, h)

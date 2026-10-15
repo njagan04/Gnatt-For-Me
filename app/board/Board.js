@@ -467,7 +467,8 @@ export default function Board({ user, picture }) {
     const notes = known?.notes ?? '';
     const status = preset.status ?? known?.status ?? 'doing'; // logging hours on something new means you're on it
     const pinned = known?.pinned ?? false;
-    setEd({ bar, from, to, name, label, hours, notes, status, pinned, y: preset.y ?? PAD, autofill: !!preset.autofill });
+    const priority = known?.priority ?? 'medium';
+    setEd({ bar, from, to, name, label, hours, notes, status, pinned, priority, y: preset.y ?? PAD, autofill: !!preset.autofill });
   }
   // "Pick up again": jump to this week and open today's entry for that task, filled in (its usual hours),
   // or its existing bar if today is already logged.
@@ -497,7 +498,17 @@ export default function Board({ user, picture }) {
     if (!bar && !ed.label) setArrive({ name: name.trim(), from: list[0].day, y: ed.y });
     setTimeout(() => setArrive(null), 1500);
     run(
-      () => saveBar({ name, label: ed.label, days: list, old: bar && oldOf(bar), notes: ed.notes, status: ed.status, pinned: ed.pinned }),
+      () =>
+        saveBar({
+          name,
+          label: ed.label,
+          days: list,
+          old: bar && oldOf(bar),
+          notes: ed.notes,
+          status: ed.status,
+          pinned: ed.pinned,
+          priority: ed.priority,
+        }),
       'Saved',
     );
   };
