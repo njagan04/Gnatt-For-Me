@@ -63,4 +63,6 @@ await sql`alter table journal drop column if exists body`;
 await sql`alter table categories add column if not exists color text not null default ''`;
 // Tasks ticked "Pick up again" in the editor show in the board sidebar's list.
 await sql`alter table tasks add column if not exists pinned boolean not null default false`;
+// Task priority, set in the editor: low | medium | high.
+await sql`alter table tasks add column if not exists priority text not null default 'medium'`;
 console.log('tables ready');

@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Link from 'next/link';
 import { catColor, MAX_CATS, striped } from '../../lib/palette';
 import { Trash } from './CategoryDelete';
 import MiniCal from './MiniCal';
@@ -75,9 +76,9 @@ function Categories({ cats, total, focus, setFocus, onAdd, onRecolor, onAskDelet
       <div className="card-head">
         <b>Categories</b>
         <span className="spacer" />
-        <a href="/insights?tab=settings&section=categories" className="link manage" title="Rename, recolour and delete categories">
+        <Link href="/insights?tab=settings&section=categories" className="link manage" title="Rename, recolour and delete categories">
           Manage
-        </a>
+        </Link>
       </div>
       <ul className="cats">
         {cats.map(c => (

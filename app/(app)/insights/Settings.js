@@ -1,10 +1,11 @@
-import AccountForm from '../account/AccountForm';
-import AdminUsers from '../admin/AdminUsers';
+import Link from 'next/link';
+import AccountForm from '../../account/AccountForm';
+import AdminUsers from '../../admin/AdminUsers';
 import CategorySettings from './CategorySettings';
-import ThemeSwitch from '../board/ThemeSwitch';
-import '../board/editor.css';
-import '../account/account.css';
-import '../admin/admin.css';
+import ThemeSwitch from '../../board/ThemeSwitch';
+import '../../board/editor.css';
+import '../../account/account.css';
+import '../../admin/admin.css';
 
 // One settings section at a time, picked in the sidebar: appearance, categories, sign-in, admin (admins only; checked by the page).
 export default function Settings({ section, session, row, cats, tasks, welcome }) {
@@ -40,9 +41,9 @@ export default function Settings({ section, session, row, cats, tasks, welcome }
                   Your account is ready. Pick a username and password so you can also sign in on devices without Google.
                 </p>
               </div>
-              <a href="/home" className="back">
+              <Link href="/home" className="back">
                 Skip for now →
-              </a>
+              </Link>
             </div>
           )}
           <h2>Sign-in</h2>

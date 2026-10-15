@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
-import { getUser } from '../../lib/auth';
-import { sql } from '../../lib/db';
-import Board from '../board/Board';
+import { getUser } from '../../../lib/auth';
+import { sql } from '../../../lib/db';
+import Board from '../../board/Board';
 
 export const metadata = { title: 'Board · GanttForMe' };
 

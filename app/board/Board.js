@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { deleteCategory, load, pinTask, removeBar, saveBar, saveCategory } from '../actions';
 import { addDays, addWork, diff, isWork, monday, pack, toBars, today as todayStr, wdiff, workRange } from '../../lib/days';
 import { catColor, freeHue, MAX_CATS, striped } from '../../lib/palette';
@@ -23,6 +24,7 @@ const typing = e => e.target.closest?.('input, textarea, select');
 // The board page: owns the data, the continuous week scroll, drag/click handling and every save.
 // Drawing lives in TopBar / Timeline / Sidebar / EditorDialog / CategoryDelete.
 export default function Board({ user, picture }) {
+  const router = useRouter();
   const [week, setWeek] = useState(null); // Monday of the anchor week; set on mount so server/client "today" can't mismatch
   const [month, setMonth] = useState(null);
   const [data, setData] = useState({ logs: [], tasks: [], cats: [] });
@@ -73,12 +75,14 @@ export default function Board({ user, picture }) {
 
   // Move both tracks (one transform each) and pin each week label to the left edge while its week is on screen.
   // Offsets snap to whole device pixels: a fractional translate on a will-change layer renders the text blurry.
+  // A CSS px is devicePixelRatio × page zoom device pixels (the site renders at 90%, globals.css).
   function place(v) {
     const w = colW.current,
       track = trackRef.current,
       head = headRef.current;
     if (!track || !head) return;
-    const px = x => Math.round(x * devicePixelRatio) / devicePixelRatio;
+    const dp = devicePixelRatio * zoom();
+    const px = x => Math.round(x * dp) / dp;
     track.style.transform = head.style.transform = `translate3d(${px(-v * w + shift.current)}px, 0, 0)`;
     for (const el of head.querySelectorAll('.wk')) {
       const left = (Number(el.dataset.i) - v + 3) * w + SEAM + shift.current; // week rows start after the weekend seam
@@ -99,9 +103,11 @@ export default function Board({ user, picture }) {
     const n = reduced || Math.abs(t - o) < 0.002 ? t : o + (t - o) * 0.16;
     applyOff(n);
     raf.current = n === t ? null : requestAnimationFrame(tick);
+    if (!raf.current) boardRef.current?.classList.remove('moving'); // at rest: drop the layer so text is crisp
     if (Math.abs(n) >= 5 - 1e-6 && !anchoring.current && !goal.current) reanchor(Math.sign(n)); // a pending jump owns the next load
   }
   const kick = () => {
+    boardRef.current?.classList.add('moving');
     raf.current ??= requestAnimationFrame(tick);
   };
 
@@ -187,6 +193,8 @@ export default function Board({ user, picture }) {
       boardRef.current.style.setProperty('--w', colW.current + 'px');
       // the dimmed preview column at each edge: only the part of it still on screen
       boardRef.current.style.setProperty('--edge', Math.max(0, colW.current + shift.current) + 'px');
+      // too narrow for whole preview columns: the slivers left at the edges are blanked instead of showing cut-off bits
+      boardRef.current.toggleAttribute('data-tight', shift.current < 0);
       place(off.current);
     });
     ro.observe(el);
@@ -377,7 +385,7 @@ export default function Board({ user, picture }) {
   function slide(key, dx) {
     for (const el of drumRef.current.querySelectorAll(`[data-bar="${key}"], [data-label="${key}"]`)) {
       el.style.transition = dx === null ? '' : 'none';
-      el.style.translate = dx === null ? '' : `${dx}px -2px`;
+      el.style.translate = dx === null ? '' : `${dx}px -4px`; // lifted like a hovered bar
       el.style.zIndex = dx === null ? '' : el.dataset.label ? 7 : 6;
     }
   }
@@ -465,7 +473,8 @@ export default function Board({ user, picture }) {
     const notes = known?.notes ?? '';
     const status = preset.status ?? known?.status ?? 'doing'; // logging hours on something new means you're on it
     const pinned = known?.pinned ?? false;
-    setEd({ bar, from, to, name, label, hours, notes, status, pinned, y: preset.y ?? PAD, autofill: !!preset.autofill });
+    const priority = known?.priority ?? 'medium';
+    setEd({ bar, from, to, name, label, hours, notes, status, pinned, priority, y: preset.y ?? PAD, autofill: !!preset.autofill });
   }
   // "Pick up again": jump to this week and open today's entry for that task, filled in (its usual hours),
   // or its existing bar if today is already logged.
@@ -495,7 +504,17 @@ export default function Board({ user, picture }) {
     if (!bar && !ed.label) setArrive({ name: name.trim(), from: list[0].day, y: ed.y });
     setTimeout(() => setArrive(null), 1500);
     run(
-      () => saveBar({ name, label: ed.label, days: list, old: bar && oldOf(bar), notes: ed.notes, status: ed.status, pinned: ed.pinned }),
+      () =>
+        saveBar({
+          name,
+          label: ed.label,
+          days: list,
+          old: bar && oldOf(bar),
+          notes: ed.notes,
+          status: ed.status,
+          pinned: ed.pinned,
+          priority: ed.priority,
+        }),
       'Saved',
     );
   };
@@ -565,7 +584,7 @@ export default function Board({ user, picture }) {
           noted={noted}
           dayTotal={dayTotal}
           dragging={!!drag}
-          onOpenDay={d => location.assign('/insights?tab=journal&day=' + d)}
+          onOpenDay={d => router.push('/insights?tab=journal&day=' + d)}
           handlers={{
             onPointerDown: down,
             onPointerMove: move,
@@ -581,6 +600,7 @@ export default function Board({ user, picture }) {
         />
         <Sidebar
           open={sideOpen}
+          today={today}
           calendar={{
             month: month ?? addDays(shown, 3).slice(0, 8) + '01',
             setMonth,

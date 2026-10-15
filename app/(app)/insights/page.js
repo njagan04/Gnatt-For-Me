@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
-import { getSession, isAdmin } from '../../lib/auth';
-import { sql } from '../../lib/db';
+import { getSession, isAdmin } from '../../../lib/auth';
+import { sql } from '../../../lib/db';
 import Insights from './Insights';
 import Settings from './Settings';
 
@@ -31,7 +31,7 @@ export default async function Page({ searchParams }) {
   // every task with its category, status, description, first/last logged day and totals, for the per-category status lists
   const tasks =
     tab === 'settings' && section === 'categories'
-      ? await sql`select t.name, t.label, t.status, t.notes, t.pinned, to_char(min(l.day), 'YYYY-MM-DD') as first, to_char(max(l.day), 'YYYY-MM-DD') as last,
+      ? await sql`select t.name, t.label, t.status, t.notes, t.pinned, t.priority, to_char(min(l.day), 'YYYY-MM-DD') as first, to_char(max(l.day), 'YYYY-MM-DD') as last,
           coalesce(sum(l.hours), 0)::float as hours, count(l.day)::int as days
           from tasks t left join logs l on l.task_id = t.id
           where t.owner = ${session.user} group by t.id order by max(l.day) desc nulls last, t.name`

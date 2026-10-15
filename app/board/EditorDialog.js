@@ -4,7 +4,7 @@ import { fmt, workRange } from '../../lib/days';
 import CatPicker from './CatPicker';
 import CategoryDialog from './CategoryDialog';
 import HoursEditor from './HoursEditor';
-import { STATUS_LABEL } from './Timeline';
+import { PRIORITY_LABEL, STATUS_LABEL } from './Timeline';
 
 const MAX_DAYS = 45; // workdays per bar
 
@@ -26,6 +26,7 @@ export default function EditorDialog({ dlgRef, ed, setEd, tasks, cats, logs, col
       label: known && !ed.label ? known.label : ed.label,
       notes: known && !ed.notes ? known.notes : ed.notes,
       status: known ? known.status : ed.status,
+      priority: known ? known.priority : ed.priority,
       pinned: known ? known.pinned : ed.pinned,
     });
   }
@@ -106,14 +107,18 @@ export default function EditorDialog({ dlgRef, ed, setEd, tasks, cats, logs, col
                   placeholder="Links, decisions, what's left to do…"
                 />
               </label>
-              <div className="dates">
+              <div className="dates three">
                 <div className="field">
                   <span>Category</span>
                   <CatPicker cats={cats} value={ed.label} onChange={label => setEd({ ...ed, label })} onNew={name => setNewCat({ name })} />
                 </div>
                 <div className="field">
                   <span>Status</span>
-                  <StatusPicker value={ed.status} onChange={status => setEd({ ...ed, status })} />
+                  <OptionPicker options={STATUS_LABEL} value={ed.status} onChange={status => setEd({ ...ed, status })} />
+                </div>
+                <div className="field">
+                  <span>Priority</span>
+                  <OptionPicker options={PRIORITY_LABEL} value={ed.priority} onChange={priority => setEd({ ...ed, priority })} dot />
                 </div>
               </div>
               <div className="dates">
@@ -160,12 +165,12 @@ export default function EditorDialog({ dlgRef, ed, setEd, tasks, cats, logs, col
   );
 }
 
-// Status dropdown, styled like the category one (no search: there are only five).
-function StatusPicker({ value, onChange }) {
+// A short dropdown (status, priority), styled like the category one; no search. dot: a priority marker before each.
+function OptionPicker({ options, value, onChange, dot }) {
   const [open, setOpen] = useState(false);
   const [hi, setHi] = useState(0);
   const box = useRef(null);
-  const keys = Object.keys(STATUS_LABEL);
+  const keys = Object.keys(options);
 
   useEffect(() => {
     if (!open) return;
@@ -201,7 +206,8 @@ function StatusPicker({ value, onChange }) {
           setHi(Math.max(0, keys.indexOf(value)));
         }}
       >
-        {STATUS_LABEL[value]}
+        {dot && <i className={'pri ' + value} />}
+        {options[value]}
         <span className="caret">▾</span>
       </button>
       {open && (
@@ -216,7 +222,8 @@ function StatusPicker({ value, onChange }) {
                 onPointerEnter={() => setHi(i)}
                 onClick={() => pick(k)}
               >
-                {STATUS_LABEL[k]}
+                {dot && <i className={'pri ' + k} />}
+                {options[k]}
                 {k === value && <span className="tick">✓</span>}
               </li>
             ))}

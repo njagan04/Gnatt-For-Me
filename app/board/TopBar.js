@@ -1,12 +1,10 @@
+import Link from 'next/link';
 import { fmt } from '../../lib/days';
 
-// Logo, week navigation, the visible range, "New", the in-view total and the account menu.
+// Week navigation, the visible range, "New", the in-view total and the account menu.
 export default function TopBar({ user, picture, loading, from, to, total, onPrev, onToday, onNext, onNew, onSide }) {
   return (
     <header className="top" data-loading={loading || undefined}>
-      <div className="brand" title="GanttForMe">
-        <span className="logo" />
-      </div>
       <nav className="nav">
         <button className="icon" onClick={onPrev} aria-label="Previous week" title="Previous week (←)">
           ‹
@@ -36,9 +34,9 @@ export default function TopBar({ user, picture, loading, from, to, total, onPrev
           <path d="M4 10h16M9 3v4M15 3v4" />
         </svg>
       </button>
-      <a href="/insights" className="avatar" title="Insights & settings" aria-label="Insights and settings">
+      <Link href="/insights" className="avatar" title="Insights & settings" aria-label="Insights and settings">
         {picture ? <img src={picture} alt="" referrerPolicy="no-referrer" /> : user[0].toUpperCase()}
-      </a>
+      </Link>
     </header>
   );
 }
