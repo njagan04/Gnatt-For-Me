@@ -10,7 +10,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* must run before first paint (theme) and before the page is revealed (slide direction) */}
+        {/* must run before first paint: applies the saved theme */}
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className={inter.className}>{children}</body>

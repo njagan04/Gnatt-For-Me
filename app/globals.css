@@ -453,49 +453,6 @@ input:focus {
   box-shadow: 0 1px 3px rgb(0 0 0 / 0.18);
 }
 
-/* ---------- page slide between the board and your page (cross-document view transitions) ----------
-   The direction is chosen in lib/theme.js; other navigations skip the animation. */
-@view-transition {
-  navigation: auto;
-}
-@keyframes vt-push-in {
-  from {
-    transform: translateX(100%);
-  }
-}
-@keyframes vt-push-out {
-  to {
-    transform: translateX(-28%);
-    opacity: 0.5;
-  }
-}
-@keyframes vt-pop-out {
-  to {
-    transform: translateX(100%);
-  }
-}
-@keyframes vt-pop-in {
-  from {
-    transform: translateX(-28%);
-    opacity: 0.5;
-  }
-}
-html:active-view-transition-type(to-me)::view-transition-old(root) {
-  animation: vt-push-out 0.8s cubic-bezier(0.22, 0.8, 0.2, 1) both;
-}
-html:active-view-transition-type(to-me)::view-transition-new(root) {
-  animation: vt-push-in 0.8s cubic-bezier(0.22, 0.8, 0.2, 1) both;
-  box-shadow: -24px 0 60px rgb(0 0 0 / 0.35);
-}
-html:active-view-transition-type(to-board)::view-transition-old(root) {
-  z-index: 1;
-  animation: vt-pop-out 0.8s cubic-bezier(0.22, 0.8, 0.2, 1) both;
-  box-shadow: -24px 0 60px rgb(0 0 0 / 0.35);
-}
-html:active-view-transition-type(to-board)::view-transition-new(root) {
-  animation: vt-pop-in 0.8s cubic-bezier(0.22, 0.8, 0.2, 1) both;
-}
-
 /* thin, theme-coloured scrollbars everywhere (the board, the daily log, settings, the rails) */
 * {
   scrollbar-width: thin;
