@@ -193,6 +193,8 @@ export default function Board({ user, picture }) {
       boardRef.current.style.setProperty('--w', colW.current + 'px');
       // the dimmed preview column at each edge: only the part of it still on screen
       boardRef.current.style.setProperty('--edge', Math.max(0, colW.current + shift.current) + 'px');
+      // too narrow for whole preview columns: the slivers left at the edges are blanked instead of showing cut-off bits
+      boardRef.current.toggleAttribute('data-tight', shift.current < 0);
       place(off.current);
     });
     ro.observe(el);
