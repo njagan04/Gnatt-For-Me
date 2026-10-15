@@ -581,6 +581,7 @@ export default function Board({ user, picture }) {
         />
         <Sidebar
           open={sideOpen}
+          today={today}
           calendar={{
             month: month ?? addDays(shown, 3).slice(0, 8) + '01',
             setMonth,
