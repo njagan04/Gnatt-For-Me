@@ -71,7 +71,6 @@ button.icon.sm {
 .board-head .track {
   position: absolute;
   inset: 0;
-  will-change: transform;
 }
 .head-cell {
   position: absolute;
@@ -153,10 +152,15 @@ button.icon.sm {
 .drum.dragging * {
   cursor: grabbing !important;
 }
-/* the strip slides as one layer (transform set from JS), so scrolling only moves pixels */
+/* the strip slides as one layer (transform set from JS), so scrolling only moves pixels. The layer exists only
+   while it moves (.moving, set by Board): a resting layer at the page's 90% zoom lands on a fractional pixel and
+   Chrome draws its text blurry; without it the text is drawn crisp. */
 .track {
   position: absolute;
   inset: 0;
+}
+.board.moving .track,
+.board.moving .wk-label {
   will-change: transform;
 }
 .panel {
@@ -243,7 +247,6 @@ button.icon.sm {
   white-space: nowrap;
   font-size: 10.5px;
   color: var(--muted);
-  will-change: translate; /* pinned to the left edge from JS while its week is on screen */
 }
 .wk-label b {
   font-size: 11px;
@@ -330,6 +333,9 @@ button.icon.sm {
   position: absolute;
   left: 0;
   right: -1px;
+  /* resting bars carry the same small offset a hovered bar has: with the page at 90% that's what draws the name
+     and the cancelled line crisp (a bar left at its plain position lands between pixels and looks soft) */
+  translate: 0 -2px;
   height: 44px;
   padding: 0 10px 4px;
   z-index: 1;
@@ -348,7 +354,8 @@ button.icon.sm {
     translate 0.2s var(--ease);
   --le: inset 0 0 transparent;
   --re: inset 0 0 transparent;
-  --lift: 0 0 transparent;
+  /* every bar rests like a raised card; hovering lifts it a little more */
+  --lift: 0 6px 14px -9px color-mix(in oklab, var(--c) 60%, transparent);
   box-shadow: var(--le), var(--re), var(--lift);
 }
 .piece.first {
@@ -366,9 +373,10 @@ button.icon.sm {
 }
 .piece.hov,
 .piece.live {
-  translate: 0 -2px;
+  translate: 0 -4px;
   z-index: 2;
 }
+.piece.hov,
 .piece.live {
   --lift: 0 10px 22px -10px color-mix(in oklab, var(--c) 70%, transparent);
 }
@@ -446,15 +454,10 @@ button.icon.sm {
   width: 4px;
   border-radius: 4px;
   background: var(--c);
-  opacity: 0;
-  transform: scaleY(0.4);
+  opacity: 0.9; /* the grips show on every bar, not only under the mouse */
   transition:
     opacity 0.15s,
     transform 0.2s var(--spring);
-}
-.piece.hov .edge::after {
-  opacity: 0.9;
-  transform: none;
 }
 .piece .edge:hover::after {
   transform: scaleY(1.25);
@@ -481,8 +484,11 @@ button.icon.sm {
     opacity 0.3s,
     translate 0.2s var(--ease);
 }
+.bar-label {
+  translate: 0 -2px; /* sits with its resting bar (see .piece) */
+}
 .bar-label.hov {
-  translate: 0 -2px;
+  translate: 0 -4px; /* and lifts with it */
 }
 .bar-label.dim {
   opacity: 0.5;

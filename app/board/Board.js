@@ -75,12 +75,14 @@ export default function Board({ user, picture }) {
 
   // Move both tracks (one transform each) and pin each week label to the left edge while its week is on screen.
   // Offsets snap to whole device pixels: a fractional translate on a will-change layer renders the text blurry.
+  // A CSS px is devicePixelRatio × page zoom device pixels (the site renders at 90%, globals.css).
   function place(v) {
     const w = colW.current,
       track = trackRef.current,
       head = headRef.current;
     if (!track || !head) return;
-    const px = x => Math.round(x * devicePixelRatio) / devicePixelRatio;
+    const dp = devicePixelRatio * zoom();
+    const px = x => Math.round(x * dp) / dp;
     track.style.transform = head.style.transform = `translate3d(${px(-v * w + shift.current)}px, 0, 0)`;
     for (const el of head.querySelectorAll('.wk')) {
       const left = (Number(el.dataset.i) - v + 3) * w + SEAM + shift.current; // week rows start after the weekend seam
@@ -101,9 +103,11 @@ export default function Board({ user, picture }) {
     const n = reduced || Math.abs(t - o) < 0.002 ? t : o + (t - o) * 0.16;
     applyOff(n);
     raf.current = n === t ? null : requestAnimationFrame(tick);
+    if (!raf.current) boardRef.current?.classList.remove('moving'); // at rest: drop the layer so text is crisp
     if (Math.abs(n) >= 5 - 1e-6 && !anchoring.current && !goal.current) reanchor(Math.sign(n)); // a pending jump owns the next load
   }
   const kick = () => {
+    boardRef.current?.classList.add('moving');
     raf.current ??= requestAnimationFrame(tick);
   };
 
@@ -379,7 +383,7 @@ export default function Board({ user, picture }) {
   function slide(key, dx) {
     for (const el of drumRef.current.querySelectorAll(`[data-bar="${key}"], [data-label="${key}"]`)) {
       el.style.transition = dx === null ? '' : 'none';
-      el.style.translate = dx === null ? '' : `${dx}px -2px`;
+      el.style.translate = dx === null ? '' : `${dx}px -4px`; // lifted like a hovered bar
       el.style.zIndex = dx === null ? '' : el.dataset.label ? 7 : 6;
     }
   }
