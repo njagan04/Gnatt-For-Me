@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { deleteCategory, load, pinTask, removeBar, saveBar, saveCategory } from '../actions';
 import { addDays, addWork, diff, isWork, monday, pack, toBars, today as todayStr, wdiff, workRange } from '../../lib/days';
 import { catColor, freeHue, MAX_CATS, striped } from '../../lib/palette';
@@ -23,6 +24,7 @@ const typing = e => e.target.closest?.('input, textarea, select');
 // The board page: owns the data, the continuous week scroll, drag/click handling and every save.
 // Drawing lives in TopBar / Timeline / Sidebar / EditorDialog / CategoryDelete.
 export default function Board({ user, picture }) {
+  const router = useRouter();
   const [week, setWeek] = useState(null); // Monday of the anchor week; set on mount so server/client "today" can't mismatch
   const [month, setMonth] = useState(null);
   const [data, setData] = useState({ logs: [], tasks: [], cats: [] });
@@ -565,7 +567,7 @@ export default function Board({ user, picture }) {
           noted={noted}
           dayTotal={dayTotal}
           dragging={!!drag}
-          onOpenDay={d => location.assign('/insights?tab=journal&day=' + d)}
+          onOpenDay={d => router.push('/insights?tab=journal&day=' + d)}
           handlers={{
             onPointerDown: down,
             onPointerMove: move,

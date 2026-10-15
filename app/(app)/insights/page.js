@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
-import { getSession, isAdmin } from '../../lib/auth';
-import { sql } from '../../lib/db';
+import { getSession, isAdmin } from '../../../lib/auth';
+import { sql } from '../../../lib/db';
 import Insights from './Insights';
 import Settings from './Settings';
 

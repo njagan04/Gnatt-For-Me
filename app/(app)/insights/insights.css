@@ -18,145 +18,19 @@ main.insights {
   color: var(--text);
   background: var(--panel-2);
 }
-.me-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 800;
+.page-title {
   font-size: 15px;
+  font-weight: 700;
 }
 .insights .avatar.on {
   box-shadow:
     0 0 0 2px var(--panel),
     0 0 0 4px rgb(91 91 246 / 0.5);
 }
-img.avatar {
-  object-fit: cover;
-}
 
 /* ---------- your page: sidebar + content ---------- */
 .me {
-  display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
-  min-height: calc(var(--screen) - 51px);
-  /* the sidebar divider runs the full page height, however long the content */
-  background: linear-gradient(90deg, color-mix(in oklab, var(--panel), transparent 30%) 239px, var(--line) 239px 240px, transparent 240px);
-}
-.me-side {
-  position: sticky;
-  top: 51px;
-  align-self: start;
-  height: calc(var(--screen) - 51px);
-  display: flex;
-  flex-direction: column;
-  padding: 18px 12px 12px;
-}
-.me-nav {
-  display: grid;
-  gap: 2px;
-}
-.me-label {
-  margin: 14px 12px 6px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-  opacity: 0.8;
-}
-.me-label:first-child {
-  margin-top: 0;
-}
-.me-nav a {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  padding: 8px 12px;
-  border-radius: 9px;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--muted);
-  text-decoration: none;
-  transition:
-    background 0.15s,
-    color 0.15s;
-}
-.me-nav a:hover {
-  color: var(--text);
-  background: var(--panel-2);
-}
-.me-nav a.on {
-  color: var(--text);
-  font-weight: 600;
-  background: rgb(91 91 246 / 0.12);
-}
-/* accent bar on the active item */
-.me-nav a.on::before {
-  content: '';
-  position: absolute;
-  left: -12px;
-  top: 7px;
-  bottom: 7px;
-  width: 3px;
-  border-radius: 0 3px 3px 0;
-  background: var(--accent);
-}
-.me-nav a.on svg {
-  color: var(--accent);
-}
-.me-foot {
-  margin-top: auto;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px;
-  border-radius: 12px;
-  border: 1px solid var(--line);
-  background: var(--panel);
-}
-.me-foot .avatar.big {
-  width: 34px;
-  height: 34px;
-  font-size: 14px;
-  flex: none;
-}
-.me-who {
-  flex: 1;
-  display: grid;
-  min-width: 0;
-}
-.me-who b,
-.me-who span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.me-who b {
-  font-size: 13px;
-}
-.me-who span {
-  font-size: 12px;
-  color: var(--muted);
-}
-.me-out {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  padding: 0;
-  border: 0;
-  border-radius: 8px;
-  cursor: pointer;
-  color: var(--muted);
-  background: none;
-  transition:
-    background 0.15s,
-    color 0.15s;
-}
-.me-out:hover {
-  color: var(--danger);
-  background: color-mix(in oklab, var(--danger), transparent 90%);
+  min-height: calc(var(--screen) - var(--top-h));
 }
 .me-main {
   min-width: 0;
@@ -223,37 +97,6 @@ img.avatar {
   margin: 0;
 }
 @media (max-width: 760px) {
-  /* phone: one scrollable row of sections, then you + log out */
-  .me {
-    grid-template-columns: minmax(0, 1fr);
-    background: none;
-  }
-  .me-side {
-    position: static;
-    height: auto;
-    gap: 10px;
-    padding: 10px 12px;
-    border-bottom: 1px solid var(--line);
-  }
-  .me-nav {
-    display: flex;
-    gap: 4px;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .me-label {
-    display: none;
-  }
-  .me-nav a {
-    flex: none;
-    padding: 7px 11px;
-  }
-  .me-nav a.on::before {
-    display: none;
-  }
-  .me-foot {
-    margin-top: 0;
-  }
   .set {
     padding: 20px 16px 48px;
   }

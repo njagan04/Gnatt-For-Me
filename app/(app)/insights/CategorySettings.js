@@ -1,13 +1,13 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { addWork, fmt, isWork, today, toBars, workRange } from '../../lib/days';
-import { catColor, MAX_CATS } from '../../lib/palette';
-import { deleteCategory, deleteTask, renameCategory, saveBar, saveCategory, setStatus, taskLogs } from '../actions';
-import CategoryDelete, { Trash } from '../board/CategoryDelete';
-import CategoryDialog from '../board/CategoryDialog';
-import EditorDialog from '../board/EditorDialog';
-import { STATUS_LABEL } from '../board/Timeline';
+import { addWork, fmt, isWork, today, toBars, workRange } from '../../../lib/days';
+import { catColor, MAX_CATS } from '../../../lib/palette';
+import { deleteCategory, deleteTask, renameCategory, saveBar, saveCategory, setStatus, taskLogs } from '../../actions';
+import CategoryDelete, { Trash } from '../../board/CategoryDelete';
+import CategoryDialog from '../../board/CategoryDialog';
+import EditorDialog from '../../board/EditorDialog';
+import { STATUS_LABEL } from '../../board/Timeline';
 
 const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
 const short = d => fmt(d, { day: 'numeric', month: 'short' });

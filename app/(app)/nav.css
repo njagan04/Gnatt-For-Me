@@ -1,0 +1,251 @@
+/* Left rail beside every signed-in page (Shell.js): logo, app navigation, you + log out. Fixed at full width on
+   Insights, Daily log and Settings; on the board a slim column of icons that expands over the calendar on hover.
+   Its logo row is as tall as the pages' top bar (--top-h), so the two border lines meet cleanly. */
+img.avatar {
+  object-fit: cover;
+}
+.shell {
+  --rail-w: 240px;
+  display: grid;
+  grid-template-columns: var(--rail-w) minmax(0, 1fr);
+  min-height: var(--screen);
+}
+.shell.slim {
+  --rail-w: 62px; /* icons line up under the logo */
+}
+.shell-rail {
+  position: sticky;
+  top: 0;
+  z-index: 45;
+  height: var(--screen);
+}
+.shell-main {
+  min-width: 0;
+}
+.me-side {
+  width: var(--rail-w);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0 11px 12px;
+  overflow: hidden;
+  /* its right edge starts at the top bar's bottom line, so the two lines meet at one corner (none beside the logo) */
+  background: linear-gradient(var(--line), var(--line)) right top var(--top-h) / 1px 100% no-repeat var(--panel);
+  transition:
+    width 0.22s var(--ease),
+    box-shadow 0.22s;
+}
+/* the content keeps its full width; a slim rail just shows less of it */
+.me-nav,
+.me-foot {
+  flex: none;
+  width: 218px;
+}
+.shell.slim.open .me-side {
+  width: 240px;
+  box-shadow: 30px 0 60px -24px rgb(0 0 0 / 0.45);
+}
+.rail-brand {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 240px;
+  height: var(--top-h);
+  margin: 0 -11px 16px;
+  padding: 0 17px;
+  font-weight: 800;
+  font-size: 15px;
+  white-space: nowrap;
+  color: var(--text);
+  text-decoration: none;
+}
+.rail-brand .logo {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+}
+.me-nav a span,
+.me-label,
+.me-who,
+.me-out,
+.rail-brand span:last-child {
+  transition: opacity 0.15s;
+}
+.shell.slim:not(.open) :is(.me-nav a span, .me-label, .me-who, .me-out, .rail-brand span:last-child) {
+  opacity: 0;
+}
+.shell.slim:not(.open) .me-foot {
+  border-color: transparent;
+  background: none;
+  padding-inline: 2px;
+}
+/* slim: the selected item is a tinted square around its icon */
+.shell.slim:not(.open) .me-nav a.on {
+  width: 40px;
+  overflow: hidden;
+}
+.me-nav {
+  display: grid;
+  gap: 2px;
+}
+.me-label {
+  margin: 14px 12px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  opacity: 0.8;
+}
+.me-label:first-child {
+  margin-top: 0;
+}
+.me-nav a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 8px 12px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.me-nav a:hover {
+  color: var(--text);
+  background: var(--panel-2);
+}
+.me-nav a.on {
+  color: var(--text);
+  font-weight: 600;
+  background: color-mix(in oklab, var(--accent) 20%, transparent);
+}
+/* accent bar on the active item */
+.me-nav a.on::before {
+  content: '';
+  position: absolute;
+  left: -11px; /* the rail's left edge */
+  top: 7px;
+  bottom: 7px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--accent);
+}
+.me-nav a svg {
+  flex: none; /* never squeezed by the label */
+}
+.me-nav a.on svg {
+  color: var(--accent);
+}
+.me-foot {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+.me-foot .avatar.big {
+  width: 34px;
+  height: 34px;
+  font-size: 14px;
+  flex: none;
+}
+.me-who {
+  flex: 1;
+  display: grid;
+  min-width: 0;
+}
+.me-who b,
+.me-who span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.me-who b {
+  font-size: 13px;
+}
+.me-who span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.me-out {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--muted);
+  background: none;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+.me-out:hover {
+  color: var(--danger);
+  background: color-mix(in oklab, var(--danger), transparent 90%);
+}
+/* on the board, the expanded rail pushes the top bar's controls along instead of covering them */
+.shell.slim .app > .top {
+  transition: padding-left 0.22s var(--ease);
+}
+.shell.slim.open .app > .top {
+  padding-left: calc(18px + 240px - var(--rail-w));
+}
+@media (max-width: 760px) {
+  /* phones: the rail becomes one scrollable row of sections above the page; on the board it's hidden (the avatar
+     in the top bar opens your page) */
+  .shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .shell.slim .shell-rail {
+    display: none;
+  }
+  .shell-rail {
+    position: static;
+    height: auto;
+  }
+  .me-side {
+    width: auto;
+    height: auto;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--panel); /* no edge line: on phones the rail is a strip above the page */
+    border-bottom: 1px solid var(--line);
+  }
+  .rail-brand {
+    display: none;
+  }
+  .me-nav {
+    width: auto;
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .me-label {
+    display: none;
+  }
+  .me-nav a {
+    flex: none;
+    padding: 7px 11px;
+  }
+  .me-nav a.on::before {
+    display: none;
+  }
+  .me-foot {
+    width: auto;
+    margin-top: 0;
+  }
+}

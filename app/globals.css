@@ -2,6 +2,7 @@
    Viewport units shrink with the zoom, so full-screen heights use --screen. Pointer maths divides by it (lib/zoom.js). */
 :root {
   --screen: 100vh;
+  --top-h: 52px; /* every page's top bar, so the rail's logo row lines up with it */
 }
 @media (min-width: 760px) {
   :root {
@@ -273,7 +274,8 @@ input:focus {
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
-  padding: 10px 18px;
+  height: var(--top-h);
+  padding: 0 18px;
   background: color-mix(in oklab, var(--panel) 80%, transparent);
   backdrop-filter: blur(12px) saturate(1.4);
   border-bottom: 1px solid var(--line);
